@@ -1,0 +1,1733 @@
+{
+  "meta": {
+    "source": "Dr.Gowtham's Calendar .xlsx",
+    "sheet": "Example",
+    "weekStartDate": "2025-01-06",
+    "dayStartTime": "7:00 AM",
+    "importedFrom": "scripts/importPlanner.mjs"
+  },
+  "categories": [
+    {
+      "name": "Home",
+      "colorName": "Pale Pink",
+      "hex": "#d5a6bd"
+    },
+    {
+      "name": "Work",
+      "colorName": "Soft Slate",
+      "hex": "#b4c8d5"
+    },
+    {
+      "name": "Family",
+      "colorName": "Soft Mauve",
+      "hex": "#eac7c9"
+    },
+    {
+      "name": "Health",
+      "colorName": "Pale Aqua Mist",
+      "hex": "#d6e5e5"
+    },
+    {
+      "name": "Social",
+      "colorName": "Muted Lavender",
+      "hex": "#dacfe4"
+    },
+    {
+      "name": "Personal",
+      "colorName": "Soft Butter",
+      "hex": "#f3dec1"
+    },
+    {
+      "name": "Finance",
+      "colorName": "Muted Storm Blue",
+      "hex": "#9eafbe"
+    },
+    {
+      "name": "Leisure",
+      "colorName": "Muted Wisteria",
+      "hex": "#b7a8c5"
+    },
+    {
+      "name": "Daily",
+      "colorName": "Soft Mushroom",
+      "hex": "#dfdcd4"
+    },
+    {
+      "name": "Other",
+      "colorName": "Dark Auqua",
+      "hex": "#76a5af"
+    }
+  ],
+  "weekPriorities": [
+    {
+      "text": "Confirm Book Choice",
+      "done": true
+    },
+    {
+      "text": "Organize Birthday Dinner for Petal",
+      "done": true
+    },
+    {
+      "text": "Budget for Spring Trip",
+      "done": true
+    }
+  ],
+  "selfCare": [
+    {
+      "label": "Get 7 Hours of Sleep",
+      "days": [
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "label": "Drink 8 Glasses of Water",
+      "days": [
+        true,
+        false,
+        true,
+        true,
+        true,
+        false,
+        false
+      ]
+    },
+    {
+      "label": "Walk 10,000 Steps",
+      "days": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false
+      ]
+    },
+    {
+      "label": "Eat Breakfast",
+      "days": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false
+      ]
+    },
+    {
+      "label": "Eat Lunch",
+      "days": [
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "label": "Eat Dinner",
+      "days": [
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "label": "Write in Gratitude Journal",
+      "days": [
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "label": "30 Minute Yoga",
+      "days": [
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ]
+    }
+  ],
+  "habits": [
+    {
+      "label": "Plan the Day",
+      "days": [
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "label": "Take Short Breaks to Recharge",
+      "days": [
+        true,
+        true,
+        true,
+        false,
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "label": "Spend 15 Minutes Tidying Room Before Leaving",
+      "days": [
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "label": "Read or Learn Something New",
+      "days": [
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "label": "Talk to 5 People",
+      "days": [
+        true,
+        true,
+        true,
+        false,
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "label": "Limit Screen Time",
+      "days": [
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "label": "Prepare For Tomorrow",
+      "days": [
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ]
+    }
+  ],
+  "days": [
+    {
+      "date": "2025-01-06",
+      "weekday": "Mon",
+      "gratitude": [
+        "I am grateful for the opportunities that come my way every day.",
+        "I am grateful for the love and support from my family.",
+        "I am grateful for the simple joys that make life meaningful."
+      ],
+      "agenda": [
+        {
+          "time": "7:00 AM",
+          "category": "Daily",
+          "task": "Wake Up"
+        },
+        {
+          "time": "7:30 AM",
+          "category": "Health",
+          "task": "30 Minute Yoga"
+        },
+        {
+          "time": "8:00 AM",
+          "category": "Daily",
+          "task": "Get Ready For The Day"
+        },
+        {
+          "time": "8:30 AM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "9:00 AM",
+          "category": "Work",
+          "task": "Send Newsletter"
+        },
+        {
+          "time": "9:30 AM",
+          "category": "Work",
+          "task": "Zoom Meeting"
+        },
+        {
+          "time": "10:00 AM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "10:30 AM",
+          "category": "Social",
+          "task": "Coffee with Olivia"
+        },
+        {
+          "time": "11:00 AM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "11:30 AM",
+          "category": "Health",
+          "task": "Dentist Appointment"
+        },
+        {
+          "time": "12:00 PM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "12:30 PM",
+          "category": "Social",
+          "task": "Lunch with William"
+        },
+        {
+          "time": "1:00 PM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "1:30 PM",
+          "category": "Finance",
+          "task": "Update Income Tracker"
+        },
+        {
+          "time": "2:00 PM",
+          "category": "Finance",
+          "task": "Pay Bills"
+        },
+        {
+          "time": "2:30 PM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "3:00 PM",
+          "category": "Daily",
+          "task": "PIck Kids Up From School"
+        },
+        {
+          "time": "3:30 PM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "4:00 PM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "4:30 PM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "5:00 PM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "5:30 PM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "6:00 PM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "6:30 PM",
+          "category": "Family",
+          "task": "Birthday Dinner at Alex's"
+        },
+        {
+          "time": "7:00 PM",
+          "category": "Family",
+          "task": null
+        },
+        {
+          "time": "7:30 PM",
+          "category": "Family",
+          "task": null
+        },
+        {
+          "time": "8:00 PM",
+          "category": "Family",
+          "task": null
+        },
+        {
+          "time": "8:30 PM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "9:00 PM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "9:30 PM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "10:00 PM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "10:30 PM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "11:00 PM",
+          "category": "Daily",
+          "task": "Bedtime"
+        },
+        {
+          "time": "11:30 PM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "12:00 AM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "12:30 AM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "1:00 AM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "1:30 AM",
+          "category": null,
+          "task": null
+        }
+      ],
+      "todos": [
+        {
+          "n": 1,
+          "done": true,
+          "task": "Confirm Dinner Reservations"
+        },
+        {
+          "n": 2,
+          "done": true,
+          "task": "Pick up apples at the Grocery Store"
+        },
+        {
+          "n": 3,
+          "done": true,
+          "task": "Book Max in for a Grooming Appointment"
+        }
+      ],
+      "reflection": "I stuck to my self-care habits. I had a meaningful conversation with a friend. The weather was beautiful."
+    },
+    {
+      "date": "2025-01-07",
+      "weekday": "Tue",
+      "gratitude": [
+        "I am grateful for the ability to learn and grow through life's challenges.",
+        "I am grateful for the beauty of nature and the peace it brings me.",
+        "I am grateful for the kindness of others and the change to pay it forward."
+      ],
+      "agenda": [
+        {
+          "time": "7:00 AM",
+          "category": "Daily",
+          "task": "Wake Up"
+        },
+        {
+          "time": "7:30 AM",
+          "category": "Health",
+          "task": "30 Minute Yoga"
+        },
+        {
+          "time": "8:00 AM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "8:30 AM",
+          "category": "Work",
+          "task": "Presentation"
+        },
+        {
+          "time": "9:00 AM",
+          "category": "Work",
+          "task": "Q & A"
+        },
+        {
+          "time": "9:30 AM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "10:00 AM",
+          "category": "Work",
+          "task": "Finish Goal Setting"
+        },
+        {
+          "time": "10:30 AM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "11:00 AM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "11:30 AM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "12:00 PM",
+          "category": "Health",
+          "task": "1 Hr Walk"
+        },
+        {
+          "time": "12:30 PM",
+          "category": "Health",
+          "task": null
+        },
+        {
+          "time": "1:00 PM",
+          "category": "Work",
+          "task": "Late Lunch with Francis"
+        },
+        {
+          "time": "1:30 PM",
+          "category": "Work",
+          "task": null
+        },
+        {
+          "time": "2:00 PM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "2:30 PM",
+          "category": "Personal",
+          "task": "Massage"
+        },
+        {
+          "time": "3:00 PM",
+          "category": "Personal",
+          "task": "Massage"
+        },
+        {
+          "time": "3:30 PM",
+          "category": "Daily",
+          "task": "Pick Kids Up From School"
+        },
+        {
+          "time": "4:00 PM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "4:30 PM",
+          "category": "Social",
+          "task": "Play Date with Penny"
+        },
+        {
+          "time": "5:00 PM",
+          "category": "Social",
+          "task": null
+        },
+        {
+          "time": "5:30 PM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "6:00 PM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "6:30 PM",
+          "category": "Family",
+          "task": "Tickets to Wicked"
+        },
+        {
+          "time": "7:00 PM",
+          "category": "Family",
+          "task": null
+        },
+        {
+          "time": "7:30 PM",
+          "category": "Family",
+          "task": null
+        },
+        {
+          "time": "8:00 PM",
+          "category": "Family",
+          "task": null
+        },
+        {
+          "time": "8:30 PM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "9:00 PM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "9:30 PM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "10:00 PM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "10:30 PM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "11:00 PM",
+          "category": "Daily",
+          "task": "Bedtime"
+        },
+        {
+          "time": "11:30 PM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "12:00 AM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "12:30 AM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "1:00 AM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "1:30 AM",
+          "category": null,
+          "task": null
+        }
+      ],
+      "todos": [
+        {
+          "n": 1,
+          "done": true,
+          "task": "Order groceries"
+        },
+        {
+          "n": 2,
+          "done": true,
+          "task": "Buy New Bedding for Petal"
+        },
+        {
+          "n": 3,
+          "done": false,
+          "task": "Order Dog Food"
+        },
+        {
+          "n": 4,
+          "done": false,
+          "task": "Confirm Dinner Reservations"
+        }
+      ],
+      "reflection": "I had lunch with a colleague, and we brainstormed new ideas for a project. I enjoyed a beautiful walk outside. I organized my tasks effectively and managed to finish everything on time."
+    },
+    {
+      "date": "2025-01-08",
+      "weekday": "Wed",
+      "gratitude": [
+        "I am grateful for the comforts of home.",
+        "I am grateful for the freedom to pursue my dreams.",
+        "I am grateful for today and all that it brings."
+      ],
+      "agenda": [
+        {
+          "time": "7:00 AM",
+          "category": "Daily",
+          "task": "Wake Up"
+        },
+        {
+          "time": "7:30 AM",
+          "category": "Health",
+          "task": "30 Minute Yoga"
+        },
+        {
+          "time": "8:00 AM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "8:30 AM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "9:00 AM",
+          "category": "Health",
+          "task": "Dr Appointment"
+        },
+        {
+          "time": "9:30 AM",
+          "category": "Health",
+          "task": null
+        },
+        {
+          "time": "10:00 AM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "10:30 AM",
+          "category": "Work",
+          "task": "Finish Ryder Project"
+        },
+        {
+          "time": "11:00 AM",
+          "category": "Work",
+          "task": null
+        },
+        {
+          "time": "11:30 AM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "12:00 PM",
+          "category": "Social",
+          "task": "Lunch with Jennifer"
+        },
+        {
+          "time": "12:30 PM",
+          "category": "Social",
+          "task": null
+        },
+        {
+          "time": "1:00 PM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "1:30 PM",
+          "category": "Home",
+          "task": "Plumber Appointment"
+        },
+        {
+          "time": "2:00 PM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "2:30 PM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "3:00 PM",
+          "category": "Daily",
+          "task": "PIck up Kids From School"
+        },
+        {
+          "time": "3:30 PM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "4:00 PM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "4:30 PM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "5:00 PM",
+          "category": "Other",
+          "task": "PIck up Sitter"
+        },
+        {
+          "time": "5:30 PM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "6:00 PM",
+          "category": "Leisure",
+          "task": "Date Night"
+        },
+        {
+          "time": "6:30 PM",
+          "category": "Leisure",
+          "task": "Dinner & a Movie"
+        },
+        {
+          "time": "7:00 PM",
+          "category": "Leisure",
+          "task": null
+        },
+        {
+          "time": "7:30 PM",
+          "category": "Leisure",
+          "task": null
+        },
+        {
+          "time": "8:00 PM",
+          "category": "Leisure",
+          "task": null
+        },
+        {
+          "time": "8:30 PM",
+          "category": "Leisure",
+          "task": null
+        },
+        {
+          "time": "9:00 PM",
+          "category": "Other",
+          "task": "Drive Sitter Home"
+        },
+        {
+          "time": "9:30 PM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "10:00 PM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "10:30 PM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "11:00 PM",
+          "category": "Daily",
+          "task": "Bedtime"
+        },
+        {
+          "time": "11:30 PM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "12:00 AM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "12:30 AM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "1:00 AM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "1:30 AM",
+          "category": null,
+          "task": null
+        }
+      ],
+      "todos": [
+        {
+          "n": 1,
+          "done": true,
+          "task": "Pay for Basketball Camp"
+        },
+        {
+          "n": 2,
+          "done": true,
+          "task": "Schedule Volunteer Time at Kids School"
+        },
+        {
+          "n": 3,
+          "done": false,
+          "task": "Book Next Week's Massage"
+        }
+      ],
+      "reflection": "I helped a neighbour carry their groceries, and it felt great to lend a hand. I enjoyed a peaceful breakfast. I spent time with my husband and reconnected."
+    },
+    {
+      "date": "2025-01-09",
+      "weekday": "Thu",
+      "gratitude": [
+        "I am grateful for the lessons learned from difficult times.",
+        "I am grateful for moments of quiet reflection.",
+        "I am grateful for the creativity that allows me to express myself."
+      ],
+      "agenda": [
+        {
+          "time": "7:00 AM",
+          "category": "Daily",
+          "task": "Wake Up"
+        },
+        {
+          "time": "7:30 AM",
+          "category": "Health",
+          "task": "30 Minute Yoga"
+        },
+        {
+          "time": "8:00 AM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "8:30 AM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "9:00 AM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "9:30 AM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "10:00 AM",
+          "category": "Social",
+          "task": "Coffee with Francis"
+        },
+        {
+          "time": "10:30 AM",
+          "category": "Social",
+          "task": null
+        },
+        {
+          "time": "11:00 AM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "11:30 AM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "12:00 PM",
+          "category": "Health",
+          "task": "1 Hr Walk"
+        },
+        {
+          "time": "12:30 PM",
+          "category": "Health",
+          "task": null
+        },
+        {
+          "time": "1:00 PM",
+          "category": "Home",
+          "task": "Clean & Organize"
+        },
+        {
+          "time": "1:30 PM",
+          "category": "Home",
+          "task": null
+        },
+        {
+          "time": "2:00 PM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "2:30 PM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "3:00 PM",
+          "category": "Daily",
+          "task": "Pick Kids Up From School"
+        },
+        {
+          "time": "3:30 PM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "4:00 PM",
+          "category": "Health",
+          "task": "Take Jonah to the Dentist"
+        },
+        {
+          "time": "4:30 PM",
+          "category": "Health",
+          "task": null
+        },
+        {
+          "time": "5:00 PM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "5:30 PM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "6:00 PM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "6:30 PM",
+          "category": "Social",
+          "task": "Baking Class"
+        },
+        {
+          "time": "7:00 PM",
+          "category": "Social",
+          "task": "@ Oliver Bakery"
+        },
+        {
+          "time": "7:30 PM",
+          "category": "Social",
+          "task": "with Jennifer"
+        },
+        {
+          "time": "8:00 PM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "8:30 PM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "9:00 PM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "9:30 PM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "10:00 PM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "10:30 PM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "11:00 PM",
+          "category": "Daily",
+          "task": "Bedtime"
+        },
+        {
+          "time": "11:30 PM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "12:00 AM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "12:30 AM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "1:00 AM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "1:30 AM",
+          "category": null,
+          "task": null
+        }
+      ],
+      "todos": [
+        {
+          "n": 1,
+          "done": false,
+          "task": "Pay for Baking Class"
+        }
+      ],
+      "reflection": "I received a thoughtful text from a friend that I hadn't heard from for a while. I tackled a small home organization project and was successful. I enjoyed the baking class. It was great to learn something new."
+    },
+    {
+      "date": "2025-01-10",
+      "weekday": "Fri",
+      "gratitude": [
+        "I am grateful for the comforts of home.",
+        "I am grateful for a good book and hot tea.",
+        "I am grateful for my dog."
+      ],
+      "agenda": [
+        {
+          "time": "7:00 AM",
+          "category": "Daily",
+          "task": "Wake Up"
+        },
+        {
+          "time": "7:30 AM",
+          "category": "Health",
+          "task": "30 Minute Yoga"
+        },
+        {
+          "time": "8:00 AM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "8:30 AM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "9:00 AM",
+          "category": "Work",
+          "task": "Finish Anderson Proposal"
+        },
+        {
+          "time": "9:30 AM",
+          "category": "Work",
+          "task": "Visit Work Site"
+        },
+        {
+          "time": "10:00 AM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "10:30 AM",
+          "category": "Work",
+          "task": "Coffee with Kendall"
+        },
+        {
+          "time": "11:00 AM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "11:30 AM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "12:00 PM",
+          "category": "Family",
+          "task": "Lunch with Mom"
+        },
+        {
+          "time": "12:30 PM",
+          "category": "Family",
+          "task": null
+        },
+        {
+          "time": "1:00 PM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "1:30 PM",
+          "category": "Personal",
+          "task": "Massage"
+        },
+        {
+          "time": "2:00 PM",
+          "category": "Personal",
+          "task": null
+        },
+        {
+          "time": "2:30 PM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "3:00 PM",
+          "category": "Daily",
+          "task": "Pick up Kids From School"
+        },
+        {
+          "time": "3:30 PM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "4:00 PM",
+          "category": "Finance",
+          "task": "Pay Bills"
+        },
+        {
+          "time": "4:30 PM",
+          "category": "Home",
+          "task": "Fireplace Repair"
+        },
+        {
+          "time": "5:00 PM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "5:30 PM",
+          "category": "Family",
+          "task": "Family Dinner"
+        },
+        {
+          "time": "6:00 PM",
+          "category": "Family",
+          "task": null
+        },
+        {
+          "time": "6:30 PM",
+          "category": "Family",
+          "task": null
+        },
+        {
+          "time": "7:00 PM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "7:30 PM",
+          "category": "Social",
+          "task": "Movie with Oliver"
+        },
+        {
+          "time": "8:00 PM",
+          "category": "Social",
+          "task": null
+        },
+        {
+          "time": "8:30 PM",
+          "category": "Social",
+          "task": null
+        },
+        {
+          "time": "9:00 PM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "9:30 PM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "10:00 PM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "10:30 PM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "11:00 PM",
+          "category": "Daily",
+          "task": "Bedtime"
+        },
+        {
+          "time": "11:30 PM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "12:00 AM",
+          "category": "Other",
+          "task": null
+        },
+        {
+          "time": "12:30 AM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "1:00 AM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "1:30 AM",
+          "category": null,
+          "task": null
+        }
+      ],
+      "todos": [],
+      "reflection": null
+    },
+    {
+      "date": "2025-01-11",
+      "weekday": "Sat",
+      "gratitude": [],
+      "agenda": [
+        {
+          "time": "7:00 AM",
+          "category": "Daily",
+          "task": "Wake Up"
+        },
+        {
+          "time": "7:30 AM",
+          "category": "Health",
+          "task": "Yoga"
+        },
+        {
+          "time": "8:00 AM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "8:30 AM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "9:00 AM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "9:30 AM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "10:00 AM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "10:30 AM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "11:00 AM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "11:30 AM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "12:00 PM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "12:30 PM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "1:00 PM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "1:30 PM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "2:00 PM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "2:30 PM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "3:00 PM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "3:30 PM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "4:00 PM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "4:30 PM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "5:00 PM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "5:30 PM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "6:00 PM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "6:30 PM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "7:00 PM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "7:30 PM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "8:00 PM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "8:30 PM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "9:00 PM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "9:30 PM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "10:00 PM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "10:30 PM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "11:00 PM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "11:30 PM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "12:00 AM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "12:30 AM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "1:00 AM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "1:30 AM",
+          "category": null,
+          "task": null
+        }
+      ],
+      "todos": [],
+      "reflection": null
+    },
+    {
+      "date": "2025-01-12",
+      "weekday": "Sun",
+      "gratitude": [],
+      "agenda": [
+        {
+          "time": "7:00 AM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "7:30 AM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "8:00 AM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "8:30 AM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "9:00 AM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "9:30 AM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "10:00 AM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "10:30 AM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "11:00 AM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "11:30 AM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "12:00 PM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "12:30 PM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "1:00 PM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "1:30 PM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "2:00 PM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "2:30 PM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "3:00 PM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "3:30 PM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "4:00 PM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "4:30 PM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "5:00 PM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "5:30 PM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "6:00 PM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "6:30 PM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "7:00 PM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "7:30 PM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "8:00 PM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "8:30 PM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "9:00 PM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "9:30 PM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "10:00 PM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "10:30 PM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "11:00 PM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "11:30 PM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "12:00 AM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "12:30 AM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "1:00 AM",
+          "category": null,
+          "task": null
+        },
+        {
+          "time": "1:30 AM",
+          "category": null,
+          "task": null
+        }
+      ],
+      "todos": [],
+      "reflection": null
+    }
+  ]
+}
