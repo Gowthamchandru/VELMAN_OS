@@ -18,7 +18,7 @@ A personal, local-first **operating system for daily life** — a modular produc
 | **Health** | `/health` | Readiness, sleep, activity, body, workouts, nutrition (demo data today; Apple Watch ingest planned). |
 | **Vault** | `/vault` | DigiLocker-style document store — government IDs, school/college certificates, medical license — with **renewal reminders 20 days ahead**. |
 | **Subscriptions** | `/subscriptions` | Monthly/yearly subscriptions with spend totals and due-date reminders. |
-| **Financial** | `/finance` | Dashboard · Income · Investment · Saving · Spending. Investment is manual (Stocks: ETF/Direct/Funds/Options, Mutual Funds, Government Schemes); the rest is transaction-driven. |
+| **Financial** | `/finance` | One flow: **Dashboard → Income · Spending · Saving** (transaction-driven cash flow) **→ Portfolio · Net Worth · Goals · Calculators** (live holdings with P&L, assets/liabilities, savings goals, SIP & FIRE forecasts). Dashboard, Portfolio, Net Worth and the AI brief all read the same holdings store, so the numbers always agree. |
 | **Work** | `/work` | Your group of companies (TRI, TRG, CMIS, LOF, …) as cards → department headcounts, with a per-department "betterment suggestion" slot for the assistant. |
 
 Reminders from Vault, Subscriptions, and Open Loops all surface together on the Command Center's **"Needs you today"** strip. A **Quick Capture** palette (⌘K) writes straight into Open Loops.
@@ -31,7 +31,7 @@ Reminders from Vault, Subscriptions, and Open Loops all surface together on the 
 - **Tailwind CSS v4** (`@theme` tokens in `src/index.css`) — light "LOF" theme: white surfaces, LOF-blue accent, Orbitron / Rajdhani / Fira Code fonts
 - **react-router-dom** for routing
 - **recharts** for charts; **lucide-react** for icons
-- **@anthropic-ai/sdk** (browser) for the AI brief & document/statement parsing — runs only when you paste your own Anthropic key
+- **AI assistant & daily brief** — a small local Node server (`server/index.mjs`, Express) calls Claude via the **Claude Agent SDK** using your **Claude Pro/Max subscription** (no per-token API bills). The browser only sends a structured snapshot to `localhost`; your subscription token never touches the browser.
 - Interim persistence: a tiny reactive **localStorage** store (`src/lib/store.ts`) behind a single seam that a real synced database (PowerSync + SQLite, Stage 4) will replace
 
 ---
@@ -67,16 +67,36 @@ The code is documented inline — most files open with a comment explaining thei
 ```bash
 cd app
 npm install
-npm run dev      # http://localhost:5173
+npm run dev      # web app only → http://localhost:5173
 npm run build    # type-check + production build
 ```
+
+### Enabling the AI assistant & brief (uses your Claude Pro plan)
+
+The assistant runs on a tiny local server that talks to Claude through your **Claude Pro/Max subscription** — no API key, no per-token billing.
+
+```bash
+# 1. one-time: get a subscription token (opens a browser login to Claude)
+npm i -g @anthropic-ai/claude-code
+claude setup-token
+
+# 2. one-time: paste the printed token into app/.env
+cp .env.example .env        # then set CLAUDE_CODE_OAUTH_TOKEN=...
+
+# 3. run the web app + assistant server together
+npm run dev:all             # web on :5173, assistant on :8787
+```
+
+The **Ask Assistant** button (sidebar, or ⌘J) and the Command Center's daily brief light up automatically once the server is reachable. On Pro you get **Sonnet** by default; set `GCOS_MODEL=opus` in `.env` if your plan includes it.
+
+> The server reads `CLAUDE_CODE_OAUTH_TOKEN` from `app/.env` (gitignored). It only works on your own machine while running — the token is never sent to the browser, so this can't be used on a hosted/shared deployment.
 
 ---
 
 ## Data & privacy
 
 - All your data lives in **localStorage on this device** only (interim). Nothing is sent anywhere by default.
-- The **AI features** (daily brief, document/statement parsing) call Anthropic **only with your own API key**, which is stored locally and never committed. Only a compact, structured snapshot — never raw records — is sent.
+- The **AI features** (assistant + daily brief) send a compact, structured snapshot — never raw records — to the **local** server on `localhost`, which relays it to Claude on your **own Pro subscription**. Your subscription token stays on disk in `app/.env` and never reaches the browser.
 - Live news is fetched from public sources via a CORS proxy (read-only, no personal data sent).
 
 > ⚠️ The app's **seed data** includes realistic personal-style content (sample finances, schedule). Keep this repository **private**, and replace the seeds with your own data in the UI.
