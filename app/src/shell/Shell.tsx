@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react'
 import { NavLink, Outlet, Link } from 'react-router-dom'
-import { Command, CalendarDays, Newspaper } from 'lucide-react'
+import { Command, CalendarDays, Newspaper, Sparkles } from 'lucide-react'
 import { modules } from './registry'
 import QuickCapture from './QuickCapture'
+import Assistant from './Assistant'
 import { useNow, dateLabel, clockLabel, weekRangeLabel } from '@/lib/time'
 import { useTopHeadlines } from '@/modules/news/newsData'
 
@@ -45,13 +46,19 @@ function NewsTicker() {
 
 export default function Shell() {
   const [captureOpen, setCaptureOpen] = useState(false)
+  const [assistantOpen, setAssistantOpen] = useState(false)
   const now = useNow()
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+      if (!(e.metaKey || e.ctrlKey)) return
+      const k = e.key.toLowerCase()
+      if (k === 'k') {
         e.preventDefault()
         setCaptureOpen((v) => !v)
+      } else if (k === 'j') {
+        e.preventDefault()
+        setAssistantOpen((v) => !v)
       }
     }
     window.addEventListener('keydown', onKey)
@@ -96,7 +103,19 @@ export default function Shell() {
             ))}
         </nav>
 
-        <div className="border-t-2 border-border px-3.5 py-3.5">
+        <div className="border-t-2 border-border px-3.5 pt-3.5">
+          <button
+            onClick={() => setAssistantOpen(true)}
+            className="flex w-full items-center gap-2 rounded-[10px] border-2 border-accent bg-accent px-3 py-2.5 text-white hover:opacity-95 hover:brand-glow"
+            title="Ask the assistant (⌘J)"
+          >
+            <Sparkles size={15} className="shrink-0" />
+            <span className="flex-1 text-left font-heading text-[10px] font-bold tracking-[0.14em] uppercase">Ask Assistant</span>
+            <kbd className="font-mono text-[10px] text-white/70">⌘J</kbd>
+          </button>
+        </div>
+
+        <div className="px-3.5 py-3.5">
           <button
             onClick={() => setCaptureOpen(true)}
             className="flex w-full items-center gap-2 rounded-[10px] border-2 border-border bg-surface px-3 py-2.5 text-ink-muted hover:text-accent hover:brand-glow"
@@ -128,6 +147,7 @@ export default function Shell() {
       </div>
 
       <QuickCapture open={captureOpen} onClose={() => setCaptureOpen(false)} />
+      <Assistant open={assistantOpen} onClose={() => setAssistantOpen(false)} />
     </div>
   )
 }

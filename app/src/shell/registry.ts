@@ -24,6 +24,15 @@ export const modules: ModuleManifest[] = [
     page: CommandCenter,
   },
   {
+    id: 'work',
+    title: 'Work',
+    icon: Briefcase,
+    route: '/work',
+    nav: true,
+    status: 'live',
+    page: Work,
+  },
+  {
     id: 'log',
     title: 'Daily Log',
     icon: History,
@@ -121,14 +130,5 @@ export const modules: ModuleManifest[] = [
     nav: true,
     status: 'live',
     page: Finance,
-  },
-  {
-    id: 'work',
-    title: 'Work',
-    icon: Briefcase,
-    route: '/work',
-    nav: true,
-    status: 'live',
-    page: Work,
   },
 ]

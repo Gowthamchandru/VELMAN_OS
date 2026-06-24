@@ -18,8 +18,8 @@ import { useLoops, displayStatus } from '@/modules/loops/loopsStore'
 import { useDocs, expiryStatus, expiryLabel } from '@/modules/vault/vaultStore'
 import { useSubs, dueStatus as subDueStatus, dueLabel as subDueLabel } from '@/modules/subs/subsStore'
 import { uid } from '@/lib/store'
-import { useApiKey, useLastBrief, useGcSnapshot, generateBrief, type BriefMode } from '@/lib/ai'
-import { Sparkles, CalendarClock, ListChecks, Flag, PieChart, Sun, Plus, Loader2, KeyRound, Moon, Star, X, AlertTriangle, Copy } from 'lucide-react'
+import { useServerHealth, useLastBrief, useGcSnapshot, generateBrief, type BriefMode } from '@/lib/ai'
+import { Sparkles, CalendarClock, ListChecks, Flag, PieChart, Sun, Plus, Loader2, Server, Moon, Star, X, AlertTriangle, Copy } from 'lucide-react'
 import { modules } from '@/shell/registry'
 
 function renderBrief(text: string) {
@@ -94,10 +94,9 @@ function DailyBrief() {
   const firstTask = sortedBlocks(scheduled)[0]
   const openTodos = todos.filter((t) => !t.done).length
 
-  const [apiKey, setApiKey] = useApiKey()
+  const health = useServerHealth()
   const [brief, setBrief] = useLastBrief()
   const snapshot = useGcSnapshot(date)
-  const [keyInput, setKeyInput] = useState('')
   const [loading, setLoading] = useState<BriefMode | null>(null)
   const [error, setError] = useState('')
 
@@ -105,9 +104,9 @@ function DailyBrief() {
     setError('')
     setLoading(mode)
     try {
-      setBrief(await generateBrief(apiKey, snapshot, mode))
+      setBrief(await generateBrief(snapshot, mode))
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to generate — check your API key and connection.')
+      setError(e instanceof Error ? e.message : 'Failed to generate — is the assistant server running?')
     } finally {
       setLoading(null)
     }
@@ -132,20 +131,10 @@ function DailyBrief() {
             <b>{openTodos}</b> to-dos still open and <b>{priorities.filter((p) => !p.done).length}</b> weekly priorities left.
           </p>
 
-          {!apiKey ? (
+          {!health.online ? (
             <div className="mt-2 rounded-xl border-2 border-dashed border-border p-2.5">
-              <div className="mb-1.5 flex items-center gap-1.5 text-xs text-ink-muted"><KeyRound size={13} /> Connect Claude to generate a real brief</div>
-              <div className="flex flex-wrap items-center gap-2">
-                <input
-                  type="password"
-                  value={keyInput}
-                  onChange={(e) => setKeyInput(e.target.value)}
-                  placeholder="Anthropic API key (sk-ant-…)"
-                  className="min-w-0 flex-1 rounded-[10px] border-2 border-border bg-surface px-2.5 py-1.5 font-mono text-xs text-ink outline-none focus:border-accent"
-                />
-                <button onClick={() => { setApiKey(keyInput.trim()); setKeyInput('') }} disabled={!keyInput.trim()} className={`${btn} bg-accent text-white hover:opacity-90`}>Connect</button>
-              </div>
-              <p className="mt-1.5 text-[11px] text-ink-faint">Stored only in this browser. Only a structured snapshot of your day is sent to Claude — never raw records.</p>
+              <div className="mb-1 flex items-center gap-1.5 text-xs text-ink-muted"><Server size={13} /> {health.checking ? 'Connecting to your assistant…' : 'Start the assistant to generate a real brief'}</div>
+              <p className="text-[11px] text-ink-faint">Runs on your machine using your <b className="text-ink">Claude Pro</b> plan — <code className="font-mono">npm run dev:all</code>. Only a structured snapshot of your day is sent to Claude, never raw records.</p>
             </div>
           ) : (
             <>
@@ -156,7 +145,9 @@ function DailyBrief() {
                 <button onClick={() => run('evening')} disabled={loading !== null} className={`${btn} border-2 border-border text-ink-muted hover:text-accent`}>
                   {loading === 'evening' ? <Loader2 size={13} className="animate-spin" /> : <Moon size={13} />} End-of-day wrap
                 </button>
-                <button onClick={() => { setApiKey(''); setBrief('') }} className="ml-auto text-[11px] text-ink-faint hover:text-danger">change key</button>
+                <span className="ml-auto flex items-center gap-1 text-[11px] text-ink-faint" title={`Answered on your Claude ${health.mode === 'subscription' ? 'Pro plan' : 'credentials'}`}>
+                  <span className="dot-online size-1.5 rounded-full bg-online" /> {health.mode === 'subscription' ? 'Claude Pro' : health.model ?? 'connected'}
+                </span>
               </div>
               {error && <div className="mt-2 rounded-[10px] border-2 border-danger/40 bg-danger/5 px-3 py-2 text-xs text-danger">{error}</div>}
               {loading && !brief && <div className="mt-3 text-sm text-ink-faint">Claude is reading your day…</div>}

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { ShieldCheck, Bell, Upload, Eye, Trash2, Plus, FileText } from 'lucide-react'
 import { Card } from '@/components/ui'
+import { LockScreen } from '@/components/LockScreen'
 import {
   useDocs,
   newDoc,
@@ -10,8 +11,13 @@ import {
   readFileAsDataUrl,
   MAX_FILE_BYTES,
   DOC_CATEGORIES,
+  COLLEGE_SUB_CATEGORIES,
+  GOV_ID_SUB_CATEGORIES,
   type Doc,
   type DocCategory,
+  type DocSubCategory,
+  type CollegeSubCategory,
+  type GovIdSubCategory,
 } from './vaultStore'
 
 const fieldCls = 'rounded-[10px] border-2 border-border bg-surface px-2.5 py-2 text-sm text-ink outline-none focus:border-accent'
@@ -81,12 +87,20 @@ export default function Vault() {
   const { items, add, update, remove } = useDocs()
   const [name, setName] = useState('')
   const [cat, setCat] = useState<DocCategory>('Government ID')
+  const [subCat, setSubCat] = useState<DocSubCategory | undefined>('India')
   const [number, setNumber] = useState('')
   const [issuer, setIssuer] = useState('')
   const [issued, setIssued] = useState('')
   const [expires, setExpires] = useState('')
   const [file, setFile] = useState<{ dataUrl: string; fileName: string } | null>(null)
   const [err, setErr] = useState('')
+
+  const handleCatChange = (newCat: DocCategory) => {
+    setCat(newCat)
+    if (newCat === 'Government ID') setSubCat('India')
+    else if (newCat === 'College') setSubCat('UG')
+    else setSubCat(undefined)
+  }
 
   const takeFile = async (f: File | undefined, cb: (v: { dataUrl: string; fileName: string }) => void) => {
     if (!f) return
@@ -101,8 +115,9 @@ export default function Vault() {
   const submit = () => {
     const n = name.trim()
     if (!n) return
+    const effectiveSubCat: DocSubCategory | undefined = (cat === 'Government ID' || cat === 'College') ? subCat : undefined
     add({
-      ...newDoc(n, cat),
+      ...newDoc(n, cat, effectiveSubCat),
       number: number.trim() || undefined,
       issuer: issuer.trim() || undefined,
       issued: issued || undefined,
@@ -124,6 +139,7 @@ export default function Vault() {
   })
 
   return (
+    <LockScreen id="vault" label="Vault">
     <div className="space-y-4">
       <div className="flex items-center gap-3">
         <div className="grid size-10 place-items-center rounded-xl bg-accent-soft text-accent">
@@ -158,11 +174,25 @@ export default function Vault() {
       <Card title="Add a document">
         <div className="flex flex-wrap items-end gap-2">
           <input value={name} onChange={(e) => setName(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && submit()} placeholder="Document name" className={`${fieldCls} min-w-[12rem] flex-1`} />
-          <select value={cat} onChange={(e) => setCat(e.target.value as DocCategory)} className={fieldCls}>
+          <select value={cat} onChange={(e) => handleCatChange(e.target.value as DocCategory)} className={fieldCls}>
             {DOC_CATEGORIES.map((c) => (
               <option key={c}>{c}</option>
             ))}
           </select>
+          {cat === 'Government ID' && (
+            <select value={subCat} onChange={(e) => setSubCat(e.target.value as GovIdSubCategory)} className={fieldCls}>
+              {GOV_ID_SUB_CATEGORIES.map((s) => (
+                <option key={s}>{s}</option>
+              ))}
+            </select>
+          )}
+          {cat === 'College' && (
+            <select value={subCat} onChange={(e) => setSubCat(e.target.value as CollegeSubCategory)} className={fieldCls}>
+              {COLLEGE_SUB_CATEGORIES.map((s) => (
+                <option key={s}>{s}</option>
+              ))}
+            </select>
+          )}
           {cat === 'Government ID' && (
             <input value={number} onChange={(e) => setNumber(e.target.value)} placeholder="ID number" className={`${fieldCls} w-40`} />
           )}
@@ -190,6 +220,98 @@ export default function Vault() {
       {DOC_CATEGORIES.map((c) => {
         const docs = items.filter((d) => d.category === c)
         if (!docs.length) return null
+
+        if (c === 'Government ID') {
+          return (
+            <Card key={c} title={c}>
+              {GOV_ID_SUB_CATEGORIES.map((sub) => {
+                const subDocs = docs.filter((d) => d.subCategory === sub)
+                if (!subDocs.length) return null
+                return (
+                  <div key={sub} className="mb-4 last:mb-0">
+                    <div className="mb-2 font-heading text-[10px] font-bold uppercase tracking-[0.14em] text-ink-faint">{sub}</div>
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                      {subDocs.map((d) => (
+                        <DocCard
+                          key={d.id}
+                          d={d}
+                          onUpload={(f) => takeFile(f, (v) => update(d.id, { dataUrl: v.dataUrl, fileName: v.fileName }))}
+                          onRemove={() => remove(d.id)}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )
+              })}
+              {/* docs without a subcategory (legacy) */}
+              {(() => {
+                const uncat = docs.filter((d) => !d.subCategory)
+                if (!uncat.length) return null
+                return (
+                  <div className="mb-4 last:mb-0">
+                    <div className="mb-2 font-heading text-[10px] font-bold uppercase tracking-[0.14em] text-ink-faint">Other</div>
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                      {uncat.map((d) => (
+                        <DocCard
+                          key={d.id}
+                          d={d}
+                          onUpload={(f) => takeFile(f, (v) => update(d.id, { dataUrl: v.dataUrl, fileName: v.fileName }))}
+                          onRemove={() => remove(d.id)}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )
+              })()}
+            </Card>
+          )
+        }
+
+        if (c === 'College') {
+          return (
+            <Card key={c} title={c}>
+              {COLLEGE_SUB_CATEGORIES.map((sub) => {
+                const subDocs = docs.filter((d) => d.subCategory === sub)
+                if (!subDocs.length) return null
+                return (
+                  <div key={sub} className="mb-4 last:mb-0">
+                    <div className="mb-2 font-heading text-[10px] font-bold uppercase tracking-[0.14em] text-ink-faint">{sub}</div>
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                      {subDocs.map((d) => (
+                        <DocCard
+                          key={d.id}
+                          d={d}
+                          onUpload={(f) => takeFile(f, (v) => update(d.id, { dataUrl: v.dataUrl, fileName: v.fileName }))}
+                          onRemove={() => remove(d.id)}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )
+              })}
+              {(() => {
+                const uncat = docs.filter((d) => !d.subCategory)
+                if (!uncat.length) return null
+                return (
+                  <div className="mb-4 last:mb-0">
+                    <div className="mb-2 font-heading text-[10px] font-bold uppercase tracking-[0.14em] text-ink-faint">Other</div>
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                      {uncat.map((d) => (
+                        <DocCard
+                          key={d.id}
+                          d={d}
+                          onUpload={(f) => takeFile(f, (v) => update(d.id, { dataUrl: v.dataUrl, fileName: v.fileName }))}
+                          onRemove={() => remove(d.id)}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )
+              })()}
+            </Card>
+          )
+        }
+
         return (
           <Card key={c} title={c}>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -206,5 +328,6 @@ export default function Vault() {
         )
       })}
     </div>
+    </LockScreen>
   )
 }

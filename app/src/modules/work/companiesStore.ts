@@ -13,21 +13,25 @@ export interface Company {
   code: string
   name: string
   departments: Department[]
+  verticals: string[]
 }
 
 const dept = (name: string, count: number): Department => ({ id: uid(), name, count })
 
 // Seed with your company codes + placeholder departments/counts — edit freely.
 const seed: Company[] = [
-  { id: 'co-tri', code: 'TRI', name: 'TRI', departments: [dept('Sales', 12), dept('Operations', 8), dept('Design', 6), dept('Marketing', 4), dept('HR', 3), dept('Finance', 3)] },
-  { id: 'co-trg', code: 'TRG', name: 'TRG', departments: [dept('Sales', 9), dept('Production', 14), dept('Logistics', 5), dept('HR', 2), dept('Finance', 2)] },
-  { id: 'co-cmis', code: 'CMIS', name: 'CMIS', departments: [dept('Engineering', 16), dept('Sales', 7), dept('Support', 6), dept('HR', 2), dept('Finance', 2)] },
-  { id: 'co-lof', code: 'LOF', name: 'LOF', departments: [dept('Design', 10), dept('Production', 12), dept('Sales', 8), dept('Marketing', 4), dept('Admin', 3)] },
+  { id: 'co-tri', code: 'TRI', name: 'TRI', verticals: ['TRI'], departments: [dept('Sales', 12), dept('Operations', 8), dept('Design', 6), dept('Marketing', 4), dept('HR', 3), dept('Finance', 3)] },
+  { id: 'co-trg', code: 'TRG', name: 'TRG', verticals: ['TRKITCHEN', 'TRGLASS', 'TRMARBLE'], departments: [dept('Sales', 9), dept('Production', 14), dept('Logistics', 5), dept('HR', 2), dept('Finance', 2)] },
+  { id: 'co-cmis', code: 'CMIS', name: 'CMIS', verticals: [], departments: [dept('Engineering', 16), dept('Sales', 7), dept('Support', 6), dept('HR', 2), dept('Finance', 2)] },
+  { id: 'co-lof', code: 'LOF', name: 'LOF', verticals: [], departments: [dept('Design', 10), dept('Production', 12), dept('Sales', 8), dept('Marketing', 4), dept('Admin', 3)] },
+  { id: 'co-trkitchen', code: 'TRKITCHEN', name: 'TRKitchen', verticals: ['TRKITCHEN'], departments: [] },
+  { id: 'co-trglass', code: 'TRGLASS', name: 'TRGlass', verticals: ['TRGLASS'], departments: [] },
+  { id: 'co-trmarble', code: 'TRMARBLE', name: 'TRMarble', verticals: ['TRMARBLE'], departments: [] },
 ]
 
-export const useCompanies = () => useCollection<Company>('gcos.work.companies.v1', seed)
+export const useCompanies = () => useCollection<Company>('gcos.work.companies.v3', seed)
 
-export const newCompany = (code: string, name: string): Company => ({ id: uid(), code: code.toUpperCase(), name: name || code, departments: [] })
+export const newCompany = (code: string, name: string): Company => ({ id: uid(), code: code.toUpperCase(), name: name || code, verticals: [], departments: [] })
 export const newDepartment = (name: string, count = 0): Department => ({ id: uid(), name, count })
 
 export const totalEmployees = (c: Company): number => c.departments.reduce((s, d) => s + (d.count || 0), 0)

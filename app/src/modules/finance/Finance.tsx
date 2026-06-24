@@ -1,6 +1,7 @@
-import { useState } from 'react'
+﻿import { useState } from 'react'
 import { Wallet, TrendingUp, PiggyBank, ShoppingCart, LineChart, Plus, Trash2 } from 'lucide-react'
 import { Card, Stat } from '@/components/ui'
+import { LockScreen } from '@/components/LockScreen'
 import { prettyDate } from '@/lib/time'
 import {
   useTxns,
@@ -82,7 +83,7 @@ function Dashboard({ txns, invCurrent, invPnl }: { txns: Txn[]; invCurrent: numb
             <span className="text-2xl font-semibold tabular-nums text-ink">{inr(invCurrent, true)}</span>
             <span className="text-sm font-medium" style={{ color: invPnl >= 0 ? '#059669' : '#d93a2b' }}>{invPnl >= 0 ? '+' : ''}{inr(invPnl, true)}</span>
           </div>
-          <p className="mt-1 text-xs text-ink-faint">current value · unrealised P&L</p>
+          <p className="mt-1 text-xs text-ink-faint">current value Â· unrealised P&L</p>
           <div className="mt-3"><CatBars data={byCategory(txns, 'spending').slice(0, 4)} color="#d93a2b" /></div>
         </Card>
       </div>
@@ -127,14 +128,14 @@ function InvestmentTab() {
               {STOCK_KINDS.map((k) => <option key={k}>{k}</option>)}
             </select>
           )}
-          <input value={invested} onChange={(e) => setInvested(e.target.value)} type="number" placeholder="Invested ₹" className={`${fld} w-32`} />
-          <input value={current} onChange={(e) => setCurrent(e.target.value)} type="number" placeholder="Current ₹" className={`${fld} w-32`} />
+          <input value={invested} onChange={(e) => setInvested(e.target.value)} type="number" placeholder="Invested â‚¹" className={`${fld} w-32`} />
+          <input value={current} onChange={(e) => setCurrent(e.target.value)} type="number" placeholder="Current â‚¹" className={`${fld} w-32`} />
           <button onClick={submit} className="flex items-center gap-1.5 rounded-[10px] bg-accent px-3 py-2 font-heading text-[10px] font-bold uppercase tracking-[0.12em] text-white hover:opacity-90"><Plus size={14} /> Add</button>
         </div>
       </Card>
 
       {byGroup(items).map((g) => (
-        <Card key={g.group} title={`${g.group} · ${inr(g.current, true)} (${g.pnl >= 0 ? '+' : ''}${inr(g.pnl, true)})`}>
+        <Card key={g.group} title={`${g.group} Â· ${inr(g.current, true)} (${g.pnl >= 0 ? '+' : ''}${inr(g.pnl, true)})`}>
           <table className="w-full text-sm">
             <thead>
               <tr className="text-left font-heading text-[10px] uppercase tracking-wide text-ink-faint">
@@ -203,12 +204,13 @@ export default function Finance() {
   const ICON: Record<Tab, typeof LineChart> = { Dashboard: LineChart, Income: TrendingUp, Investment: Wallet, Saving: PiggyBank, Spending: ShoppingCart }
 
   return (
+    <LockScreen id="finance" label="Financial">
     <div className="space-y-4">
       <div className="flex flex-wrap items-center gap-3">
         <div className="grid size-10 place-items-center rounded-xl bg-accent-soft text-accent"><Wallet size={20} /></div>
         <div>
           <h1 className="text-2xl font-semibold text-ink">Financial</h1>
-          <p className="text-sm text-ink-muted">Income, spending, saving &amp; investments — all in one place.</p>
+          <p className="text-sm text-ink-muted">Income, spending, saving &amp; investments â€” all in one place.</p>
         </div>
       </div>
 
@@ -233,5 +235,6 @@ export default function Finance() {
       {tab === 'Saving' && <FlowTab txns={txns} type="saving" color="#1c4d8c" label="Saving" />}
       {tab === 'Spending' && <FlowTab txns={txns} type="spending" color="#d93a2b" label="Spending" />}
     </div>
+    </LockScreen>
   )
 }
