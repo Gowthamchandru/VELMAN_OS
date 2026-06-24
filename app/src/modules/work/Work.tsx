@@ -1,9 +1,15 @@
 import { useState } from 'react'
 import { useSearchParams, useNavigate } from 'react-router-dom'
-import { Briefcase, Users, Plus, Trash2, ChevronLeft, Building2, Lightbulb, ShieldCheck, Upload, Eye, FileText } from 'lucide-react'
+import { Briefcase, Users, Plus, Trash2, ChevronLeft, Building2, ShieldCheck, Upload, Eye, FileText, Video, CheckSquare } from 'lucide-react'
 import { LockScreen } from '@/components/LockScreen'
 import { Card, Stat } from '@/components/ui'
 import { useCompanies, newCompany, newDepartment, totalEmployees, groupTotal, type Company, type Department } from './companiesStore'
+import {
+  useDeptTasks, useMeetings, newDeptTask, newMeeting,
+  DEPT_TASK_STATUSES, DEPT_TASK_STATUS_COLOR,
+  type DeptTask, type DeptTaskStatus, type Meeting,
+} from './deptStore'
+import { todayKey } from '@/lib/time'
 import {
   useWorkDocs,
   newWorkDoc,
@@ -37,18 +43,172 @@ function CompanyCard({ c, onOpen }: { c: Company; onOpen: () => void }) {
 
 // ─── Department row ───────────────────────────────────────────────────────────
 
-function DeptRow({ d, onUpdate, onRemove }: { d: Department; onUpdate: (p: Partial<Department>) => void; onRemove: () => void }) {
+function DeptRow({ d, companyId, isSelected, onSelect, onUpdate, onRemove }: {
+  d: Department
+  companyId: string
+  isSelected: boolean
+  onSelect: () => void
+  onUpdate: (p: Partial<Department>) => void
+  onRemove: () => void
+}) {
+  const { items: allTasks } = useDeptTasks()
+  const { items: allMeetings } = useMeetings()
+  const openTasks = allTasks.filter((t) => t.companyId === companyId && t.department === d.name && t.status !== 'Done').length
+  const meetingCount = allMeetings.filter((m) => m.companyId === companyId && m.department === d.name).length
+
   return (
-    <div className="group rounded-xl border-2 border-border bg-surface p-3">
+    <div
+      onClick={onSelect}
+      className={`group cursor-pointer rounded-xl border-2 bg-surface p-3 transition-colors ${isSelected ? 'border-accent' : 'border-border hover:border-accent/50'}`}
+    >
       <div className="flex items-center gap-2">
-        <input value={d.name} onChange={(e) => onUpdate({ name: e.target.value })} className="min-w-0 flex-1 rounded bg-transparent text-sm font-medium text-ink outline-none focus:bg-surface-2" />
-        <input type="number" value={d.count} onChange={(e) => onUpdate({ count: Number(e.target.value) })} className="w-16 rounded bg-transparent text-right text-sm font-semibold tabular-nums text-ink outline-none focus:bg-surface-2" />
+        <input
+          value={d.name}
+          onChange={(e) => onUpdate({ name: e.target.value })}
+          onClick={(e) => e.stopPropagation()}
+          className="min-w-0 flex-1 rounded bg-transparent text-sm font-medium text-ink outline-none focus:bg-surface-2"
+        />
+        <input
+          type="number"
+          value={d.count}
+          onChange={(e) => onUpdate({ count: Number(e.target.value) })}
+          onClick={(e) => e.stopPropagation()}
+          className="w-16 rounded bg-transparent text-right text-sm font-semibold tabular-nums text-ink outline-none focus:bg-surface-2"
+        />
         <span className="text-[11px] text-ink-faint">staff</span>
-        <button onClick={onRemove} aria-label="remove department" className="text-ink-faint opacity-0 group-hover:opacity-100 hover:text-danger"><Trash2 size={13} /></button>
+        <button
+          onClick={(e) => { e.stopPropagation(); onRemove() }}
+          aria-label="remove department"
+          className="text-ink-faint opacity-0 group-hover:opacity-100 hover:text-danger"
+        >
+          <Trash2 size={13} />
+        </button>
       </div>
-      <div className="mt-2 flex items-start gap-1.5 rounded-[8px] border border-dashed border-border bg-surface-2/40 px-2 py-1.5 text-[11px] text-ink-faint">
-        <Lightbulb size={12} className="mt-0.5 shrink-0 text-accent" />
-        Assistant will suggest how to improve {d.name || 'this department'} once connected.
+      <div className="mt-2 flex items-center gap-3">
+        {openTasks > 0 && (
+          <span className="flex items-center gap-1 text-[11px] text-ink-faint">
+            <CheckSquare size={11} className="text-accent" /> {openTasks} open
+          </span>
+        )}
+        {meetingCount > 0 && (
+          <span className="flex items-center gap-1 text-[11px] text-ink-faint">
+            <Video size={11} className="text-warn" /> {meetingCount}
+          </span>
+        )}
+        {openTasks === 0 && meetingCount === 0 && (
+          <span className="text-[11px] text-ink-faint">Click to add tasks & meetings</span>
+        )}
+      </div>
+    </div>
+  )
+}
+
+// ─── Department detail panel ──────────────────────────────────────────────────
+
+function DeptDetail({ companyId, companyName, deptName }: { companyId: string; companyName: string; deptName: string }) {
+  const { items: allTasks, add: addTask, update: updateTask, remove: removeTask } = useDeptTasks()
+  const { items: allMeetings, add: addMeeting, remove: removeMeeting } = useMeetings()
+
+  const tasks = allTasks.filter((t) => t.companyId === companyId && t.department === deptName)
+  const meetings = allMeetings.filter((m) => m.companyId === companyId && m.department === deptName)
+
+  const [taskTitle, setTaskTitle] = useState('')
+  const [taskStatus, setTaskStatus] = useState<DeptTaskStatus>('Todo')
+  const [taskAssignee, setTaskAssignee] = useState('')
+
+  const [meetTitle, setMeetTitle] = useState('')
+  const [meetDate, setMeetDate] = useState(todayKey())
+  const [meetTime, setMeetTime] = useState('09:00')
+  const [meetAttendees, setMeetAttendees] = useState('')
+
+  const submitTask = () => {
+    const t = taskTitle.trim()
+    if (!t) return
+    addTask({ ...newDeptTask(companyId, deptName), title: t, status: taskStatus, assignee: taskAssignee.trim() })
+    setTaskTitle('')
+    setTaskAssignee('')
+  }
+
+  const submitMeeting = () => {
+    const t = meetTitle.trim()
+    if (!t) return
+    addMeeting({ ...newMeeting(companyId, companyName, deptName), title: t, date: meetDate, time: meetTime, attendees: meetAttendees.trim() })
+    setMeetTitle('')
+    setMeetAttendees('')
+  }
+
+  const cycleStatus = (task: DeptTask) => {
+    const next: Record<DeptTaskStatus, DeptTaskStatus> = { Todo: 'In Progress', 'In Progress': 'Done', Done: 'Todo' }
+    updateTask(task.id, { status: next[task.status] })
+  }
+
+  return (
+    <div className="mt-3 space-y-4 rounded-xl border-2 border-accent/30 bg-accent-soft/10 p-4">
+      <div className="font-heading text-[11px] font-bold uppercase tracking-[0.12em] text-accent">{deptName}</div>
+
+      {/* Tasks */}
+      <div>
+        <div className="mb-2 flex items-center gap-1.5 font-heading text-[10px] font-bold uppercase tracking-[0.12em] text-ink-faint">
+          <CheckSquare size={11} /> Tasks
+        </div>
+        {tasks.length > 0 && (
+          <div className="mb-2 space-y-1.5">
+            {tasks.map((t) => (
+              <div key={t.id} className="flex items-center gap-2 rounded-[10px] border border-border bg-surface px-2.5 py-1.5">
+                <button
+                  onClick={() => cycleStatus(t)}
+                  className="grid size-4 shrink-0 place-items-center rounded border-2 text-[10px]"
+                  style={{
+                    borderColor: DEPT_TASK_STATUS_COLOR[t.status],
+                    background: DEPT_TASK_STATUS_COLOR[t.status] + '22',
+                    color: DEPT_TASK_STATUS_COLOR[t.status],
+                  }}
+                >✓</button>
+                <span className={`min-w-0 flex-1 text-sm ${t.status === 'Done' ? 'text-ink-faint line-through' : 'text-ink'}`}>{t.title}</span>
+                <span className="shrink-0 rounded-full px-2 py-0.5 font-heading text-[10px] font-bold"
+                  style={{ background: DEPT_TASK_STATUS_COLOR[t.status] + '18', color: DEPT_TASK_STATUS_COLOR[t.status] }}
+                >{t.status}</span>
+                {t.assignee && <span className="shrink-0 text-[11px] text-ink-faint">{t.assignee}</span>}
+                <button onClick={() => removeTask(t.id)} className="shrink-0 text-ink-faint hover:text-danger"><Trash2 size={12} /></button>
+              </div>
+            ))}
+          </div>
+        )}
+        <div className="flex flex-wrap items-center gap-2">
+          <input value={taskTitle} onChange={(e) => setTaskTitle(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && submitTask()} placeholder="Add a task…" className={`${fld} min-w-[10rem] flex-1 py-1.5 text-xs`} />
+          <select value={taskStatus} onChange={(e) => setTaskStatus(e.target.value as DeptTaskStatus)} className={`${fld} py-1.5 text-xs`}>
+            {DEPT_TASK_STATUSES.map((s) => <option key={s}>{s}</option>)}
+          </select>
+          <input value={taskAssignee} onChange={(e) => setTaskAssignee(e.target.value)} placeholder="Assignee" className={`${fld} w-28 py-1.5 text-xs`} />
+          <button onClick={submitTask} className="grid size-8 shrink-0 place-items-center rounded-[8px] bg-accent text-white hover:opacity-90"><Plus size={14} /></button>
+        </div>
+      </div>
+
+      {/* Meetings */}
+      <div>
+        <div className="mb-2 flex items-center gap-1.5 font-heading text-[10px] font-bold uppercase tracking-[0.12em] text-ink-faint">
+          <Video size={11} /> Meetings
+        </div>
+        {meetings.length > 0 && (
+          <div className="mb-2 space-y-1.5">
+            {meetings.sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time)).map((m) => (
+              <div key={m.id} className="flex items-center gap-2 rounded-[10px] border border-border bg-surface px-2.5 py-1.5">
+                <Video size={13} className="shrink-0 text-warn" />
+                <span className="min-w-0 flex-1 text-sm text-ink">{m.title}</span>
+                <span className="shrink-0 font-mono text-[11px] text-ink-faint">{m.date} · {m.time}</span>
+                {m.attendees && <span className="shrink-0 text-[11px] text-ink-faint">{m.attendees}</span>}
+                <button onClick={() => removeMeeting(m.id)} className="shrink-0 text-ink-faint hover:text-danger"><Trash2 size={12} /></button>
+              </div>
+            ))}
+          </div>
+        )}
+        <div className="flex flex-wrap items-center gap-2">
+          <input value={meetTitle} onChange={(e) => setMeetTitle(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && submitMeeting()} placeholder="Meeting title…" className={`${fld} min-w-[10rem] flex-1 py-1.5 text-xs`} />
+          <input type="date" value={meetDate} onChange={(e) => setMeetDate(e.target.value)} className={`${fld} font-mono py-1.5 text-xs`} />
+          <input type="time" value={meetTime} onChange={(e) => setMeetTime(e.target.value)} className={`${fld} w-28 font-mono py-1.5 text-xs`} />
+          <input value={meetAttendees} onChange={(e) => setMeetAttendees(e.target.value)} placeholder="Attendees" className={`${fld} w-36 py-1.5 text-xs`} />
+          <button onClick={submitMeeting} className="grid size-8 shrink-0 place-items-center rounded-[8px] bg-warn text-white hover:opacity-90"><Plus size={14} /></button>
+        </div>
       </div>
     </div>
   )
@@ -197,6 +357,7 @@ type DetailTab = 'departments' | 'vault'
 function CompanyDetail({ c, onUpdate, onBack }: { c: Company; onUpdate: (p: Partial<Company>) => void; onBack: () => void }) {
   const [tab, setTab] = useState<DetailTab>('departments')
   const [deptName, setDeptName] = useState('')
+  const [selectedDept, setSelectedDept] = useState<string | null>(null)
   const setDepts = (departments: Department[]) => onUpdate({ departments })
   const addDept = () => {
     const n = deptName.trim()
@@ -240,11 +401,17 @@ function CompanyDetail({ c, onUpdate, onBack }: { c: Company; onUpdate: (p: Part
               <DeptRow
                 key={d.id}
                 d={d}
+                companyId={c.id}
+                isSelected={selectedDept === d.name}
+                onSelect={() => setSelectedDept(selectedDept === d.name ? null : d.name)}
                 onUpdate={(p) => setDepts(c.departments.map((x) => (x.id === d.id ? { ...x, ...p } : x)))}
                 onRemove={() => setDepts(c.departments.filter((x) => x.id !== d.id))}
               />
             ))}
           </div>
+          {selectedDept && (
+            <DeptDetail companyId={c.id} companyName={c.name} deptName={selectedDept} />
+          )}
           <div className="mt-3 flex items-center gap-2 border-t-2 border-border pt-3">
             <input value={deptName} onChange={(e) => setDeptName(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && addDept()} placeholder="Add a department…" className={`${fld} w-56`} />
             <button onClick={addDept} className="grid size-9 place-items-center rounded-[10px] bg-accent text-white hover:opacity-90"><Plus size={16} /></button>

@@ -19,7 +19,8 @@ import { useDocs, expiryStatus, expiryLabel } from '@/modules/vault/vaultStore'
 import { useSubs, dueStatus as subDueStatus, dueLabel as subDueLabel } from '@/modules/subs/subsStore'
 import { uid } from '@/lib/store'
 import { useServerHealth, useLastBrief, useGcSnapshot, generateBrief, type BriefMode } from '@/lib/ai'
-import { Sparkles, CalendarClock, ListChecks, Flag, PieChart, Sun, Plus, Loader2, Server, Moon, Star, X, AlertTriangle, Copy } from 'lucide-react'
+import { useMeetings, type Meeting } from '@/modules/work/deptStore'
+import { Sparkles, CalendarClock, ListChecks, Flag, PieChart, Sun, Plus, Loader2, Server, Moon, Star, X, AlertTriangle, Copy, Video } from 'lucide-react'
 import { modules } from '@/shell/registry'
 
 function renderBrief(text: string) {
@@ -270,9 +271,26 @@ function AgendaRow({ block, status, onUpdate, onRemove }: {
   )
 }
 
+function MeetingAgendaRow({ m }: { m: Meeting }) {
+  const label = [m.companyName, m.department].filter(Boolean).join(' · ')
+  return (
+    <li className="flex items-center gap-2 rounded-[10px] border border-warn/25 bg-warn/5 px-1.5 py-[3px]">
+      <Video size={13} className="shrink-0 text-warn" />
+      <span className="w-20 shrink-0 text-right font-mono text-[10px] tabular-nums text-ink-faint">{m.time}</span>
+      <span className="mt-0.5 h-5 w-1 shrink-0 self-start rounded-full bg-warn" />
+      <span className="min-w-0 flex-1 text-sm text-ink">{m.title}</span>
+      <span className="shrink-0 rounded-[6px] bg-warn/15 px-1.5 py-0.5 font-heading text-[9px] font-bold uppercase tracking-wide text-warn">Meeting</span>
+      {label && <span className="max-w-[120px] shrink-0 truncate text-[10px] text-ink-faint">{label}</span>}
+    </li>
+  )
+}
+
 function AgendaTimeline() {
   const date = todayKey()
   const { items, add, update, remove } = useAgenda(date)
+  const { items: allMeetings } = useMeetings()
+  const todayMeetings = allMeetings.filter((m) => m.date === date)
+
   const now = useNow()
   const isToday = date === todayKey()
   const nowMin = minutesOfDay(now)
@@ -281,6 +299,16 @@ function AgendaTimeline() {
   const current = cur >= 0 ? blocks[cur] : null
   const next = blocks[cur + 1] ?? null
   const prev = blocks.length === 0 ? previousAgenda(date) : []
+
+  // Merge agenda blocks and meetings into a single sorted timeline
+  type TItem =
+    | { kind: 'block'; startMin: number; idx: number; b: (typeof blocks)[0] }
+    | { kind: 'meeting'; startMin: number; m: Meeting }
+
+  const merged: TItem[] = [
+    ...blocks.map((b, idx) => ({ kind: 'block' as const, startMin: b.startMin ?? 1e9, idx, b })),
+    ...todayMeetings.map((m) => ({ kind: 'meeting' as const, startMin: parseTimeToMinutes(m.time) ?? 1e9, m })),
+  ].sort((a, b) => a.startMin - b.startMin)
 
   const [time, setTime] = useState('')
   const [task, setTask] = useState('')
@@ -312,7 +340,7 @@ function AgendaTimeline() {
           <span className="shrink-0">{next ? <>Next · {next.task} at {next.time}</> : 'Last block'}</span>
         </div>
       )}
-      {blocks.length === 0 ? (
+      {merged.length === 0 ? (
         <div className="rounded-xl border-2 border-dashed border-border px-4 py-6 text-center">
           <p className="text-sm text-ink-faint">No blocks yet — plan {isToday ? 'today' : 'this day'} below.</p>
           {prev.length > 0 && (
@@ -324,17 +352,21 @@ function AgendaTimeline() {
       ) : (
         <ol className="space-y-0">
           {isToday && cur < 0 && <NowLine now={now} />}
-          {blocks.map((b, i) => (
-            <Fragment key={b.id}>
-              <AgendaRow
-                block={b}
-                status={!isToday ? 'next' : i < cur ? 'past' : i === cur ? 'now' : 'next'}
-                onUpdate={(patch) => update(b.id, patch)}
-                onRemove={() => remove(b.id)}
-              />
-              {isToday && i === cur && <NowLine now={now} />}
-            </Fragment>
-          ))}
+          {merged.map((item) =>
+            item.kind === 'meeting' ? (
+              <MeetingAgendaRow key={item.m.id} m={item.m} />
+            ) : (
+              <Fragment key={item.b.id}>
+                <AgendaRow
+                  block={item.b}
+                  status={!isToday ? 'next' : item.idx < cur ? 'past' : item.idx === cur ? 'now' : 'next'}
+                  onUpdate={(patch) => update(item.b.id, patch)}
+                  onRemove={() => remove(item.b.id)}
+                />
+                {isToday && item.idx === cur && <NowLine now={now} />}
+              </Fragment>
+            )
+          )}
         </ol>
       )}
       <div className="mt-2 flex items-center gap-2 border-t-2 border-border px-1.5 pt-2">
