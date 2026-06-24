@@ -2,10 +2,10 @@
 
 > **One screen for everything that matters.**
 >
-> A personal operating system for Dr. Gowtham — founder, CEO, and doctor based in India.
-> Instead of ten scattered apps, one fast dashboard handles his day, his companies,
-> his money, his documents, and his health — and an AI assistant knows all of it,
-> so he can just ask instead of clicking around.
+> A personal operating system for a founder and business owner.
+> Instead of ten scattered apps, one fast dashboard handles the day, the companies,
+> the money, the documents, and health — and an AI assistant knows all of it,
+> so you can just ask instead of clicking around.
 
 ---
 
@@ -32,11 +32,11 @@ Open the app and you land on the **Command Center** — today's agenda, weekly p
 From there, ten pillars cover the full life-OS:
 
 1. **Plan the day** — agenda blocks, to-dos, MIT (most important task), gratitude and reflection.
-2. **Run the companies** — all your group entities (TRI, TRG, CMIS, LOF + verticals like TRKitchen, TRGlass, TRMarble) with departments, headcount, task KPIs, and a document vault per company.
+2. **Run the companies** — your group entities and verticals, each with departments, headcount, task KPIs, and a document vault.
 3. **Track what's waiting** — open loops with owner, due date, and auto-overdue status so nothing falls through.
 4. **Stay on top of habits** — a Mon–Sun grid for self-care and daily habits, with streaks and consistency percentage.
-5. **Watch the money** — net worth, full portfolio with live P&L, savings goals, SIP/FIRE calculators, all in INR.
-6. **Keep documents safe** — personal vault for govt IDs, college certificates, medical licence, with 20-day expiry reminders.
+5. **Watch the money** — net worth, full portfolio with live P&L, savings goals, SIP/FIRE calculators.
+6. **Keep documents safe** — personal vault for govt IDs, certificates, and licences with 20-day expiry reminders.
 7. **Manage subscriptions** — monthly and yearly subs, due dates, auto-pay flags, spend totals.
 8. **Monitor health** — readiness score, sleep, HR, HRV, BMI, activity (Apple Watch ingest planned).
 9. **Read business news** — live Google News feed organised by the verticals that matter to you.
@@ -46,7 +46,7 @@ From there, ten pillars cover the full life-OS:
 
 ## Why it exists
 
-A busy founder-doctor has information spread across a notes app, a spreadsheet, a banking app, a document folder, a WhatsApp group, and his memory. None of them talk to each other. The AI can't help because it can't see all of it at once.
+Information for a busy founder is spread across a notes app, a spreadsheet, a banking app, a document folder, and memory. None of them talk to each other. The AI can't help because it can't see all of it at once.
 
 VELMAN OS fixes that by putting everything in one place:
 
@@ -64,11 +64,11 @@ VELMAN OS fixes that by putting everything in one place:
 | **Command Center** | `/` | Daily home — agenda, priorities, AI brief, needs-you roll-up, time-by-category chart |
 | **Work** | `/work` | Group companies, departments, headcount, company document vault, task KPIs |
 | **Daily Log** | `/log` | Scrollable history — what got done on any past day |
-| **News** | `/news` | Live Google News by business vertical (Interiors, Restaurant, Tech…) |
+| **News** | `/news` | Live Google News organised by your business verticals |
 | **Open Loops** | `/loops` | Waiting-on register — owner, due date, context, auto-overdue |
 | **Habits** | `/habits` | Weekly Mon–Sun habit grid, streaks, consistency % |
 | **Health** | `/health` | Readiness, sleep, resting HR, HRV, BMI, steps, blood pressure |
-| **Vault** | `/vault` | Personal document store — govt IDs, certificates, medical licence, expiry alerts |
+| **Vault** | `/vault` | Personal document store — IDs, certificates, licences, expiry alerts |
 | **Subscriptions** | `/subscriptions` | Monthly/yearly subs, due-date alerts, auto-pay, spend totals |
 | **Financial** | `/finance` | Net worth, portfolio + P&L, savings goals, SIP/FIRE calculators |
 
@@ -98,7 +98,7 @@ Your browser                    server/index.mjs              Claude API
 ```
 
 **What is a "snapshot"?**
-Instead of sending your actual records, the app compresses everything into a small structured JSON — something like `"openLoops: 4, overdue: 2, portfolioROI: +12.3%, docsExpiringSoon: ['Driving License']"`. Claude reads this and answers. Your raw agenda entries, financial transactions, and document files never leave the browser.
+Instead of sending your actual records, the app compresses everything into a small structured JSON — something like `"openLoops: 4, overdue: 2, portfolioROI: +12.3%, docsExpiringSoon: 1"`. Claude reads this and answers. Your raw agenda entries, financial transactions, and document files never leave the browser.
 
 **The server** (`server/index.mjs`) is a small Express app that runs on your own machine. It holds your Claude Pro token and is the only thing that calls the Anthropic API. The browser never sees the token.
 
@@ -189,8 +189,8 @@ Storage keys follow the convention `gcos.<kind>.v<N>` (e.g. `gcos.docs.v4`). The
 
 `app/src/lib/ai.ts` has two snapshot builders:
 
-- `useGcSnapshot(date)` — today's planner data only (agenda, priorities, to-dos, habits, finance summary). Used for the daily brief.
-- `useAssistantContext()` — the whole app (all ten pillars). Used for the ⌘J assistant.
+- `useGcSnapshot(date)` — today's planner data only (agenda, priorities, to-dos, habits, finance summary) — used for the daily brief.
+- `useAssistantContext()` — the whole app (all ten pillars) — used for the ⌘J assistant.
 
 Both return plain objects. Claude sees numbers and short strings, not your actual document files or transaction history.
 
@@ -223,7 +223,7 @@ Agenda entries, to-dos, gratitude, and reflection are each stored keyed by ISO d
 All colours and fonts are defined as CSS custom properties in `app/src/index.css` using Tailwind v4's `@theme` block. No separate config file needed.
 
 ```
-Accent colour    #1c4d8c  (LOF blue)
+Accent colour    #1c4d8c
 Headings         Orbitron (geometric, uppercase — used for nav labels)
 Body             Rajdhani (clean, readable at small sizes)
 Numbers / code   Fira Code (tabular, monospaced)
@@ -238,7 +238,7 @@ You need **Node.js 20+** and **npm 10+**.
 ### Step 1 — Clone and install
 
 ```bash
-git clone https://github.com/Gowthamchandru/VELMAN_OS.git
+git clone <repo-url>
 cd VELMAN_OS/app
 npm install
 ```
