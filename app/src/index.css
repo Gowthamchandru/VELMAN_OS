@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&family=Fira+Code:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Orbitron:wght@400;500;600;700;800;900&family=Fira+Code:wght@400;500;600&display=swap');
 @import "tailwindcss";
 
 @theme {
@@ -14,12 +14,19 @@
   --color-accent-soft: rgba(28, 77, 140, 0.1);
   --color-brand-border: rgba(28, 77, 140, 0.2);
 
+  /* Dark left rail (sidebar) — deep navy that carries the LOF-blue accent */
+  --color-sidebar: #0e1a2e;
+  --color-sidebar-2: #1b2c47;
+  --color-sidebar-border: rgba(148, 163, 184, 0.16);
+  --color-sidebar-ink: #f1f5f9;
+  --color-sidebar-muted: #93a4bd;
+
   --color-online: #059669;
   --color-warn: #d97706;
   --color-down: #9ca3af;
   --color-danger: #d93a2b;
 
-  --font-sans: 'Rajdhani', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-sans: 'Manrope', ui-sans-serif, system-ui, -apple-system, sans-serif;
   --font-mono: 'Fira Code', ui-monospace, 'SFMono-Regular', monospace;
   --font-heading: 'Orbitron', ui-sans-serif, sans-serif;
 }

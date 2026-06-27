@@ -146,9 +146,10 @@ app.post('/api/assistant', async (req, res) => {
   }
 })
 
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   const mode = authMode()
   console.log(`\n  GC OS assistant server → http://localhost:${PORT}`)
+  console.log(`  Network access → http://192.168.1.123:${PORT}`)
   console.log(`  model: ${MODEL}`)
   if (mode === 'subscription') console.log('  auth:  Claude Pro/Max subscription (CLAUDE_CODE_OAUTH_TOKEN) ✓\n')
   else if (mode === 'apikey') console.log('  auth:  ANTHROPIC_API_KEY (pay-per-use) — set CLAUDE_CODE_OAUTH_TOKEN to use your Pro plan instead\n')

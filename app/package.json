@@ -5,8 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:network": "vite --host",
     "server": "cd .. && node server/index.mjs",
     "dev:all": "concurrently -n web,ai -c cyan,magenta \"vite\" \"cd .. && node server/index.mjs\"",
+    "dev:all:network": "concurrently -n web,ai -c cyan,magenta \"vite --host\" \"cd .. && node server/index.mjs\"",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview"

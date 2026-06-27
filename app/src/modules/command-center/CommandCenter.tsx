@@ -639,10 +639,8 @@ export default function CommandCenter() {
 
   return (
     <div className="space-y-3">
-      <div className="flex items-end justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-semibold text-ink">{greeting(now)}, Dr. Gowtham</h1>
-        </div>
+      <div className="flex items-center justify-between gap-4">
+        <h1 className="text-2xl font-semibold text-ink">{greeting(now)}, Dr. Gowtham</h1>
         <div className="flex items-center gap-4">
           <DayProgress />
           <div className="hidden gap-2 lg:flex">
@@ -669,9 +667,9 @@ export default function CommandCenter() {
         <TimeByCategory />
         <Reflection />
         {widgets.map((w) => (
-          <div key={w.id} className={w.span === 2 ? 'col-span-2' : ''}>
-            <Card title={w.title} icon={w.icon}>
-              {w.render()}
+          <div key={w.id} className={`flex ${w.span === 2 ? 'col-span-2' : ''}`}>
+            <Card title={w.title} icon={w.icon} className="flex h-full w-full flex-col">
+              <div className="flex flex-1 flex-col justify-center">{w.render()}</div>
             </Card>
           </div>
         ))}

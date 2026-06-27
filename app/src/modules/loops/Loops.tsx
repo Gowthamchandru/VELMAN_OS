@@ -205,13 +205,8 @@ export function LoopsWidget() {
   const { items } = useLoops()
   const open = items.filter((i) => i.status !== 'closed')
   const top = [...open].sort((a, b) => RANK[displayStatus(a)] - RANK[displayStatus(b)]).slice(0, 3)
-  const more = open.length - top.length
   return (
     <div>
-      <div className="mb-2 flex items-baseline gap-2">
-        <span className="text-2xl font-semibold tabular-nums text-ink">{open.length}</span>
-        <span className="text-sm text-ink-muted">in flight</span>
-      </div>
       {top.length === 0 ? (
         <p className="text-xs text-ink-faint">All clear — press ⌘K to capture one.</p>
       ) : (
@@ -223,7 +218,6 @@ export function LoopsWidget() {
               <span className="shrink-0 text-[11px] text-ink-faint">{dueLabel(loop.due) || loop.context}</span>
             </li>
           ))}
-          {more > 0 && <li className="text-[11px] text-ink-faint">+{more} more on the Open Loops page</li>}
         </ul>
       )}
     </div>
