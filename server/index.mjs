@@ -13,6 +13,7 @@
 import { readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { dirname, resolve } from 'node:path'
+import { networkInterfaces } from 'node:os'
 import express from 'express'
 import cors from 'cors'
 import { query } from '@anthropic-ai/claude-agent-sdk'
@@ -146,10 +147,25 @@ app.post('/api/assistant', async (req, res) => {
   }
 })
 
+// Get local network IP address
+function getNetworkIP() {
+  const nets = networkInterfaces()
+  for (const name of Object.keys(nets)) {
+    for (const net of nets[name]) {
+      // Skip internal (localhost) and non-IPv4 addresses
+      if (net.family === 'IPv4' && !net.internal) {
+        return net.address
+      }
+    }
+  }
+  return 'localhost'
+}
+
 app.listen(PORT, '0.0.0.0', () => {
   const mode = authMode()
+  const networkIP = getNetworkIP()
   console.log(`\n  GC OS assistant server → http://localhost:${PORT}`)
-  console.log(`  Network access → http://192.168.1.123:${PORT}`)
+  console.log(`  Network access → http://${networkIP}:${PORT}`)
   console.log(`  model: ${MODEL}`)
   if (mode === 'subscription') console.log('  auth:  Claude Pro/Max subscription (CLAUDE_CODE_OAUTH_TOKEN) ✓\n')
   else if (mode === 'apikey') console.log('  auth:  ANTHROPIC_API_KEY (pay-per-use) — set CLAUDE_CODE_OAUTH_TOKEN to use your Pro plan instead\n')
