@@ -22,7 +22,7 @@ export const useLastBrief = () => useLocalValue('gcos.brief.last')
 export type BriefMode = 'morning' | 'evening'
 
 // Where the local assistant server lives (override with VITE_GCOS_SERVER).
-const SERVER = (import.meta.env.VITE_GCOS_SERVER as string | undefined)?.replace(/\/$/, '') ?? `http://${window.location.hostname}:8787`
+const SERVER = (import.meta.env.VITE_GCOS_SERVER as string | undefined)?.replace(/\/$/, '') ?? 'http://localhost:8787'
 
 export type ServerMode = 'subscription' | 'apikey' | 'none'
 export interface ServerHealth { checking: boolean; online: boolean; mode: ServerMode; model?: string }
