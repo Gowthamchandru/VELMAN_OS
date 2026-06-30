@@ -4,11 +4,8 @@ import { useLock } from '@/lib/lockStore'
 
 const fld = 'rounded-[10px] border-2 border-border bg-surface px-3 py-2 text-sm text-ink outline-none focus:border-accent'
 
-const LOCKS_ENABLED = false
-
 export function LockScreen({ id, label, children }: { id: string; label: string; children: ReactNode }) {
-  if (!LOCKS_ENABLED) return <>{children}</>
-  const { pin, setPin, unlocked, tryUnlock } = useLock(id)
+  const { setPin, unlocked, tryUnlock } = useLock(id)
   const [input, setInput] = useState('')
   const [show, setShow] = useState(false)
   const [err, setErr] = useState(false)

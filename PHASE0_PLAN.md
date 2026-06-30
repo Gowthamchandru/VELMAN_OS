@@ -1,4 +1,4 @@
-# Phase 0 Build Plan — GC Operating System
+# Phase 0 Build Plan — Velman OS
 
 > Foundation phase. Outcome: your Excel planner becomes a **live, E2E-encrypted, Mac↔iPhone-syncing, on-device SQLite database** rendered in the app shell, with the **Health module wired to receive Apple Watch data**. Everything after this plugs into the spine built here.
 

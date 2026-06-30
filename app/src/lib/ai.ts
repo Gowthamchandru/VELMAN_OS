@@ -1,4 +1,4 @@
-// AI layer for GC OS. Builds STRUCTURED SNAPSHOTS (never raw records) of the
+// AI layer for Velman OS. Builds STRUCTURED SNAPSHOTS (never raw records) of the
 // user's day / whole app, then talks to Claude through the LOCAL assistant
 // server (server/index.mjs), which uses the Claude Pro subscription via the
 // Agent SDK. Only the compact snapshot leaves the browser — to localhost — and

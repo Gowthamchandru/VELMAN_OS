@@ -1,4 +1,4 @@
-# Converting GC Operating System to Real Data
+# Converting Velman OS to Real Data
 
 ## 1. The one idea
 

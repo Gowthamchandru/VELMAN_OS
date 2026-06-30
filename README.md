@@ -295,7 +295,7 @@ You will see two streams of output:
 
 ```
 [web] ready in 312ms → http://localhost:5173
-[ai]  GC OS assistant server → http://localhost:8787
+[ai]  Velman OS assistant server → http://localhost:8787
 [ai]  model: sonnet
 [ai]  auth:  Claude Pro/Max subscription ✓
 ```

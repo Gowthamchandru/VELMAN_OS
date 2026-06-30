@@ -1,4 +1,4 @@
-# GC Operating System — Architecture & Plan
+# Velman OS — Architecture & Plan
 ### A personal, local-first productivity dashboard for Dr. Gowtham
 *Prepared as a decision-ready brief — review, mark up, and let's discuss.*
 
@@ -6,7 +6,7 @@
 
 ## 1. Vision in one paragraph
 
-**GC Operating System is a single, private, local-first cockpit that turns your static Excel weekly-planner into a living operating system for your day, your health, and your company.** It keeps the parts of the planner that already work — the 30-minute time-blocked agenda, the priorities checklist, the self-care and habit grids, the gratitude and reflection lines — and makes them *active*: tasks roll over automatically, health metrics flow in from your Apple Watch, company numbers sit one glance away, and a single morning brief tells you the three things that matter today. The core promise is **orientation in 60 seconds and nothing dropped**: every open loop, delegated task, awaited reply, and decision-to-revisit lives in one place, surfaced when it's due rather than remembered by you. It's built for *one* power user (you), runs on your own Mac and iPhone, and is designed to grow module-by-module over years without ever becoming someone else's product.
+**Velman OS is a single, private, local-first cockpit that turns your static Excel weekly-planner into a living operating system for your day, your health, and your company.** It keeps the parts of the planner that already work — the 30-minute time-blocked agenda, the priorities checklist, the self-care and habit grids, the gratitude and reflection lines — and makes them *active*: tasks roll over automatically, health metrics flow in from your Apple Watch, company numbers sit one glance away, and a single morning brief tells you the three things that matter today. The core promise is **orientation in 60 seconds and nothing dropped**: every open loop, delegated task, awaited reply, and decision-to-revisit lives in one place, surfaced when it's due rather than remembered by you. It's built for *one* power user (you), runs on your own Mac and iPhone, and is designed to grow module-by-module over years without ever becoming someone else's product.
 
 ---
 
