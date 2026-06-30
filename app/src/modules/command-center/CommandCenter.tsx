@@ -325,11 +325,7 @@ function AgendaTimeline() {
       title="Today's agenda"
       icon={CalendarClock}
       action={
-        isToday ? (
-          <span className="flex items-center gap-1.5 font-mono text-[11px] text-ink-muted">
-            <span className="dot-online size-1.5 rounded-full bg-online" /> {clockLabel(now)}
-          </span>
-        ) : (
+        isToday ? null : (
           <span className="font-mono text-[11px] text-ink-faint">{blocks.length} block{blocks.length === 1 ? '' : 's'}</span>
         )
       }
