@@ -7,7 +7,7 @@ import { useCompanies, newCompany, newDepartment, totalEmployees, groupTotal, ty
 import {
   useDeptTasks, useMeetings, newDeptTask, newMeeting,
   DEPT_TASK_STATUSES, DEPT_TASK_STATUS_COLOR,
-  type DeptTask, type DeptTaskStatus, type Meeting,
+  type DeptTask, type DeptTaskStatus,
 } from './deptStore'
 import { todayKey } from '@/lib/time'
 import {
