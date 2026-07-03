@@ -1,9 +1,12 @@
 name: Deploy Velman OS to GitHub Pages
 
 # Rebuilds and redeploys automatically on every push to master.
+# NOTE: the github-pages environment only accepts deploys from the DEFAULT
+# branch (main). Triggering on other branches just produces doomed runs that
+# also cancel the good one via the shared concurrency group — so: main only.
 on:
   push:
-    branches: [main, master]
+    branches: [main]
   workflow_dispatch: {}
 
 permissions:
