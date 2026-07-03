@@ -3,7 +3,7 @@ name: Deploy Velman OS to GitHub Pages
 # Rebuilds and redeploys automatically on every push to master.
 on:
   push:
-    branches: [master]
+    branches: [main, master]
   workflow_dispatch: {}
 
 permissions:
