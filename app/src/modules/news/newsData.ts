@@ -4,6 +4,7 @@
 // assistant fills ("how this helps your work").
 import { useEffect, useState } from 'react'
 import { useCollection, uid } from '@/lib/store'
+import { SERVER } from '@/lib/server'
 
 export interface Vertical {
   id: string
@@ -59,8 +60,12 @@ export function sampleFor(v: Vertical): NewsItem[] {
   return rows.map((r, i) => ({ id: `${v.id}-s${i}`, title: r.title, source: r.source, vertical: v.name }))
 }
 
-// Try a couple of free CORS proxies so a flaky one doesn't kill the feed.
+// Fetch RSS through a proxy that adds CORS headers. Order matters: the LOCAL
+// assistant server is tried first (reliable, no CORS limit, runs on your
+// machine). If it isn't running, fall back to free public proxies — flaky, so
+// two are listed — and finally to SAMPLE data (handled by callers).
 const PROXIES = [
+  (u: string) => `${SERVER}/api/news?url=${encodeURIComponent(u)}`,
   (u: string) => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
   (u: string) => `https://corsproxy.io/?url=${encodeURIComponent(u)}`,
 ]

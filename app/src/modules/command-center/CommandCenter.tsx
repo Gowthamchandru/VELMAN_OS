@@ -20,8 +20,23 @@ import { useSubs, dueStatus as subDueStatus, dueLabel as subDueLabel } from '@/m
 import { uid } from '@/lib/store'
 import { useServerHealth, useLastBrief, useGcSnapshot, generateBrief, type BriefMode } from '@/lib/ai'
 import { useMeetings, type Meeting } from '@/modules/work/deptStore'
-import { Sparkles, CalendarClock, ListChecks, Flag, PieChart, Sun, Plus, Loader2, Server, Moon, Star, X, AlertTriangle, Copy, Video } from 'lucide-react'
+import { Sparkles, CalendarClock, ListChecks, Flag, PieChart, Sun, Plus, Loader2, Server, Moon, Star, X, AlertTriangle, Copy, Video, BarChart3, Activity } from 'lucide-react'
+import {
+  PieChart as RPieChart,
+  Pie,
+  Cell,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from 'recharts'
 import { modules } from '@/shell/registry'
+
+const tooltipStyle = { background: 'var(--color-surface-2)', border: '1px solid var(--color-border)', borderRadius: 10, fontSize: 12, color: 'var(--color-ink)' }
+const OVERVIEW_PALETTE = ['#1c4d8c', '#059669', '#d97706', '#8b5cf6', '#06b6d4', '#ec4899']
 
 function renderBrief(text: string) {
   return text.split('\n').filter((l) => l.trim() !== '').map((line, i) => {
@@ -507,39 +522,165 @@ function todayByCategory(blocks: { category: string; startMin: number | null }[]
   return [...totals.entries()].map(([name, minutes]) => ({ name, minutes, hex: categoryColor(name) })).sort((a, b) => b.minutes - a.minutes)
 }
 
+// A small segmented toggle used across the visual cards.
+function Segmented<T extends string>({ value, onChange, options }: { value: T; onChange: (v: T) => void; options: { v: T; label: string }[] }) {
+  return (
+    <div className="flex rounded-[8px] border-2 border-border p-0.5 font-heading text-[10px] font-bold uppercase tracking-wide">
+      {options.map((o) => (
+        <button key={o.v} onClick={() => onChange(o.v)} className={`rounded px-2 py-0.5 ${value === o.v ? 'bg-accent text-white' : 'text-ink-faint hover:text-ink'}`}>{o.label}</button>
+      ))}
+    </div>
+  )
+}
+
 function TimeByCategory() {
   const [view, setView] = useState<'today' | 'week'>('today')
+  const [chart, setChart] = useState<'pie' | 'bar'>('pie')
   const date = todayKey()
   const { items } = useAgenda(date)
   const today = todayByCategory(items.map((b) => ({ category: b.category, startMin: parseTimeToMinutes(b.time) })))
   const data = view === 'today' ? today : timeByCategory()
-  const max = Math.max(...data.map((d) => d.minutes), 1)
+  const total = data.reduce((s, d) => s + d.minutes, 0)
+  const chartData = data.map((d) => ({ ...d, hours: +(d.minutes / 60).toFixed(1) }))
+  const fmtHours = (v: number) => `${(v / 60).toFixed(1)}h`
   return (
     <Card
       title="Time by category"
-      icon={PieChart}
-      className="lg:col-span-3"
+      icon={chart === 'pie' ? PieChart : BarChart3}
       action={
-        <div className="flex rounded-[8px] border-2 border-border p-0.5 font-heading text-[10px] font-bold uppercase tracking-wide">
-          {(['today', 'week'] as const).map((v) => (
-            <button key={v} onClick={() => setView(v)} className={`rounded px-2 py-0.5 ${view === v ? 'bg-accent text-white' : 'text-ink-faint hover:text-ink'}`}>{v === 'today' ? 'Day' : 'Week'}</button>
-          ))}
+        <div className="flex items-center gap-1.5">
+          <Segmented value={view} onChange={setView} options={[{ v: 'today', label: 'Day' }, { v: 'week', label: 'Week' }]} />
+          <Segmented value={chart} onChange={setChart} options={[{ v: 'pie', label: 'Pie' }, { v: 'bar', label: 'Bar' }]} />
         </div>
       }
     >
-      {data.length === 0 ? (
-        <p className="py-2 text-sm text-ink-faint">No blocks scheduled yet.</p>
-      ) : (
-        <div className="space-y-2">
-          {data.map((d) => (
-            <div key={d.name} className="flex items-center gap-3">
-              <span className="w-20 shrink-0 text-xs text-ink-muted">{d.name}</span>
-              <div className="h-4 flex-1 overflow-hidden rounded bg-surface-2">
-                <div className="h-full rounded" style={{ width: `${(d.minutes / max) * 100}%`, background: d.hex }} />
+      {chartData.length === 0 ? (
+        <p className="py-8 text-center text-sm text-ink-faint">No blocks scheduled yet.</p>
+      ) : chart === 'pie' ? (
+        <div className="flex items-center gap-4">
+          <div className="relative h-44 w-44 shrink-0">
+            <ResponsiveContainer width="99%" height="100%">
+              <RPieChart>
+                <Pie isAnimationActive={false} data={chartData} dataKey="minutes" nameKey="name" innerRadius={46} outerRadius={78} paddingAngle={2} stroke="none">
+                  {chartData.map((d) => <Cell key={d.name} fill={d.hex} />)}
+                </Pie>
+                <Tooltip contentStyle={tooltipStyle} formatter={(v) => fmtHours(Number(v))} />
+              </RPieChart>
+            </ResponsiveContainer>
+            <div className="pointer-events-none absolute inset-0 grid place-items-center">
+              <div className="text-center leading-none">
+                <div className="font-mono text-lg font-semibold text-ink">{(total / 60).toFixed(1)}h</div>
+                <div className="text-[10px] uppercase tracking-wide text-ink-faint">planned</div>
               </div>
-              <span className="w-12 shrink-0 text-right text-xs tabular-nums text-ink-faint">{(d.minutes / 60).toFixed(1)}h</span>
             </div>
-          ))}
+          </div>
+          <ul className="min-w-0 flex-1 space-y-1.5 text-xs">
+            {chartData.map((d) => (
+              <li key={d.name} className="flex items-center gap-2">
+                <span className="size-2.5 shrink-0 rounded-full" style={{ background: d.hex }} />
+                <span className="min-w-0 flex-1 truncate text-ink-muted">{d.name}</span>
+                <span className="tabular-nums text-ink-faint">{d.hours}h</span>
+                <span className="w-9 text-right tabular-nums text-ink-faint">{total ? Math.round((d.minutes / total) * 100) : 0}%</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : (
+        <div className="h-52 w-full">
+          <ResponsiveContainer width="99%" height="100%">
+            <BarChart data={chartData} margin={{ top: 4, right: 8, left: -18, bottom: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" vertical={false} />
+              <XAxis dataKey="name" tick={{ fontSize: 11, fill: 'var(--color-ink-faint)' }} axisLine={false} tickLine={false} interval={0} />
+              <YAxis tick={{ fontSize: 11, fill: 'var(--color-ink-faint)' }} axisLine={false} tickLine={false} tickFormatter={(v) => `${v}h`} />
+              <Tooltip contentStyle={tooltipStyle} cursor={{ fill: 'var(--color-surface-2)' }} formatter={(v) => `${v}h`} />
+              <Bar dataKey="hours" radius={[6, 6, 0, 0]} isAnimationActive={false}>
+                {chartData.map((d) => <Cell key={d.name} fill={d.hex} />)}
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      )}
+    </Card>
+  )
+}
+
+// Completion across the day's areas + where open items sit — shown as charts
+// instead of prose so the state of the day reads at a glance.
+function ProgressOverview() {
+  const [chart, setChart] = useState<'bar' | 'pie'>('bar')
+  const date = todayKey()
+  const s = useGcSnapshot(date)
+
+  const pct = (done: number, total: number) => (total ? Math.round((done / total) * 100) : 0)
+  const agendaDone = s.agenda.filter((a) => a.done).length
+  const todosDone = s.todos.filter((t) => t.done).length
+  const prioDone = s.weeklyPriorities.filter((p) => p.done).length
+
+  const bars = [
+    { area: 'Agenda', pct: pct(agendaDone, s.agenda.length), done: agendaDone, total: s.agenda.length },
+    { area: 'To-dos', pct: pct(todosDone, s.todos.length), done: todosDone, total: s.todos.length },
+    { area: 'Priorities', pct: pct(prioDone, s.weeklyPriorities.length), done: prioDone, total: s.weeklyPriorities.length },
+    { area: 'Work', pct: pct(s.work.done, s.work.totalTasks), done: s.work.done, total: s.work.totalTasks },
+    { area: 'Habits', pct: s.habits.consistencyPct, done: s.habits.completedThisWeek, total: s.habits.totalChecks },
+  ]
+
+  const focus = [
+    { name: 'Open to-dos', value: s.todos.filter((t) => !t.done).length },
+    { name: 'Priorities left', value: s.weeklyPriorities.filter((p) => !p.done).length },
+    { name: 'Open loops', value: s.openLoops.length },
+    { name: 'Work overdue', value: s.work.overdue },
+  ].filter((f) => f.value > 0).map((f, i) => ({ ...f, color: OVERVIEW_PALETTE[i % OVERVIEW_PALETTE.length] }))
+  const focusTotal = focus.reduce((a, b) => a + b.value, 0)
+
+  return (
+    <Card
+      title="Progress overview"
+      icon={chart === 'bar' ? BarChart3 : Activity}
+      action={<Segmented value={chart} onChange={setChart} options={[{ v: 'bar', label: 'Done' }, { v: 'pie', label: 'Focus' }]} />}
+    >
+      {chart === 'bar' ? (
+        <div className="h-52 w-full">
+          <ResponsiveContainer width="99%" height="100%">
+            <BarChart data={bars} layout="vertical" margin={{ top: 4, right: 40, left: 8, bottom: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" horizontal={false} />
+              <XAxis type="number" domain={[0, 100]} tick={{ fontSize: 11, fill: 'var(--color-ink-faint)' }} axisLine={false} tickLine={false} tickFormatter={(v) => `${v}%`} />
+              <YAxis type="category" dataKey="area" width={72} tick={{ fontSize: 11, fill: 'var(--color-ink-muted)' }} axisLine={false} tickLine={false} />
+              <Tooltip contentStyle={tooltipStyle} cursor={{ fill: 'var(--color-surface-2)' }} formatter={(v, _n, p) => [`${v}%  (${p.payload.done}/${p.payload.total})`, 'Done']} />
+              <Bar dataKey="pct" radius={[0, 6, 6, 0]} isAnimationActive={false}>
+                {bars.map((b, i) => <Cell key={b.area} fill={OVERVIEW_PALETTE[i % OVERVIEW_PALETTE.length]} />)}
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      ) : focus.length === 0 ? (
+        <p className="grid h-52 place-items-center text-center text-sm text-ink-faint">Nothing open — you're all caught up. 🎉</p>
+      ) : (
+        <div className="flex items-center gap-4">
+          <div className="relative h-44 w-44 shrink-0">
+            <ResponsiveContainer width="99%" height="100%">
+              <RPieChart>
+                <Pie isAnimationActive={false} data={focus} dataKey="value" nameKey="name" innerRadius={46} outerRadius={78} paddingAngle={2} stroke="none">
+                  {focus.map((f) => <Cell key={f.name} fill={f.color} />)}
+                </Pie>
+                <Tooltip contentStyle={tooltipStyle} />
+              </RPieChart>
+            </ResponsiveContainer>
+            <div className="pointer-events-none absolute inset-0 grid place-items-center">
+              <div className="text-center leading-none">
+                <div className="font-mono text-lg font-semibold text-ink">{focusTotal}</div>
+                <div className="text-[10px] uppercase tracking-wide text-ink-faint">open</div>
+              </div>
+            </div>
+          </div>
+          <ul className="min-w-0 flex-1 space-y-1.5 text-xs">
+            {focus.map((f) => (
+              <li key={f.name} className="flex items-center gap-2">
+                <span className="size-2.5 shrink-0 rounded-full" style={{ background: f.color }} />
+                <span className="min-w-0 flex-1 truncate text-ink-muted">{f.name}</span>
+                <span className="tabular-nums text-ink-faint">{f.value}</span>
+              </li>
+            ))}
+          </ul>
         </div>
       )}
     </Card>
@@ -658,9 +799,14 @@ export default function CommandCenter() {
         </div>
       </div>
 
+      {/* Visual read of the day — completion and time split as charts */}
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <ProgressOverview />
+        <TimeByCategory />
+      </div>
+
       {/* The rest, full-width rows then an even row of widgets */}
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-        <TimeByCategory />
         <Reflection />
         {widgets.map((w) => (
           <div key={w.id} className={`flex ${w.span === 2 ? 'col-span-2' : ''}`}>

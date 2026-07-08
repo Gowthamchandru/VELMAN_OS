@@ -96,3 +96,19 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .gc-ticker { animation: none; }
 }
+
+/* Assistant drawer entrance */
+@keyframes gc-fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes gc-slide-in { from { transform: translateX(24px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+@keyframes gc-msg-in { from { transform: translateY(6px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+.gc-fade-in { animation: gc-fade-in 0.18s ease-out; }
+.gc-slide-in { animation: gc-slide-in 0.24s cubic-bezier(0.16, 1, 0.3, 1); }
+.gc-msg-in { animation: gc-msg-in 0.22s ease-out; }
+
+/* Assistant "thinking" dots */
+@keyframes gc-dot { 0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; } 40% { transform: scale(1); opacity: 1; } }
+.gc-dot { animation: gc-dot 1.2s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .gc-fade-in, .gc-slide-in, .gc-msg-in, .gc-dot { animation: none; }
+}

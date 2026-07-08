@@ -122,6 +122,28 @@ app.get('/api/health', (_req, res) => {
   res.json({ ok: true, mode: authMode(), model: MODEL })
 })
 
+// News proxy — the browser can't fetch Google News RSS directly (CORS), and the
+// free public proxies are unreliable. Node has no CORS restriction, so we fetch
+// server-side and return the raw XML. Locked to Google News to avoid becoming an
+// open proxy (SSRF guard).
+app.get('/api/news', async (req, res) => {
+  const target = req.query.url
+  if (typeof target !== 'string' || !/^https:\/\/news\.google\.com\//.test(target)) {
+    return res.status(400).json({ error: 'Only Google News RSS URLs are allowed.' })
+  }
+  try {
+    const r = await fetch(target, {
+      headers: { 'User-Agent': 'Mozilla/5.0 (Velman OS news proxy)', Accept: 'application/rss+xml, application/xml, text/xml' },
+    })
+    if (!r.ok) return res.status(502).json({ error: `Upstream ${r.status}` })
+    const xml = await r.text()
+    res.set('Content-Type', 'application/xml; charset=utf-8')
+    res.send(xml)
+  } catch (e) {
+    res.status(502).json({ error: e instanceof Error ? e.message : 'Failed to fetch news.' })
+  }
+})
+
 app.post('/api/brief', async (req, res) => {
   const { snapshot, mode } = req.body ?? {}
   if (authMode() === 'none') return res.status(401).json({ error: 'No Claude credentials. Run `claude setup-token` and put CLAUDE_CODE_OAUTH_TOKEN in app/.env.' })

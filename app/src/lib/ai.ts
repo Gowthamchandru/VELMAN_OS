@@ -5,6 +5,7 @@
 // the Pro token never touches the browser at all.
 import { useEffect, useState } from 'react'
 import { useLocalValue } from '@/lib/store'
+import { SERVER } from '@/lib/server'
 import { prettyDate, weekdayName, todayKey } from '@/lib/time'
 import { usePriorities, useTodos, useAgenda, useGratitude, useReflection } from '@/modules/planner/plannerStore'
 import { useSelfCareDefs, useDailyDefs, weekHabitStats } from '@/modules/habits/habitsStore'
@@ -20,9 +21,6 @@ import * as health from '@/modules/health/healthDemo'
 export const useLastBrief = () => useLocalValue('gcos.brief.last')
 
 export type BriefMode = 'morning' | 'evening'
-
-// Where the local assistant server lives (override with VITE_GCOS_SERVER).
-const SERVER = (import.meta.env.VITE_GCOS_SERVER as string | undefined)?.replace(/\/$/, '') ?? 'http://localhost:8787'
 
 export type ServerMode = 'subscription' | 'apikey' | 'none'
 export interface ServerHealth { checking: boolean; online: boolean; mode: ServerMode; model?: string }
