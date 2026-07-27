@@ -9,24 +9,7 @@ import {
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { useServerHealth, useAssistantContext, askAssistant, type ChatMessage } from '@/lib/ai'
-
-// --- Web Speech API (browser-native voice input; Chrome/Edge/Safari) -----------
-// Minimal typings — the API isn't in the standard DOM lib.
-interface SpeechRecognitionInstance {
-  lang: string
-  continuous: boolean
-  interimResults: boolean
-  start: () => void
-  stop: () => void
-  abort: () => void
-  onresult: ((e: any) => void) | null
-  onerror: ((e: any) => void) | null
-  onend: (() => void) | null
-}
-function getSpeechRecognition(): (new () => SpeechRecognitionInstance) | null {
-  const w = window as any
-  return w.SpeechRecognition || w.webkitSpeechRecognition || null
-}
+import { useSpeechInput } from '@/lib/speech'
 
 // Tiny markdown: **bold**, `code`, and "- "/"• " bullets, line by line.
 function renderMarkdown(text: string) {
@@ -91,13 +74,11 @@ export default function Assistant({ open, onClose }: { open: boolean; onClose: (
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const [listening, setListening] = useState(false)
   const inputRef = useRef<HTMLTextAreaElement>(null)
   const scrollRef = useRef<HTMLDivElement>(null)
-  const recognitionRef = useRef<SpeechRecognitionInstance | null>(null)
-  const baseTextRef = useRef('') // text already in the box before this dictation
   const ready = health.online
-  const speechSupported = typeof window !== 'undefined' && !!getSpeechRecognition()
+  const speech = useSpeechInput({ getBase: () => input, onText: setInput, onError: setError })
+  const { listening, supported: speechSupported } = speech
 
   // Auto-grow the textarea up to a few lines.
   useEffect(() => {
@@ -110,38 +91,15 @@ export default function Assistant({ open, onClose }: { open: boolean; onClose: (
   // Toggle voice dictation. Live transcript streams into the input box; the user
   // reviews it and presses Enter/Send (or just keeps talking).
   const toggleMic = () => {
-    if (listening) {
-      recognitionRef.current?.stop()
-      return
-    }
-    const Ctor = getSpeechRecognition()
-    if (!Ctor) return
-    const rec = new Ctor()
-    rec.lang = 'en-IN'
-    rec.continuous = true
-    rec.interimResults = true
-    baseTextRef.current = input ? input.trimEnd() + ' ' : ''
-    rec.onresult = (e: any) => {
-      let transcript = ''
-      for (let i = 0; i < e.results.length; i++) transcript += e.results[i][0].transcript
-      setInput(baseTextRef.current + transcript)
-    }
-    rec.onerror = (e: any) => {
-      if (e?.error === 'not-allowed' || e?.error === 'service-not-allowed')
-        setError('Microphone blocked. Allow mic access in your browser to speak.')
-      setListening(false)
-    }
-    rec.onend = () => setListening(false)
-    recognitionRef.current = rec
-    setError('')
-    setListening(true)
-    rec.start()
+    if (!listening) setError('')
+    speech.toggle()
     setTimeout(() => inputRef.current?.focus(), 0)
   }
 
   // Stop listening if the drawer closes.
   useEffect(() => {
-    if (!open) recognitionRef.current?.abort()
+    if (!open) speech.abort()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open])
 
   useEffect(() => {
@@ -162,8 +120,7 @@ export default function Assistant({ open, onClose }: { open: boolean; onClose: (
   const send = async (text: string) => {
     const q = text.trim()
     if (!q || loading || !ready) return
-    recognitionRef.current?.abort()
-    setListening(false)
+    speech.abort()
     setError('')
     setInput('')
     const history = messages

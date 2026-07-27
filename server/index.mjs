@@ -116,7 +116,7 @@ function buildConversation(history = [], question) {
 
 const app = express()
 app.use(cors({ origin: true }))
-app.use(express.json({ limit: '2mb' }))
+app.use(express.json({ limit: '10mb' })) // business xlsx uploads arrive as parsed JSON rows
 
 app.get('/api/health', (_req, res) => {
   res.json({ ok: true, mode: authMode(), model: MODEL })
@@ -171,6 +171,343 @@ app.post('/api/assistant', async (req, res) => {
     res.json({ text })
   } catch (e) {
     res.status(502).json({ error: e instanceof Error ? e.message : 'Claude call failed.' })
+  }
+})
+
+// ---------------------------------------------------------------------------
+// Business finance analyst — turns an uploaded spreadsheet (already parsed to
+// rows in the browser) into ONE normalized analysis shape the UI renders for
+// every statement type: KPIs, a pie breakdown, a trend series, insights, and a
+// cleaned table. Runs on the same Pro subscription via runClaude (no tools).
+// ---------------------------------------------------------------------------
+const BIZ_ANALYZE_SYSTEM = `You are the business-finance analyst inside "Velman OS" for Dr. Gowtham, a founder in India (money in INR unless the sheet clearly uses another currency). You receive the raw contents of ONE uploaded spreadsheet (sheet names + rows as arrays, first rows usually headers) for ONE statement type of ONE business vertical. Clean it, understand it, analyze it.
+
+Reply with ONLY one JSON object — no prose, no markdown fences — exactly this shape:
+{
+  "title": "short human title for this statement",
+  "period": "period covered if detectable (e.g. \\"Apr–Jun 2026\\"), else null",
+  "months": ["2026-04", "2026-05", "2026-06"],
+  "kpis": [ { "label": "Total revenue", "value": "₹12.4L", "tone": "good" } ],
+  "breakdown": [ { "name": "Rent", "value": 45000 } ],
+  "trendNames": ["Revenue", "Expenses"],
+  "trend": [ { "label": "Apr 2026", "month": "2026-04", "Revenue": 120000, "Expenses": 90000 } ],
+  "insights": [ "plain-language finding with real numbers" ],
+  "table": { "columns": ["..."], "rows": [ ["...", 123] ] }
+}
+
+Rules:
+- kpis: 3-4, the numbers a founder checks first for THIS statement type (e.g. balance sheet → total assets / liabilities / equity / current ratio; break-even → break-even units & revenue, margin of safety; invoices → outstanding, overdue count; inventory → stock value, low-stock items). tone: "good" | "bad" | "neutral".
+- breakdown: the most meaningful composition for a pie chart, at most 8 slices — merge the tail into "Other". Values are plain numbers (INR).
+- months: the ISO YYYY-MM months the data actually covers, in order ([] only if truly undetectable). This powers period filtering, so infer hard: from column headers, row dates, sheet names, or the file name. A yearly figure covers all 12 months of that year.
+- trend: chronological points if the data has a time dimension (else empty array), up to 24. EVERY trend point must carry "month" as YYYY-MM (for a yearly row use the year's first month). "label" is the human form ("Apr 2026"). trendNames lists the 1-2 numeric series keys used in trend objects.
+- insights: 3-5 specific, plain-language observations with real figures — what's healthy, what's off, what to act on. Never generic filler.
+- table: the cleaned, normalized data — clear headers, consistent columns, at most 60 rows (note "showing first 60" in insights if truncated). Numbers as numbers, not strings.
+- If the sheet doesn't look like the stated statement type, still analyze what it IS and say so in the first insight.
+- Never invent rows that aren't in the data; derived totals/ratios are fine.`
+
+const BIZ_REPORT_SYSTEM = (today) => `You are the fractional CFO inside "Velman OS", writing for Dr. Gowtham (founder, India, INR, IST). Today is ${today}. You receive: a business vertical's name, the user's REPORT REQUEST in free text (e.g. "report for July 2026", "Q2 2026", "first half of this year", "FY 2025-26", "last year"), and the analyzed data of the vertical's financial statements — each tagged with the ISO months it covers, plus KPIs, breakdowns, monthly trend points, insights, and tables.
+
+First, resolve the requested period from the free text (resolve relative phrases against today; if a quarter/half could be calendar or Indian fiscal, pick the more natural reading and STATE your interpretation, e.g. "Q2 2026 (Apr–Jun)"). Then use ONLY data belonging to that period — filter by each statement's months and each trend point's month. Figures spanning a wider range than the period: use them only if you can attribute the period's share; otherwise mention them as context.
+
+Write clean markdown (no code fences), max ~550 words:
+# <Vertical> — <resolved period> report
+## Executive summary   (3-4 sentences: your period interpretation if non-obvious, overall health, the one number that matters, the one risk)
+## Performance         (revenue/profit/cash movements within the period, with real figures)
+## Statement highlights (one tight bullet per statement that has data IN the period)
+## Data gaps           (statements with no data for this period — one line; omit the section if none)
+## Risks & watch-outs  (2-3 bullets)
+## Recommendations     (3 numbered, concrete actions for the next period)
+
+Only use figures present in the data. Never invent numbers.`
+
+app.post('/api/business/analyze', async (req, res) => {
+  const { verticalName, typeLabel, fileName, sheets } = req.body ?? {}
+  if (authMode() === 'none') return res.status(401).json({ error: 'No Claude credentials. Run `claude setup-token` and put CLAUDE_CODE_OAUTH_TOKEN in .env.' })
+  if (!typeLabel || !Array.isArray(sheets) || !sheets.length) return res.status(400).json({ error: 'Expected { verticalName, typeLabel, fileName, sheets }.' })
+  try {
+    const text = await runClaude({
+      system: BIZ_ANALYZE_SYSTEM,
+      prompt: `Vertical: ${verticalName || 'Business'}\nStatement type: ${typeLabel}\nFile: ${fileName || 'upload.xlsx'}\n\nSpreadsheet contents (JSON):\n${JSON.stringify(sheets)}`,
+    })
+    const analysis = extractJson(text)
+    if (!analysis?.kpis || !analysis?.table) throw new Error('The analyst returned an unexpected shape — try re-uploading.')
+    res.json({ analysis })
+  } catch (e) {
+    res.status(502).json({ error: e instanceof Error ? e.message : 'Analysis failed.' })
+  }
+})
+
+app.post('/api/business/report', async (req, res) => {
+  const { verticalName, request, statements } = req.body ?? {}
+  if (authMode() === 'none') return res.status(401).json({ error: 'No Claude credentials. Run `claude setup-token` and put CLAUDE_CODE_OAUTH_TOKEN in .env.' })
+  if (!verticalName || typeof request !== 'string' || !request.trim() || !Array.isArray(statements) || !statements.length) {
+    return res.status(400).json({ error: 'Expected { verticalName, request, statements } with at least one analyzed statement.' })
+  }
+  try {
+    const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' })
+    const text = await runClaude({
+      system: BIZ_REPORT_SYSTEM(today),
+      prompt: `Vertical: ${verticalName}\nReport request: ${request.trim()}\n\nAnalyzed statements (JSON):\n${JSON.stringify(statements)}`,
+    })
+    res.json({ report: text })
+  } catch (e) {
+    res.status(502).json({ error: e instanceof Error ? e.message : 'Report generation failed.' })
+  }
+})
+
+// ---------------------------------------------------------------------------
+// Flight booking agent — researches live options across booking sites with the
+// Agent SDK's web tools, on the same Pro subscription. RESEARCH ONLY: it never
+// books or pays; the UI hands the user to the booking site for manual payment.
+// ---------------------------------------------------------------------------
+const FLIGHTS_SYSTEM = (today) => `You are the flight-booking RESEARCH agent inside "Velman OS" for Dr. Gowtham (based in India; money in INR; timezone IST). Today is ${today} (IST).
+
+You receive a natural-language flight request (e.g. "book a ticket from Chennai to Dubai on 21 July, business class"). Do this:
+
+1. PARSE it: origin city + IATA code, destination city + IATA code, depart date (resolve relative dates against today; if none given pick the nearest sensible date and flag it in "advice"), optional return date, cabin (Economy / Premium Economy / Business / First — default Economy), passengers (default 1).
+2. RESEARCH live options with WebSearch (and WebFetch on promising results pages): check Google Flights, Skyscanner, MakeMyTrip, Cleartrip, EaseMyTrip, Yatra and the airlines that fly the route (IndiGo, Air India, Air India Express, Emirates, flydubai, SpiceJet, ...). Collect 6-12 concrete flight options across sites for the requested cabin. TIME BUDGET: the user is waiting live — do at most ~8 searches and ~6 page reads total; as soon as you have 6 solid options, STOP researching and compile.
+3. COUPONS: search for currently-valid coupon codes / bank-card offers on those booking sites for flights, and list them per site.
+4. Reply with ONLY one JSON object — no prose before or after, no markdown fences — exactly this shape:
+{
+  "parsed": { "from": "Chennai", "fromCode": "MAA", "to": "Dubai", "toCode": "DXB", "departDate": "YYYY-MM-DD", "returnDate": null, "cabin": "Business", "passengers": 1 },
+  "options": [ { "airline": "Emirates", "flightNo": "EK 545", "depart": "09:35", "arrive": "12:20", "duration": "4h 15m", "stops": 0, "cabin": "Business", "priceINR": 78500, "approx": true, "site": "MakeMyTrip", "bookUrl": "https://...", "notes": "checked bag + meal included" } ],
+  "coupons": [ { "site": "MakeMyTrip", "code": "MMTDXB", "detail": "10% off international flights with ICICI cards, up to Rs 2,000" } ],
+  "advice": "2-3 sentences: which option you'd pick and why; anything to watch (layover, baggage, visa).",
+  "asOf": "web results, ${today}"
+}
+
+Rules:
+- priceINR: integer INR when you saw a figure; "approx": true unless it came from a live fare page; null only if you found no figure at all.
+- RECENCY: prefer prices from actual fare/search-results pages you fetched just now; ignore fares quoted in articles, blogs or forum posts more than ~2 weeks old — dynamic pricing makes them wrong.
+- bookUrl: the most reliable link you actually saw (a site's search/results page is fine). NEVER invent a checkout/deep-payment link.
+- stops is an integer; times are local; duration like "4h 15m". Sort options by priceINR ascending (nulls last).
+- You RESEARCH only. You never book, hold, or pay for anything, and never ask for card details.
+- If the web tools return nothing usable, still return typical schedules/fares for the route from knowledge — every option marked "approx": true — and say in "advice" that live fares must be confirmed on the booking site.`
+
+function buildFlightPrompt(request, prior) {
+  const lines = []
+  if (prior?.request) {
+    lines.push(`Previous request: ${prior.request}`)
+    if (prior.parsed) lines.push(`Previous parsed trip: ${JSON.stringify(prior.parsed)}`)
+    lines.push('The new message below may refine the previous search (e.g. change cabin, date, or filters) — carry over anything it does not change.')
+  }
+  lines.push(`New request: ${request}`)
+  return lines.join('\n\n')
+}
+
+// First "{" to last "}" — tolerates any stray prose/fences around the JSON.
+function extractJson(text) {
+  const start = text.indexOf('{')
+  const end = text.lastIndexOf('}')
+  if (start === -1 || end <= start) throw new Error('The agent returned no JSON.')
+  return JSON.parse(text.slice(start, end + 1))
+}
+
+// Streams a step event for each web tool an agent run invokes.
+function sendToolSteps(msg, send) {
+  if (msg.type !== 'assistant') return
+  for (const block of msg.message?.content ?? []) {
+    if (block.type !== 'tool_use') continue
+    if (block.name === 'WebSearch') send({ t: 'step', label: `Searching: ${block.input?.query ?? 'the web'}` })
+    else if (block.name === 'WebFetch') {
+      let host = 'a results page'
+      try { host = new URL(block.input?.url).hostname.replace(/^www\./, '') } catch { /* keep default */ }
+      send({ t: 'step', label: `Reading ${host}…` })
+    }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// LIVE fares via Amadeus Self-Service (optional — free keys from
+// developers.amadeus.com, set AMADEUS_API_KEY/SECRET in .env). Web-researched
+// prices lag dynamic airline pricing; Amadeus quotes actual current offers, so
+// the dashboard matches what the booking site shows. Without keys the flights
+// endpoint transparently falls back to the web-research agent.
+// ---------------------------------------------------------------------------
+const AMADEUS_HOST = (process.env.AMADEUS_ENV || 'test') === 'production'
+  ? 'https://api.amadeus.com'
+  : 'https://test.api.amadeus.com'
+const amadeusEnabled = () => !!(process.env.AMADEUS_API_KEY && process.env.AMADEUS_API_SECRET)
+
+let amadeusAuth = { token: null, exp: 0 }
+async function amadeusToken() {
+  if (amadeusAuth.token && Date.now() < amadeusAuth.exp) return amadeusAuth.token
+  const r = await fetch(`${AMADEUS_HOST}/v1/security/oauth2/token`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({
+      grant_type: 'client_credentials',
+      client_id: process.env.AMADEUS_API_KEY,
+      client_secret: process.env.AMADEUS_API_SECRET,
+    }),
+  })
+  if (!r.ok) throw new Error(`Amadeus auth failed (${r.status})`)
+  const j = await r.json()
+  amadeusAuth = { token: j.access_token, exp: Date.now() + Math.max(0, (j.expires_in ?? 1799) - 60) * 1000 }
+  return amadeusAuth.token
+}
+
+const isoDuration = (d) => {
+  const h = /(\d+)H/.exec(d ?? '')?.[1] ?? '0'
+  const m = /(\d+)M/.exec(d ?? '')?.[1] ?? '0'
+  return `${h}h ${m.padStart(2, '0')}m`
+}
+const titleCase = (s) => (s ? s.toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase()) : s)
+const CABIN_PARAM = { economy: 'ECONOMY', 'premium economy': 'PREMIUM_ECONOMY', business: 'BUSINESS', first: 'FIRST' }
+
+async function amadeusOffers(parsed) {
+  const token = await amadeusToken()
+  const q = new URLSearchParams({
+    originLocationCode: parsed.fromCode,
+    destinationLocationCode: parsed.toCode,
+    departureDate: parsed.departDate,
+    adults: String(parsed.passengers || 1),
+    currencyCode: 'INR',
+    max: '20',
+  })
+  const cabin = CABIN_PARAM[(parsed.cabin || 'Economy').toLowerCase()]
+  if (cabin) q.set('travelClass', cabin)
+  if (parsed.returnDate) q.set('returnDate', parsed.returnDate)
+  const r = await fetch(`${AMADEUS_HOST}/v2/shopping/flight-offers?${q}`, { headers: { Authorization: `Bearer ${token}` } })
+  if (!r.ok) throw new Error(`Amadeus search failed (${r.status})`)
+  const j = await r.json()
+  const carriers = j.dictionaries?.carriers ?? {}
+  return (j.data ?? []).slice(0, 15).map((offer) => {
+    const it = offer.itineraries[0]
+    const segs = it.segments
+    const first = segs[0]
+    const last = segs[segs.length - 1]
+    const cab = offer.travelerPricings?.[0]?.fareDetailsBySegment?.[0]?.cabin
+    return {
+      airline: titleCase(carriers[first.carrierCode] || first.carrierCode),
+      flightNo: segs.map((s) => `${s.carrierCode} ${s.number}`).join(' + '),
+      depart: first.departure.at.slice(11, 16),
+      arrive: last.arrival.at.slice(11, 16),
+      duration: isoDuration(it.duration),
+      stops: segs.length - 1,
+      cabin: titleCase((cab || parsed.cabin || 'ECONOMY').replace(/_/g, ' ')),
+      priceINR: Math.round(+offer.price.grandTotal),
+      approx: false,
+      site: 'Amadeus (live)',
+      bookUrl: null,
+      notes: offer.numberOfBookableSeats ? `${offer.numberOfBookableSeats} seats at this fare` : undefined,
+    }
+  })
+}
+
+const PARSE_SYSTEM = (today) => `Extract flight-search parameters from the user's request. Today is ${today} (IST); resolve relative dates against it. Use each city's main airport IATA code. Reply with ONLY JSON, no prose:
+{"from":"Chennai","fromCode":"MAA","to":"Dubai","toCode":"DXB","departDate":"YYYY-MM-DD","returnDate":null,"cabin":"Economy","passengers":1}
+cabin must be one of: Economy, Premium Economy, Business, First (default Economy). passengers defaults to 1. If no date is given, pick the nearest sensible upcoming date.`
+
+const COUPONS_SYSTEM = `You research coupon codes for Indian flight-booking sites. Given a route and date, use WebSearch (and WebFetch when useful) to find CURRENTLY VALID coupon codes / bank-card offers for flights on MakeMyTrip, Cleartrip, EaseMyTrip, Yatra and Goibibo. At most 6, prefer international-flight offers. Reply with ONLY JSON: {"coupons":[{"site":"Cleartrip","code":"CTINT","detail":"what it gives and its conditions"}]}`
+
+const ADVICE_SYSTEM = `You advise on flight choices for Dr. Gowtham (founder/CEO, India, INR, IST). You get JSON: the parsed trip, live fare options (accurate at search time), and coupons. Reply with 2-3 plain sentences, no markdown: which option you'd book and why, the single best coupon or payment offer to try, and one watch-out (timing, baggage or layover). Reference real flight numbers and INR figures.`
+
+async function runCouponsAgent(parsed, send, ac) {
+  let text = ''
+  for await (const msg of query({
+    prompt: `Route: ${parsed.from} (${parsed.fromCode}) → ${parsed.to} (${parsed.toCode}) on ${parsed.departDate}, cabin ${parsed.cabin}, ${parsed.passengers} passenger(s).`,
+    options: {
+      model: MODEL,
+      systemPrompt: COUPONS_SYSTEM,
+      allowedTools: ['WebSearch', 'WebFetch'],
+      maxTurns: 10,
+      permissionMode: 'default',
+      abortController: ac,
+    },
+  })) {
+    sendToolSteps(msg, send)
+    if (msg.type === 'result' && msg.subtype === 'success') text = msg.result
+  }
+  if (!text) return []
+  const j = extractJson(text)
+  return Array.isArray(j.coupons) ? j.coupons : []
+}
+
+// Live path: quick parse → Amadeus fares (accurate) + coupon agent in parallel
+// → short advice call. Throws to let the caller fall back to web research.
+async function runLiveSearch(request, prior, today, send, ac) {
+  send({ t: 'step', label: 'Parsing your request…' })
+  const parsed = extractJson(await runClaude({ system: PARSE_SYSTEM(today), prompt: buildFlightPrompt(request, prior) }))
+  if (!parsed?.fromCode || !parsed?.toCode || !parsed?.departDate) throw new Error('Could not parse the trip.')
+  send({ t: 'step', label: `Fetching live fares ${parsed.fromCode} → ${parsed.toCode} · ${parsed.departDate}…` })
+  const couponsPromise = runCouponsAgent(parsed, send, ac).catch(() => [])
+  const options = await amadeusOffers(parsed)
+  if (!options.length) throw new Error('No live offers for this route/date.')
+  options.sort((a, b) => a.priceINR - b.priceINR)
+  const coupons = await couponsPromise
+  send({ t: 'step', label: 'Writing recommendation…' })
+  let advice = ''
+  try {
+    advice = await runClaude({ system: ADVICE_SYSTEM, prompt: JSON.stringify({ parsed, options: options.slice(0, 8), coupons }) })
+  } catch { /* advice is optional */ }
+  const now = new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })
+  return { parsed, options, coupons, advice, asOf: `live fares · ${now} IST`, source: 'live' }
+}
+
+// Research path: one agentic run that parses + web-searches + compiles.
+async function runResearchAgent(request, prior, today, send, ac) {
+  send({ t: 'step', label: 'Understanding your request…' })
+  let text = ''
+  let failure = null
+  for await (const msg of query({
+    prompt: buildFlightPrompt(request, prior),
+    options: {
+      model: MODEL,
+      systemPrompt: FLIGHTS_SYSTEM(today),
+      allowedTools: ['WebSearch', 'WebFetch'],
+      maxTurns: 18,
+      permissionMode: 'default',
+      abortController: ac,
+    },
+  })) {
+    sendToolSteps(msg, send)
+    if (msg.type === 'result') {
+      if (msg.subtype === 'success') text = msg.result
+      else failure = msg.subtype
+    }
+  }
+  if (!text) throw new Error(failure ? `Agent run ended: ${failure}` : 'No result from the agent.')
+  send({ t: 'step', label: 'Compiling options…' })
+  return { ...extractJson(text), source: 'research' }
+}
+
+// Server-Sent Events: streams the agent's live activity (each web search /
+// page read) as `step` events, then one `done` event with the parsed JSON.
+app.post('/api/flights', async (req, res) => {
+  const { request, prior } = req.body ?? {}
+  if (authMode() === 'none') return res.status(401).json({ error: 'No Claude credentials. Run `claude setup-token` and put CLAUDE_CODE_OAUTH_TOKEN in .env.' })
+  if (typeof request !== 'string' || !request.trim()) return res.status(400).json({ error: 'Expected { request: string }.' })
+
+  res.setHeader('Content-Type', 'text/event-stream')
+  res.setHeader('Cache-Control', 'no-cache, no-transform')
+  res.setHeader('Connection', 'keep-alive')
+  res.flushHeaders?.()
+  const send = (obj) => res.write(`data: ${JSON.stringify(obj)}\n\n`)
+
+  // Abort the agent if the BROWSER disconnects mid-stream. (Note: this must be
+  // res 'close' + writableEnded — req 'close' fires as soon as the request body
+  // is consumed, which would abort the agent instantly.)
+  const ac = new AbortController()
+  res.on('close', () => { if (!res.writableEnded) ac.abort() })
+
+  const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' })
+  try {
+    let data = null
+    if (amadeusEnabled()) {
+      try {
+        data = await runLiveSearch(request.trim(), prior, today, send, ac)
+      } catch (e) {
+        if (ac.signal.aborted) throw e
+        send({ t: 'step', label: 'Live fares unavailable — falling back to web research…' })
+      }
+    }
+    if (!data) data = await runResearchAgent(request.trim(), prior, today, send, ac)
+    send({ t: 'done', data })
+  } catch (e) {
+    if (!ac.signal.aborted) send({ t: 'error', message: e instanceof Error ? e.message : 'Flight search failed.' })
+  } finally {
+    res.end()
   }
 })
 

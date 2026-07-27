@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { NavLink, Outlet, Link } from 'react-router-dom'
-import { Command, Newspaper, Sparkles } from 'lucide-react'
+import { Command, Menu, Newspaper, Sparkles } from 'lucide-react'
 import { modules } from './registry'
 import QuickCapture from './QuickCapture'
 import Assistant from './Assistant'
@@ -47,6 +47,7 @@ function NewsTicker() {
 export default function Shell() {
   const [captureOpen, setCaptureOpen] = useState(false)
   const [assistantOpen, setAssistantOpen] = useState(false)
+  const [navOpen, setNavOpen] = useState(false)
   const now = useNow()
 
   useEffect(() => {
@@ -67,7 +68,11 @@ export default function Shell() {
 
   return (
     <div className="flex h-screen overflow-hidden">
-      <aside className="flex w-72 shrink-0 flex-col bg-sidebar text-sidebar-ink">
+      <aside
+        className={`fixed inset-y-0 left-0 z-50 flex w-72 shrink-0 flex-col bg-sidebar text-sidebar-ink transition-transform duration-300 lg:static lg:z-auto lg:translate-x-0 ${
+          navOpen ? 'translate-x-0' : '-translate-x-full'
+        }`}
+      >
         {/* Brand */}
         <div className="flex items-center gap-3 border-b border-sidebar-border px-5 py-5">
           <div
@@ -91,6 +96,7 @@ export default function Shell() {
                 key={m.id}
                 to={m.route}
                 end={m.route === '/'}
+                onClick={() => setNavOpen(false)}
                 className={({ isActive }) =>
                   `flex items-center gap-3 rounded-[10px] px-3.5 py-3 transition-colors ${
                     isActive ? 'bg-accent text-white' : 'text-sidebar-muted hover:bg-sidebar-2 hover:text-white'
@@ -107,7 +113,7 @@ export default function Shell() {
         {/* Actions — separated block with its own breathing room */}
         <div className="space-y-2.5 border-t border-sidebar-border px-3 py-4">
           <button
-            onClick={() => setAssistantOpen(true)}
+            onClick={() => { setAssistantOpen(true); setNavOpen(false) }}
             className="flex w-full items-center gap-2 rounded-[10px] bg-accent px-3 py-2.5 text-white hover:opacity-90 hover:brand-glow"
             title="Ask the assistant (⌘J)"
           >
@@ -116,7 +122,7 @@ export default function Shell() {
             <kbd className="font-mono text-[10px] text-white/70">⌘J</kbd>
           </button>
           <button
-            onClick={() => setCaptureOpen(true)}
+            onClick={() => { setCaptureOpen(true); setNavOpen(false) }}
             className="flex w-full items-center gap-2 rounded-[10px] border border-sidebar-border bg-sidebar-2/40 px-3 py-2.5 text-sidebar-muted hover:bg-sidebar-2 hover:text-white"
             title="Quick capture (⌘K)"
           >
@@ -127,15 +133,26 @@ export default function Shell() {
         </div>
       </aside>
 
+      {navOpen && (
+        <div className="fixed inset-0 z-40 bg-ink/40 lg:hidden" onClick={() => setNavOpen(false)} aria-hidden />
+      )}
+
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="flex h-12 shrink-0 items-center gap-4 border-b-2 border-border bg-surface px-5">
+        <header className="flex h-12 shrink-0 items-center gap-3 border-b-2 border-border bg-surface px-4 sm:gap-4 sm:px-5">
+          <button
+            onClick={() => setNavOpen(true)}
+            className="grid size-9 shrink-0 place-items-center rounded-lg text-ink-muted hover:bg-surface-2 lg:hidden"
+            aria-label="Open menu"
+          >
+            <Menu size={20} />
+          </button>
           <NewsTicker />
           <div className="flex shrink-0 items-center gap-2 font-mono">
             <span className="hidden text-sm font-semibold text-ink md:inline">{dateLabel(now)}</span>
             <span className="text-base font-bold tabular-nums text-ink">{clockLabel(now)}</span>
           </div>
         </header>
-        <main className="min-h-0 flex-1 overflow-y-auto px-6 py-5">
+        <main className="min-h-0 flex-1 overflow-y-auto px-4 py-4 sm:px-6 sm:py-5">
           <Outlet />
         </main>
       </div>

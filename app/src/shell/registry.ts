@@ -1,4 +1,4 @@
-import { LayoutDashboard, HeartPulse, Wallet, Briefcase, Repeat, Inbox, History, ShieldCheck, CreditCard, Newspaper } from 'lucide-react'
+import { LayoutDashboard, HeartPulse, Wallet, Briefcase, Repeat, Inbox, History, ShieldCheck, CreditCard, Newspaper, Plane, Building2 } from 'lucide-react'
 import type { ModuleManifest } from './types'
 import CommandCenter from '@/modules/command-center/CommandCenter'
 import DailyLog from '@/modules/log/DailyLog'
@@ -10,6 +10,8 @@ import Vault from '@/modules/vault/Vault'
 import Subscriptions from '@/modules/subs/Subscriptions'
 import Finance from '@/modules/finance/Finance'
 import Work from '@/modules/work/Work'
+import Flights from '@/modules/flights/Flights'
+import Business from '@/modules/business/Business'
 
 // The single source of truth the shell renders from. Adding a pillar = adding
 // one manifest here; nothing else in the shell needs to know about it.
@@ -49,6 +51,15 @@ export const modules: ModuleManifest[] = [
     nav: true,
     status: 'live',
     page: News,
+  },
+  {
+    id: 'flights',
+    title: 'Flight Booking',
+    icon: Plane,
+    route: '/flights',
+    nav: true,
+    status: 'live',
+    page: Flights,
   },
   {
     id: 'loops',
@@ -130,5 +141,14 @@ export const modules: ModuleManifest[] = [
     nav: true,
     status: 'live',
     page: Finance,
+  },
+  {
+    id: 'business',
+    title: 'Business',
+    icon: Building2,
+    route: '/business',
+    nav: true,
+    status: 'live',
+    page: Business,
   },
 ]
