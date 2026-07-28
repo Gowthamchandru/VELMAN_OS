@@ -98,8 +98,8 @@ export function ModeSelect() {
       </button>
 
       <div className="entry-rise z-10 text-center" style={delay(0)}>
-        <p className="font-heading text-[11px] font-bold uppercase tracking-[0.3em] text-sidebar-muted">Velman OS</p>
-        <h1 className="mt-2.5 font-heading text-2xl font-black tracking-[0.14em] text-white sm:text-3xl">Choose your space</h1>
+        <p className="font-heading text-[13px] font-bold uppercase tracking-[0.3em] text-sidebar-muted">Velman OS</p>
+        <h1 className="mt-3 font-heading text-3xl font-black tracking-[0.14em] text-white sm:text-4xl">Choose your space</h1>
       </div>
 
       <div className="z-10 flex flex-wrap items-center justify-center gap-8 sm:gap-12">
