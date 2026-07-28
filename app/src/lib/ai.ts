@@ -9,7 +9,6 @@ import { SERVER } from '@/lib/server'
 import { prettyDate, weekdayName, todayKey } from '@/lib/time'
 import { usePriorities, useTodos, useAgenda, useGratitude, useReflection } from '@/modules/planner/plannerStore'
 import { useSelfCareDefs, useDailyDefs, weekHabitStats } from '@/modules/habits/habitsStore'
-import { useLoops, displayStatus, dueLabel as loopDueLabel } from '@/modules/loops/loopsStore'
 import { useHoldings, useAssets, useLiabilities, useGoals, portfolioTotals, netWorth, goalProgress, inr } from '@/modules/finance/financeReal'
 import { useTasks, taskKpis } from '@/modules/work/tasksStore'
 import { useCompanies, totalEmployees, groupTotal } from '@/modules/work/companiesStore'
@@ -54,7 +53,6 @@ export function useGcSnapshot(date: string) {
   const { items: agenda } = useAgenda(date)
   const { items: gratitude } = useGratitude(date)
   const [reflection] = useReflection(date)
-  const { items: loops } = useLoops()
   const habitIds = [...useSelfCareDefs().items, ...useDailyDefs().items].map((h) => h.id)
   const holdings = useHoldings().items
   const assets = useAssets().items
@@ -71,7 +69,6 @@ export function useGcSnapshot(date: string) {
     agenda: agenda.filter((a) => a.task).map((a) => ({ time: a.time, task: a.task, category: a.category, done: a.done })),
     weeklyPriorities: priorities.map((p) => ({ text: p.text, done: p.done })),
     todos: todos.map((t) => ({ task: t.task, done: t.done, mostImportant: !!t.mit })),
-    openLoops: loops.filter((l) => l.status !== 'closed').map((l) => ({ title: l.title, status: displayStatus(l), owner: l.owner, context: l.context, due: l.due })),
     habits: { completedThisWeek: hs.done, totalChecks: hs.total, consistencyPct: hs.pct },
     finance: { netWorth: inr(nw.net, true), portfolioValue: inr(pf.current, true), portfolioROIpct: +(pf.roi * 100).toFixed(1) },
     work: { totalTasks: k.total, dueToday: k.dueToday, overdue: k.overdue, done: k.done },
@@ -113,7 +110,6 @@ export function useAssistantContext() {
   const { items: agenda } = useAgenda(date)
   const { items: gratitude } = useGratitude(date)
   const [reflection] = useReflection(date)
-  const { items: loops } = useLoops()
   const { items: docs } = useDocs()
   const { items: subs } = useSubs()
   const { items: holdings } = useHoldings()
@@ -136,9 +132,6 @@ export function useAssistantContext() {
     agenda: agenda.filter((a) => a.task).map((a) => ({ time: a.time, task: a.task, category: a.category, done: a.done })),
     weeklyPriorities: priorities.map((p) => ({ text: p.text, done: p.done })),
     todos: todos.map((t) => ({ task: t.task, done: t.done, mostImportant: !!t.mit })),
-    openLoops: loops
-      .filter((l) => l.status !== 'closed')
-      .map((l) => ({ title: l.title, status: displayStatus(l), owner: l.owner, context: l.context, due: l.due ? loopDueLabel(l.due) : null })),
     vault: docs.map((d) => ({ name: d.name, category: d.category, number: d.number, issuer: d.issuer, status: expiryStatus(d), expiry: expiryLabel(d) || null })),
     subscriptions: {
       monthlyTotalINR: inr(monthlySubs, true),

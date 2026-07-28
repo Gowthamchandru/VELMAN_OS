@@ -5,7 +5,7 @@
 import { useEffect, useRef, useState } from 'react'
 import {
   Sparkles, X, ArrowUp, Loader2, Server, Mic, Square,
-  ListChecks, TrendingUp, Wallet, FileText, CreditCard, Repeat,
+  ListChecks, TrendingUp, Wallet, FileText, CreditCard,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { useServerHealth, useAssistantContext, askAssistant, type ChatMessage } from '@/lib/ai'
@@ -35,7 +35,6 @@ const SUGGESTIONS: { icon: LucideIcon; text: string }[] = [
   { icon: Wallet, text: 'What is my net worth?' },
   { icon: FileText, text: 'Which documents need renewing?' },
   { icon: CreditCard, text: 'What subscriptions are due soon?' },
-  { icon: Repeat, text: 'Summarise my open loops.' },
 ]
 
 // Small brand mark used in the header and beside each assistant reply.

@@ -48,7 +48,6 @@ export function searchAll(query: string): SearchHit[] {
 
   // --- Ongoing / module data ---
   for (const p of peekList<{ text: string }>('gcos.priorities.v1') ?? []) add(p.text, 'Weekly priority', '/')
-  for (const l of peekList<{ title: string }>('gcos.loops.v1') ?? []) add(l.title, 'Open loop', '/loops')
   for (const t of peekList<{ title: string }>('gcos.work.tasks.v1') ?? []) add(t.title, 'Work task', '/work')
   for (const h of peekList<{ name: string }>('gcos.fin.holdings.v1') ?? []) add(h.name, 'Holding', '/finance')
 

@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
 import { Command, Check } from 'lucide-react'
-import { useLoops, newLoop, CONTEXTS } from '@/modules/loops/loopsStore'
+import { useTodos, newTodo } from '@/modules/planner/plannerStore'
+import { todayKey } from '@/lib/time'
 
 export default function QuickCapture({ open, onClose }: { open: boolean; onClose: () => void }) {
-  const { add } = useLoops()
+  const { add } = useTodos(todayKey())
   const [title, setTitle] = useState('')
-  const [context, setContext] = useState<string>('Work')
   const [justSaved, setJustSaved] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
 
@@ -31,7 +31,7 @@ export default function QuickCapture({ open, onClose }: { open: boolean; onClose
   const capture = () => {
     const t = title.trim()
     if (!t) return
-    add(newLoop(t, context))
+    add(newTodo(t))
     setTitle('')
     setJustSaved(true)
     setTimeout(() => setJustSaved(false), 1400)
@@ -62,18 +62,7 @@ export default function QuickCapture({ open, onClose }: { open: boolean; onClose
           className="w-full rounded-[10px] border-2 border-border bg-surface px-3 py-2.5 text-[15px] text-ink outline-none focus:border-accent focus:brand-glow"
         />
         <div className="mt-3 flex items-center justify-between gap-2">
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-ink-faint">Goes to Open Loops ·</span>
-            <select
-              value={context}
-              onChange={(e) => setContext(e.target.value)}
-              className="rounded-[10px] border-2 border-border bg-surface px-2 py-1 text-xs text-ink-muted outline-none"
-            >
-              {CONTEXTS.map((c) => (
-                <option key={c}>{c}</option>
-              ))}
-            </select>
-          </div>
+          <span className="text-xs text-ink-faint">Goes to today's to-dos</span>
           <div className="flex items-center gap-3">
             {justSaved && (
               <span className="flex items-center gap-1 text-xs font-semibold text-online">

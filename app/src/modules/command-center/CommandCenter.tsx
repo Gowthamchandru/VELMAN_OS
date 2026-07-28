@@ -14,7 +14,6 @@ import {
   newAgendaBlock,
   type AgendaBlock,
 } from '@/modules/planner/plannerStore'
-import { useLoops, displayStatus } from '@/modules/loops/loopsStore'
 import { useDocs, expiryStatus, expiryLabel } from '@/modules/vault/vaultStore'
 import { useSubs, dueStatus as subDueStatus, dueLabel as subDueLabel } from '@/modules/subs/subsStore'
 import { uid } from '@/lib/store'
@@ -408,15 +407,10 @@ function AgendaTimeline() {
 
 function NeedsYouToday() {
   const { items: todos } = useTodos(todayKey())
-  const { items: loops } = useLoops()
   const { items: docs } = useDocs()
   const { items: subs } = useSubs()
   const chips = [
     ...todos.filter((t) => t.mit && !t.done).map((t) => ({ key: t.id, label: t.task, tag: 'MIT', tone: 'accent' as const })),
-    ...loops
-      .map((l) => ({ l, s: displayStatus(l) }))
-      .filter(({ s }) => s === 'overdue' || s === 'waiting')
-      .map(({ l, s }) => ({ key: l.id, label: l.title, tag: s, tone: s === 'overdue' ? ('danger' as const) : ('warn' as const) })),
     ...docs
       .map((d) => ({ d, s: expiryStatus(d) }))
       .filter(({ s }) => s === 'soon' || s === 'overdue')
@@ -628,7 +622,6 @@ function ProgressOverview() {
   const focus = [
     { name: 'Open to-dos', value: s.todos.filter((t) => !t.done).length },
     { name: 'Priorities left', value: s.weeklyPriorities.filter((p) => !p.done).length },
-    { name: 'Open loops', value: s.openLoops.length },
     { name: 'Work overdue', value: s.work.overdue },
   ].filter((f) => f.value > 0).map((f, i) => ({ ...f, color: OVERVIEW_PALETTE[i % OVERVIEW_PALETTE.length] }))
   const focusTotal = focus.reduce((a, b) => a + b.value, 0)

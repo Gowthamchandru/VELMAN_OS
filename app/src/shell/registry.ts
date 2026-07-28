@@ -1,10 +1,9 @@
-﻿import { LayoutDashboard, HeartPulse, Wallet, Briefcase, Repeat, Inbox, History, ShieldCheck, CreditCard, Newspaper, Plane, Building2, Brain } from 'lucide-react'
+﻿import { LayoutDashboard, HeartPulse, Wallet, Briefcase, Repeat, History, ShieldCheck, CreditCard, Newspaper, Plane, Building2, Brain } from 'lucide-react'
 import SecondBrain from '@/modules/brain/SecondBrain'
 import type { ModuleManifest } from './types'
 import CommandCenter from '@/modules/command-center/CommandCenter'
 import DailyLog from '@/modules/log/DailyLog'
 import News from '@/modules/news/News'
-import Loops, { LoopsWidget } from '@/modules/loops/Loops'
 import Habits, { HabitsWidget } from '@/modules/habits/Habits'
 import Health, { HealthWidget } from '@/modules/health/Health'
 import Vault from '@/modules/vault/Vault'
@@ -76,25 +75,6 @@ export const modules: ModuleManifest[] = [
     nav: true,
     status: 'live',
     page: Flights,
-  },
-  {
-    id: 'loops',
-    mode: 'personal',
-    title: 'Open Loops',
-    icon: Inbox,
-    route: '/loops',
-    nav: true,
-    status: 'live',
-    page: Loops,
-    widgets: [
-      {
-        id: 'open-loops',
-        title: 'Open loops Â· waiting-on',
-        icon: Inbox,
-        order: 5,
-        render: LoopsWidget,
-      },
-    ],
   },
   {
     id: 'habits',

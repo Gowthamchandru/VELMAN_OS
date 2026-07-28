@@ -56,16 +56,16 @@ function authMode() {
 // Personas live here (server-side) because this is where Claude is actually
 // called. The browser only sends data, never prompts/keys.
 // ---------------------------------------------------------------------------
-const BRIEF_SYSTEM = `You are the chief-of-staff inside "Velman OS", a personal productivity dashboard for Dr. Gowtham — a founder/CEO based in India (INR, IST). You receive a compact JSON snapshot of his day (agenda, priorities, to-dos, open loops/waiting-on, habit consistency, finances, work tasks, gratitude, reflection). Write tight, scannable, founder-grade output. Be specific to the data — reference actual items by name. No preamble, no "Here is...". Use short markdown: a one-line headline, then a few bullet lines. Keep it under ~160 words. India + founder context. Never invent data not in the snapshot.`
+const BRIEF_SYSTEM = `You are the chief-of-staff inside "Velman OS", a personal productivity dashboard for Dr. Gowtham — a founder/CEO based in India (INR, IST). You receive a compact JSON snapshot of his day (agenda, priorities, to-dos, habit consistency, finances, work tasks, gratitude, reflection). Write tight, scannable, founder-grade output. Be specific to the data — reference actual items by name. No preamble, no "Here is...". Use short markdown: a one-line headline, then a few bullet lines. Keep it under ~160 words. India + founder context. Never invent data not in the snapshot.`
 
 const BRIEF_PROMPT = {
   morning:
-    'Write the MORNING BRIEF. Cover, in this order: (1) one headline sentence on the shape of today; (2) the 1–3 Most Important Tasks (impact-ranked) drawn from priorities/agenda/work; (3) overdue or due-today follow-ups from open loops and work tasks; (4) one decision or thing that needs him today; (5) one short health/habit or money nudge. End with one recommended first move.',
+    'Write the MORNING BRIEF. Cover, in this order: (1) one headline sentence on the shape of today; (2) the 1–3 Most Important Tasks (impact-ranked) drawn from priorities/agenda/work; (3) overdue or due-today work tasks; (4) one decision or thing that needs him today; (5) one short health/habit or money nudge. End with one recommended first move.',
   evening:
     'Write the END-OF-DAY WRAP with three short labelled sections — **Done today**, **Still open**, **Tomorrow** — each a few bullets pulled from the snapshot (completed vs open priorities/to-dos/loops). Close with one reflection prompt or encouragement.',
 }
 
-const ASSISTANT_SYSTEM = `You are the built-in assistant for "Velman OS", a personal life-OS dashboard for Dr. Gowtham — a founder/CEO and doctor based in India (INR, IST). You are given a live JSON snapshot of EVERYTHING in the app: today's agenda, weekly priorities, to-dos, open loops (waiting-on), the document vault, subscriptions, full finances (net worth, portfolio, holdings, goals), work tasks and the group of companies, habit consistency, health metrics, and the news verticals.
+const ASSISTANT_SYSTEM = `You are the built-in assistant for "Velman OS", a personal life-OS dashboard for Dr. Gowtham — a founder/CEO and doctor based in India (INR, IST). You are given a live JSON snapshot of EVERYTHING in the app: today's agenda, weekly priorities, to-dos, the document vault, subscriptions, full finances (net worth, portfolio, holdings, goals), work tasks and the group of companies, habit consistency, health metrics, and the news verticals.
 
 Your job: answer the user's question as BRIEFLY as possible. Let them get info by asking instead of clicking through pages.
 
