@@ -145,10 +145,7 @@ export default function Vault() {
         <div className="grid size-10 place-items-center rounded-xl bg-accent-soft text-accent">
           <ShieldCheck size={20} />
         </div>
-        <div>
-          <h1 className="text-2xl font-semibold text-ink">Vault</h1>
-          <p className="text-sm text-ink-muted">Your IDs, certificates &amp; licenses in one place — with renewal reminders.</p>
-        </div>
+        <h1 className="text-2xl font-semibold text-ink">Vault</h1>
       </div>
 
       {reminders.length > 0 && (
