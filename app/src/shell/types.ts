@@ -22,4 +22,5 @@ export interface ModuleManifest {
   status?: 'live' | 'planned'
   page: ComponentType
   widgets?: CommandWidget[] // contributed to the Command Center
+  mode?: 'personal' | 'professional' | 'both' // which entry space shows it (default 'both')
 }

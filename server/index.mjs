@@ -11,11 +11,13 @@
 //   3. put the printed token in app/.env as CLAUDE_CODE_OAUTH_TOKEN=...
 //   4. npm run server   (or npm run dev:all to run this + the web app together)
 import { readFileSync } from 'node:fs'
+import { mkdir, readdir, readFile, stat, writeFile } from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
-import { dirname, resolve } from 'node:path'
+import { dirname, join, resolve, sep } from 'node:path'
 import { networkInterfaces } from 'node:os'
 import express from 'express'
 import cors from 'cors'
+import matter from 'gray-matter'
 import { query } from '@anthropic-ai/claude-agent-sdk'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
@@ -80,8 +82,10 @@ Always:
 - Reference real items by name and exact figures. Money is INR; respect Asian-Indian (IST) context. Note when health data is demo.
 - When useful, add a short pointer like "→ Vault" or "→ Finance ▸ Portfolio".`
 
-// Run a single-turn, tool-free Claude call over your subscription and return text.
-async function runClaude({ system, prompt }) {
+// Run a Claude call over your subscription and return text. Tool-free and
+// single-turn by default; pass allowedTools/maxTurns/cwd for agentic runs
+// (e.g. letting the assistant search the Obsidian vault).
+async function runClaude({ system, prompt, allowedTools = [], maxTurns = 1, cwd }) {
   let text = ''
   let failure = null
   for await (const msg of query({
@@ -89,9 +93,10 @@ async function runClaude({ system, prompt }) {
     options: {
       model: MODEL,
       systemPrompt: system, // a string fully REPLACES the default agent prompt
-      allowedTools: [],      // pure text Q&A — no file/tool access
-      maxTurns: 1,
+      allowedTools,
+      maxTurns,
       permissionMode: 'default',
+      ...(cwd ? { cwd } : {}),
     },
   })) {
     if (msg.type === 'result') {
@@ -159,14 +164,22 @@ app.post('/api/brief', async (req, res) => {
   }
 })
 
+// The vault, when configured, turns the assistant into a second-brain agent:
+// it may Grep/Glob/Read the user's Obsidian notes to answer from them.
+const VAULT_ASSISTANT_EXTRA = `
+
+SECOND BRAIN — the user's Obsidian vault is your working directory. When the question concerns their notes, knowledge, ideas, people, projects, or anything the app snapshot does not cover, SEARCH the vault (Grep/Glob, then Read the best match) before answering. Cite which note the answer came from ("from [[Note Name]]"). Keep the same brevity rules. Never modify files.`
+
 app.post('/api/assistant', async (req, res) => {
   const { context, history, question } = req.body ?? {}
   if (authMode() === 'none') return res.status(401).json({ error: 'No Claude credentials. Run `claude setup-token` and put CLAUDE_CODE_OAUTH_TOKEN in app/.env.' })
   if (!context || !question?.trim()) return res.status(400).json({ error: 'Expected { context, history, question }.' })
   try {
+    const vault = vaultRoot()
     const text = await runClaude({
-      system: `${ASSISTANT_SYSTEM}\n\nLive snapshot of the app (JSON):\n${JSON.stringify(context, null, 2)}`,
+      system: `${ASSISTANT_SYSTEM}${vault ? VAULT_ASSISTANT_EXTRA : ''}\n\nLive snapshot of the app (JSON):\n${JSON.stringify(context, null, 2)}`,
       prompt: buildConversation(history, question.trim()),
+      ...(vault ? { allowedTools: ['Read', 'Grep', 'Glob'], maxTurns: 12, cwd: vault } : {}),
     })
     res.json({ text })
   } catch (e) {
@@ -252,6 +265,262 @@ app.post('/api/business/report', async (req, res) => {
     res.json({ report: text })
   } catch (e) {
     res.status(502).json({ error: e instanceof Error ? e.message : 'Report generation failed.' })
+  }
+})
+
+// ---------------------------------------------------------------------------
+// Obsidian vault bridge — the "second brain" connection. The vault is a plain
+// folder of .md files (set OBSIDIAN_VAULT in .env); this server is the only
+// thing that touches the disk, the browser just calls these endpoints.
+//
+// Design rules (deliberate, they keep two-way flow from breaking):
+//   - Tasks live as one file each in <vault>/Tasks with YAML frontmatter.
+//   - The app owns the frontmatter fields it knows; the NOTE BODY belongs to
+//     Obsidian and is preserved byte-for-byte on every rewrite.
+//   - Files are never deleted — a deletion becomes `archived: true`.
+//   - Conflicts resolve last-write-wins per task via the `updated` stamp.
+//   - Filenames are `<id>-<slug>.md`; identity is the frontmatter id, so
+//     renaming a file in Obsidian never orphans a task.
+// ---------------------------------------------------------------------------
+const VAULT_TASKS_DIR = process.env.OBSIDIAN_TASKS_DIR || 'Tasks'
+const VAULT_INBOX_DIR = process.env.OBSIDIAN_INBOX_DIR || 'Inbox'
+
+function vaultRoot() {
+  const p = process.env.OBSIDIAN_VAULT
+  return p ? resolve(p) : null
+}
+
+// Resolve a path inside the vault, rejecting anything that escapes it.
+function safeVaultPath(rel) {
+  const root = vaultRoot()
+  if (!root) throw new Error('No vault configured.')
+  const abs = resolve(root, rel)
+  if (abs !== root && !abs.startsWith(root + sep)) throw new Error('Path escapes the vault.')
+  return abs
+}
+
+// All .md files under a folder, skipping dot-dirs (.obsidian, .trash, .git).
+async function walkMd(dir, out = []) {
+  let entries
+  try {
+    entries = await readdir(dir, { withFileTypes: true })
+  } catch {
+    return out
+  }
+  for (const e of entries) {
+    if (e.name.startsWith('.')) continue
+    const p = join(dir, e.name)
+    if (e.isDirectory()) await walkMd(p, out)
+    else if (e.name.toLowerCase().endsWith('.md')) out.push(p)
+  }
+  return out
+}
+
+// YAML may hand back Date objects or strings — normalize both.
+const isoStamp = (v) => {
+  if (v instanceof Date) return v.toISOString()
+  if (typeof v === 'string' && v) {
+    const t = Date.parse(v)
+    if (!Number.isNaN(t)) return new Date(t).toISOString()
+  }
+  return null
+}
+const isoDay = (v) => {
+  const s = isoStamp(v)
+  return s ? s.slice(0, 10) : null
+}
+const slugify = (s) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 40) || 'note'
+
+const TASK_STATUSES = ['Backlog', 'In Progress', 'Review', 'Done', 'On Hold']
+const TASK_PRIORITIES = ['Urgent', 'High', 'Med', 'Low']
+
+// Frontmatter → app task shape (invalid vocab falls back to safe defaults).
+function vaultTask(data, fileMtimeIso) {
+  if (!data?.id || !data?.title) return null
+  return {
+    id: String(data.id),
+    title: String(data.title),
+    category: String(data.category || 'Work'),
+    priority: TASK_PRIORITIES.includes(data.priority) ? data.priority : 'Med',
+    status: TASK_STATUSES.includes(data.status) ? data.status : 'Backlog',
+    assignee: String(data.assignee ?? 'You'),
+    due: isoDay(data.due),
+    notes: String(data.notes ?? ''),
+    createdAt: isoDay(data.created) ?? fileMtimeIso.slice(0, 10),
+    updated: isoStamp(data.updated) ?? fileMtimeIso,
+  }
+}
+
+// App task → frontmatter, keeping any extra fields the user added in Obsidian.
+function taskFrontmatter(t, existing = {}) {
+  return {
+    ...existing,
+    id: t.id,
+    title: t.title,
+    status: t.status,
+    priority: t.priority,
+    category: t.category,
+    assignee: t.assignee,
+    due: t.due || null,
+    notes: t.notes || '',
+    created: existing.created ?? t.createdAt,
+    updated: t.updated || new Date().toISOString(),
+    tags: Array.isArray(existing.tags) && existing.tags.length ? existing.tags : ['velman-task'],
+  }
+}
+
+// Every task file in <vault>/Tasks, keyed by frontmatter id.
+async function readVaultTasks() {
+  const files = await walkMd(safeVaultPath(VAULT_TASKS_DIR))
+  const byId = new Map()
+  for (const f of files) {
+    try {
+      const parsed = matter(await readFile(f, 'utf8'))
+      if (!parsed.data?.id) continue
+      const st = await stat(f)
+      byId.set(String(parsed.data.id), { file: f, data: parsed.data, body: parsed.content, mtime: st.mtime.toISOString() })
+    } catch {
+      /* skip unparseable files */
+    }
+  }
+  return byId
+}
+
+app.get('/api/vault/status', async (_req, res) => {
+  const root = vaultRoot()
+  if (!root) return res.json({ configured: false })
+  try {
+    const s = await stat(root)
+    if (!s.isDirectory()) throw new Error('not a directory')
+    const notes = (await walkMd(root)).length
+    let tasks = 0
+    try {
+      tasks = (await readVaultTasks()).size
+    } catch {
+      /* Tasks dir may not exist yet */
+    }
+    res.json({ configured: true, path: root, exists: true, notes, tasks, tasksDir: VAULT_TASKS_DIR, inboxDir: VAULT_INBOX_DIR })
+  } catch {
+    res.json({ configured: true, path: root, exists: false, error: 'OBSIDIAN_VAULT does not exist or is not a folder.' })
+  }
+})
+
+// Two-way task sync, server-authoritative merge. The client sends its tasks and
+// delete-tombstones; the reply is the canonical list the client should adopt.
+app.post('/api/vault/tasks/sync', async (req, res) => {
+  const { tasks, deleted } = req.body ?? {}
+  if (!vaultRoot()) return res.status(400).json({ error: 'No OBSIDIAN_VAULT configured in .env.' })
+  if (!Array.isArray(tasks)) return res.status(400).json({ error: 'Expected { tasks: [], deleted?: [] }.' })
+  try {
+    await mkdir(safeVaultPath(VAULT_TASKS_DIR), { recursive: true })
+    const byId = await readVaultTasks()
+    const counts = { created: 0, updated: 0, archived: 0 }
+    const now = new Date().toISOString()
+
+    const deletedIds = new Set()
+    for (const d of Array.isArray(deleted) ? deleted : []) {
+      if (!d?.id) continue
+      deletedIds.add(String(d.id))
+      const f = byId.get(String(d.id))
+      if (f && !f.data.archived) {
+        await writeFile(f.file, matter.stringify(f.body, { ...f.data, archived: true, updated: now }))
+        f.data.archived = true
+        counts.archived++
+      }
+    }
+
+    for (const t of tasks) {
+      if (!t?.id || deletedIds.has(String(t.id))) continue
+      const f = byId.get(String(t.id))
+      if (!f) {
+        const file = join(safeVaultPath(VAULT_TASKS_DIR), `${t.id}-${slugify(t.title || 'task')}.md`)
+        await writeFile(file, matter.stringify('', taskFrontmatter(t)))
+        counts.created++
+      } else if (!f.data.archived) {
+        const local = Date.parse(t.updated ?? '') || 0
+        const remote = Date.parse(isoStamp(f.data.updated) ?? f.mtime) || 0
+        if (local > remote) {
+          await writeFile(f.file, matter.stringify(f.body, taskFrontmatter(t, f.data)))
+          counts.updated++
+        }
+      }
+    }
+
+    const canonical = []
+    for (const f of (await readVaultTasks()).values()) {
+      if (f.data.archived) continue
+      const t = vaultTask(f.data, f.mtime)
+      if (t) canonical.push(t)
+    }
+    res.json({ ok: true, tasks: canonical, counts, clearedTombstones: [...deletedIds] })
+  } catch (e) {
+    res.status(500).json({ error: e instanceof Error ? e.message : 'Vault sync failed.' })
+  }
+})
+
+app.get('/api/vault/search', async (req, res) => {
+  const root = vaultRoot()
+  if (!root) return res.status(400).json({ error: 'No OBSIDIAN_VAULT configured.' })
+  const q = String(req.query.q ?? '').trim().toLowerCase()
+  if (!q) return res.json({ results: [] })
+  try {
+    const results = []
+    for (const f of await walkMd(root)) {
+      if (results.length >= 30) break
+      const rel = f.slice(root.length + 1)
+      let snippet = ''
+      let hit = rel.toLowerCase().includes(q)
+      if (!hit) {
+        try {
+          const raw = await readFile(f, 'utf8')
+          const i = raw.toLowerCase().indexOf(q)
+          if (i !== -1) {
+            hit = true
+            snippet = raw.slice(Math.max(0, i - 60), i + 100).replace(/\s+/g, ' ').trim()
+          }
+        } catch {
+          /* unreadable file — skip */
+        }
+      }
+      if (hit) {
+        const st = await stat(f).catch(() => null)
+        results.push({ path: rel.replaceAll(sep, '/'), snippet, modified: st?.mtime?.toISOString() ?? null })
+      }
+    }
+    res.json({ results })
+  } catch (e) {
+    res.status(500).json({ error: e instanceof Error ? e.message : 'Vault search failed.' })
+  }
+})
+
+app.get('/api/vault/note', async (req, res) => {
+  if (!vaultRoot()) return res.status(400).json({ error: 'No OBSIDIAN_VAULT configured.' })
+  const p = String(req.query.p ?? '')
+  if (!p.toLowerCase().endsWith('.md')) return res.status(400).json({ error: 'Only .md notes can be read.' })
+  try {
+    const content = await readFile(safeVaultPath(p), 'utf8')
+    res.json({ path: p, content })
+  } catch {
+    res.status(404).json({ error: 'Note not found.' })
+  }
+})
+
+// Quick capture → a new note in <vault>/Inbox for later triage in Obsidian.
+app.post('/api/vault/capture', async (req, res) => {
+  if (!vaultRoot()) return res.status(400).json({ error: 'No OBSIDIAN_VAULT configured.' })
+  const { title, text } = req.body ?? {}
+  if (typeof text !== 'string' || !text.trim()) return res.status(400).json({ error: 'Expected { title?, text }.' })
+  try {
+    const dir = safeVaultPath(VAULT_INBOX_DIR)
+    await mkdir(dir, { recursive: true })
+    const now = new Date()
+    const stampName = now.toISOString().slice(0, 19).replace(/[:T]/g, '-')
+    const name = `${stampName}-${slugify(title?.trim() || text.trim().slice(0, 30))}.md`
+    const body = title?.trim() ? `# ${title.trim()}\n\n${text.trim()}\n` : `${text.trim()}\n`
+    await writeFile(join(dir, name), matter.stringify(body, { created: now.toISOString(), source: 'velman-os', tags: ['inbox'] }), { flag: 'wx' })
+    res.json({ ok: true, path: `${VAULT_INBOX_DIR}/${name}` })
+  } catch (e) {
+    res.status(500).json({ error: e instanceof Error ? e.message : 'Capture failed.' })
   }
 })
 
@@ -531,6 +800,9 @@ app.listen(PORT, '0.0.0.0', () => {
   console.log(`\n  Velman OS assistant server → http://localhost:${PORT}`)
   console.log(`  Network access → http://${networkIP}:${PORT}`)
   console.log(`  model: ${MODEL}`)
+  const vault = vaultRoot()
+  if (vault) console.log(`  vault: ${vault} (Obsidian second brain) ✓`)
+  else console.log('  vault: not configured — set OBSIDIAN_VAULT in .env to connect Obsidian')
   if (mode === 'subscription') console.log('  auth:  Claude Pro/Max subscription (CLAUDE_CODE_OAUTH_TOKEN) ✓\n')
   else if (mode === 'apikey') console.log('  auth:  ANTHROPIC_API_KEY (pay-per-use) — set CLAUDE_CODE_OAUTH_TOKEN to use your Pro plan instead\n')
   else console.log('  auth:  NONE — run `claude setup-token` and add CLAUDE_CODE_OAUTH_TOKEN to app/.env\n')

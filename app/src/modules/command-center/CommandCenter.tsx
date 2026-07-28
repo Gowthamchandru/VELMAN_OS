@@ -34,6 +34,7 @@ import {
   ResponsiveContainer,
 } from 'recharts'
 import { modules } from '@/shell/registry'
+import { inCurrentMode } from '@/shell/entryMode'
 
 const tooltipStyle = { background: 'var(--color-surface-2)', border: '1px solid var(--color-border)', borderRadius: 10, fontSize: 12, color: 'var(--color-ink)' }
 const OVERVIEW_PALETTE = ['#1c4d8c', '#059669', '#d97706', '#8b5cf6', '#06b6d4', '#ec4899']
@@ -772,7 +773,10 @@ export default function CommandCenter() {
   const agenda = useAgenda(date).items
   const todos = useTodos(date).items
   const todosDone = todos.filter((t) => t.done).length
-  const widgets = modules.flatMap((m) => m.widgets ?? []).sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+  const widgets = modules
+    .filter((m) => inCurrentMode(m.mode))
+    .flatMap((m) => m.widgets ?? [])
+    .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
 
   return (
     <div className="space-y-3">

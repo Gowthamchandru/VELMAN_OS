@@ -23,6 +23,7 @@ export interface Task {
   due: string | null // ISO date
   notes: string
   createdAt: string
+  updated?: string // ISO datetime of last edit — drives Obsidian last-write-wins
 }
 
 const d = (offset: number) => {
@@ -49,7 +50,49 @@ const seed: Task[] = [
   T('Family trip planning', 'Family', 'Low', 'On Hold', 'You', 30, ''),
 ]
 
-export const useTasks = () => useCollection<Task>('gcos.work.tasks.v1', seed)
+export const TASKS_KEY = 'gcos.work.tasks.v1'
+
+// Deleting a task leaves a tombstone so the next Obsidian sync archives the
+// vault file instead of resurrecting the task. Cleared once the sync lands.
+const TOMB_KEY = 'gcos.work.tasks.deleted.v1'
+
+export function readTombstones(): { id: string; at: string }[] {
+  try {
+    return JSON.parse(localStorage.getItem(TOMB_KEY) ?? '[]')
+  } catch {
+    return []
+  }
+}
+function addTombstone(id: string) {
+  try {
+    localStorage.setItem(TOMB_KEY, JSON.stringify([...readTombstones().filter((t) => t.id !== id), { id, at: new Date().toISOString() }]))
+  } catch {
+    /* ignore quota errors */
+  }
+}
+export function clearTombstones(ids: string[]) {
+  const drop = new Set(ids)
+  try {
+    localStorage.setItem(TOMB_KEY, JSON.stringify(readTombstones().filter((t) => !drop.has(t.id))))
+  } catch {
+    /* ignore */
+  }
+}
+
+// Same collection as before, but every write stamps `updated` and every delete
+// records a tombstone — the two things the Obsidian sync needs to stay honest.
+export const useTasks = () => {
+  const c = useCollection<Task>(TASKS_KEY, seed)
+  return {
+    ...c,
+    add: (t: Task) => c.add({ ...t, updated: t.updated ?? new Date().toISOString() }),
+    update: (id: string, patch: Partial<Task>) => c.update(id, { ...patch, updated: new Date().toISOString() }),
+    remove: (id: string) => {
+      addTombstone(id)
+      c.remove(id)
+    },
+  }
+}
 
 export const newTask = (status: Status = 'Backlog'): Task =>
   ({ id: uid(), title: 'New task', category: 'Work', priority: 'Med', status, assignee: 'You', due: d(7), notes: '', createdAt: d(0) })

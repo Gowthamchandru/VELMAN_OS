@@ -81,6 +81,12 @@ export function useEphemeral<T>(key: string, initial: T): [T, (v: T) => void] {
   return [value, (v: T) => { ephemeral.set(key, v); emit() }]
 }
 
+// Replace a whole localStorage-backed list at once (all subscribers re-render).
+// Used by the Obsidian sync to adopt the canonical task list after a merge.
+export function replaceList<T>(key: string, items: T[]) {
+  setList(key, items)
+}
+
 // One-off read of a localStorage-backed array without subscribing — used to
 // carry yesterday's unfinished to-dos forward, and by global search.
 export function peekList<T>(key: string): T[] | null {

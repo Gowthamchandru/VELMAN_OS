@@ -314,6 +314,33 @@ Once the `[ai]` line shows `✓`, the **Ask Assistant** button in the sidebar go
 
 ---
 
+## Connecting Obsidian (second brain)
+
+Your Obsidian vault is a folder of markdown files — and the local server can read
+and write it directly. One line in `.env` connects them:
+
+```
+OBSIDIAN_VAULT=D:\path\to\your\vault
+```
+
+Restart the server (`npm run dev:all`) and you get:
+
+- **Second Brain page** — search your whole vault, read any note, and capture
+  thoughts straight into `<vault>/Inbox`, all inside the dashboard.
+- **Two-way task sync** — every Work task becomes `<vault>/Tasks/<id>-<slug>.md`
+  with its fields as YAML properties. Edit tasks in either place; the newest
+  edit wins per task. Deleting in the app archives the file
+  (`archived: true`) — nothing is ever deleted from your vault. The note body
+  under the properties belongs to Obsidian and is never touched by the app.
+- **A smarter assistant** — with a vault configured, the ⌘J assistant can
+  search and read your notes (read-only) to answer questions the app data
+  can't, citing the note it used.
+
+Tip: point Obsidian's **Bases** plugin at the `Tasks/` folder for a native
+table/board view of the same tasks inside your vault.
+
+---
+
 ## Project status
 
 **The core system is live and working.**

@@ -1,4 +1,5 @@
-import { LayoutDashboard, HeartPulse, Wallet, Briefcase, Repeat, Inbox, History, ShieldCheck, CreditCard, Newspaper, Plane, Building2 } from 'lucide-react'
+﻿import { LayoutDashboard, HeartPulse, Wallet, Briefcase, Repeat, Inbox, History, ShieldCheck, CreditCard, Newspaper, Plane, Building2, Brain } from 'lucide-react'
+import SecondBrain from '@/modules/brain/SecondBrain'
 import type { ModuleManifest } from './types'
 import CommandCenter from '@/modules/command-center/CommandCenter'
 import DailyLog from '@/modules/log/DailyLog'
@@ -18,6 +19,7 @@ import Business from '@/modules/business/Business'
 export const modules: ModuleManifest[] = [
   {
     id: 'command-center',
+    mode: 'both',
     title: 'Command Center',
     icon: LayoutDashboard,
     route: '/',
@@ -26,7 +28,18 @@ export const modules: ModuleManifest[] = [
     page: CommandCenter,
   },
   {
+    id: 'brain',
+    mode: 'both',
+    title: 'Second Brain',
+    icon: Brain,
+    route: '/brain',
+    nav: true,
+    status: 'live',
+    page: SecondBrain,
+  },
+  {
     id: 'work',
+    mode: 'professional',
     title: 'Work',
     icon: Briefcase,
     route: '/work',
@@ -36,6 +49,7 @@ export const modules: ModuleManifest[] = [
   },
   {
     id: 'log',
+    mode: 'personal',
     title: 'Daily Log',
     icon: History,
     route: '/log',
@@ -45,6 +59,7 @@ export const modules: ModuleManifest[] = [
   },
   {
     id: 'news',
+    mode: 'personal',
     title: 'News',
     icon: Newspaper,
     route: '/news',
@@ -54,6 +69,7 @@ export const modules: ModuleManifest[] = [
   },
   {
     id: 'flights',
+    mode: 'professional',
     title: 'Flight Booking',
     icon: Plane,
     route: '/flights',
@@ -63,6 +79,7 @@ export const modules: ModuleManifest[] = [
   },
   {
     id: 'loops',
+    mode: 'personal',
     title: 'Open Loops',
     icon: Inbox,
     route: '/loops',
@@ -72,7 +89,7 @@ export const modules: ModuleManifest[] = [
     widgets: [
       {
         id: 'open-loops',
-        title: 'Open loops · waiting-on',
+        title: 'Open loops Â· waiting-on',
         icon: Inbox,
         order: 5,
         render: LoopsWidget,
@@ -81,6 +98,7 @@ export const modules: ModuleManifest[] = [
   },
   {
     id: 'habits',
+    mode: 'personal',
     title: 'Habits',
     icon: Repeat,
     route: '/habits',
@@ -99,6 +117,7 @@ export const modules: ModuleManifest[] = [
   },
   {
     id: 'health',
+    mode: 'personal',
     title: 'Health',
     icon: HeartPulse,
     route: '/health',
@@ -117,6 +136,7 @@ export const modules: ModuleManifest[] = [
   },
   {
     id: 'vault',
+    mode: 'personal',
     title: 'Vault',
     icon: ShieldCheck,
     route: '/vault',
@@ -126,6 +146,7 @@ export const modules: ModuleManifest[] = [
   },
   {
     id: 'subs',
+    mode: 'professional',
     title: 'Subscriptions',
     icon: CreditCard,
     route: '/subscriptions',
@@ -135,6 +156,7 @@ export const modules: ModuleManifest[] = [
   },
   {
     id: 'finance',
+    mode: 'professional',
     title: 'Financial',
     icon: Wallet,
     route: '/finance',
@@ -144,6 +166,7 @@ export const modules: ModuleManifest[] = [
   },
   {
     id: 'business',
+    mode: 'professional',
     title: 'Business',
     icon: Building2,
     route: '/business',

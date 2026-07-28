@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useSearchParams, useNavigate } from 'react-router-dom'
+import { autoSyncTasks } from '@/lib/vault'
 import { Briefcase, Users, Plus, Trash2, ChevronLeft, Building2, ShieldCheck, Upload, Eye, FileText, Video, CheckSquare } from 'lucide-react'
 import { LockScreen } from '@/components/LockScreen'
 import { Card, Stat } from '@/components/ui'
@@ -436,6 +437,12 @@ export default function Work() {
   const navigate = useNavigate()
   const [code, setCode] = useState('')
   const [name, setName] = useState('')
+
+  // Pull/push task changes from the Obsidian vault when the page opens
+  // (silent no-op when the server is down or no vault is configured).
+  useEffect(() => {
+    void autoSyncTasks()
+  }, [])
 
   const openId = searchParams.get('co')
   const open = items.find((c) => c.id === openId) ?? null

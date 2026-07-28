@@ -34,6 +34,7 @@ dist-ssr
 
 # Local tooling/config
 .claude/
+.obsidian/
 
 # Personal source materials at repo root (not code — kept out of the repo)
 /*.xlsx

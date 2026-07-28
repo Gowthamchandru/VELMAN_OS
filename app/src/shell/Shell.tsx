@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react'
-import { NavLink, Outlet, Link } from 'react-router-dom'
-import { Command, Menu, Newspaper, Sparkles } from 'lucide-react'
+import { NavLink, Outlet, Link, useNavigate } from 'react-router-dom'
+import { ArrowLeftRight, Command, Menu, Newspaper, Sparkles } from 'lucide-react'
 import { modules } from './registry'
+import { getEntryMode, inCurrentMode } from './entryMode'
 import QuickCapture from './QuickCapture'
 import Assistant from './Assistant'
 import { useNow, dateLabel, clockLabel } from '@/lib/time'
@@ -49,6 +50,10 @@ export default function Shell() {
   const [assistantOpen, setAssistantOpen] = useState(false)
   const [navOpen, setNavOpen] = useState(false)
   const now = useNow()
+  const navigate = useNavigate()
+  // Set on /mode before the shell mounts; re-read on every mount after switching.
+  const mode = getEntryMode()
+  const spaceLabel = mode === 'professional' ? 'Professional' : 'Personal'
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -83,14 +88,16 @@ export default function Shell() {
           </div>
           <div className="flex flex-col justify-center leading-tight">
             <div className="whitespace-nowrap font-heading text-[17px] font-black tracking-[0.08em] text-white">VELMAN OS</div>
-            <div className="mt-0.5 text-sm text-sidebar-muted">Dr. Gowtham</div>
+            <div className="mt-0.5 text-sm text-sidebar-muted">
+              Dr. Gowtham · <span className="text-white/80">{spaceLabel}</span>
+            </div>
           </div>
         </div>
 
         {/* Navigation */}
         <nav className="flex-1 space-y-3 overflow-y-auto px-3 py-5">
           {modules
-            .filter((m) => m.nav)
+            .filter((m) => m.nav && inCurrentMode(m.mode))
             .map((m) => (
               <NavLink
                 key={m.id}
@@ -129,6 +136,14 @@ export default function Shell() {
             <Command size={14} />
             <span className="flex-1 text-left font-heading text-[10px] font-bold tracking-[0.14em] uppercase">Quick capture</span>
             <kbd className="font-mono text-[10px] text-sidebar-muted">⌘K</kbd>
+          </button>
+          <button
+            onClick={() => { setNavOpen(false); navigate('/mode') }}
+            className="flex w-full items-center gap-2 rounded-[10px] border border-sidebar-border bg-sidebar-2/40 px-3 py-2.5 text-sidebar-muted hover:bg-sidebar-2 hover:text-white"
+            title="Switch between Personal and Professional"
+          >
+            <ArrowLeftRight size={14} />
+            <span className="flex-1 text-left font-heading text-[10px] font-bold tracking-[0.14em] uppercase">Switch space</span>
           </button>
         </div>
       </aside>
