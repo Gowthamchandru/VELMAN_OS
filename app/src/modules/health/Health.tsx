@@ -1,4 +1,4 @@
-import {
+﻿import {
   BarChart,
   Bar,
   LineChart,
@@ -55,7 +55,7 @@ export default function Health() {
   const totalStage = stages.deep + stages.rem + stages.core + stages.awake
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="grid size-10 place-items-center rounded-xl bg-accent-soft text-accent">
@@ -68,7 +68,7 @@ export default function Health() {
         </span>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
         <Card title="Readiness" icon={Activity}>
           <div className="flex items-center gap-4">
             <Gauge pct={readiness.score} color={bandColor(readiness.band)} center={readiness.score} sub="/ 100" />
@@ -129,7 +129,7 @@ export default function Health() {
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <Card title="Sleep · 7 days" icon={Moon} className="lg:col-span-2">
           <div className="h-48">
             <ResponsiveContainer width="99%" height="100%">
@@ -172,7 +172,7 @@ export default function Health() {
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <Card title="Workouts · this week" icon={Dumbbell} className="lg:col-span-2">
           <table className="w-full text-sm">
             <thead>

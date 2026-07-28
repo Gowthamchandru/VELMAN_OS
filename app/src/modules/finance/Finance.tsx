@@ -83,7 +83,7 @@ function Dashboard({ txns, invCurrent, invPnl }: { txns: Txn[]; invCurrent: numb
             <span className="text-2xl font-semibold tabular-nums text-ink">{inr(invCurrent, true)}</span>
             <span className="text-sm font-medium" style={{ color: invPnl >= 0 ? '#059669' : '#d93a2b' }}>{invPnl >= 0 ? '+' : ''}{inr(invPnl, true)}</span>
           </div>
-          <p className="mt-1 text-xs text-ink-faint">current value Â· unrealised P&L</p>
+          <p className="mt-1 text-xs text-ink-faint">current value · unrealised P&L</p>
           <div className="mt-3"><CatBars data={byCategory(txns, 'spending').slice(0, 4)} color="#d93a2b" /></div>
         </Card>
       </div>
@@ -135,7 +135,7 @@ function InvestmentTab() {
       </Card>
 
       {byGroup(items).map((g) => (
-        <Card key={g.group} title={`${g.group} Â· ${inr(g.current, true)} (${g.pnl >= 0 ? '+' : ''}${inr(g.pnl, true)})`}>
+        <Card key={g.group} title={`${g.group} · ${inr(g.current, true)} (${g.pnl >= 0 ? '+' : ''}${inr(g.pnl, true)})`}>
           <table className="w-full text-sm">
             <thead>
               <tr className="text-left font-heading text-[10px] uppercase tracking-wide text-ink-faint">
@@ -210,7 +210,7 @@ export default function Finance() {
         <div className="grid size-10 place-items-center rounded-xl bg-accent-soft text-accent"><Wallet size={20} /></div>
         <div>
           <h1 className="text-2xl font-semibold text-ink">Financial</h1>
-          <p className="text-sm text-ink-muted">Income, spending, saving &amp; investments â€” all in one place.</p>
+          <p className="text-sm text-ink-muted">Income, spending, saving &amp; investments — all in one place.</p>
         </div>
       </div>
 
