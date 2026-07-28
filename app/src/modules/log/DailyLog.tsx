@@ -165,10 +165,7 @@ export default function DailyLog() {
         <div className="grid size-10 place-items-center rounded-xl bg-accent-soft text-accent">
           <History size={20} />
         </div>
-        <div>
-          <h1 className="text-2xl font-semibold text-ink">Daily Log</h1>
-          <p className="text-sm text-ink-muted">A time-stamped record of what you got done each day — your end-of-day review.</p>
-        </div>
+        <h1 className="text-2xl font-semibold text-ink">Daily Log</h1>
       </div>
       {days.length === 0 ? (
         <Card>
