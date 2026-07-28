@@ -69,7 +69,7 @@ export const modules: ModuleManifest[] = [
   {
     id: 'flights',
     mode: 'professional',
-    title: 'Flight Booking',
+    title: 'Booking',
     icon: Plane,
     route: '/flights',
     nav: true,
