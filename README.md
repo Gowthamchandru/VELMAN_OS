@@ -327,11 +327,19 @@ Restart the server (`npm run dev:all`) and you get:
 
 - **Second Brain page** — search your whole vault, read any note, and capture
   thoughts straight into `<vault>/Inbox`, all inside the dashboard.
-- **Two-way task sync** — every Work task becomes `<vault>/Tasks/<id>-<slug>.md`
-  with its fields as YAML properties. Edit tasks in either place; the newest
-  edit wins per task. Deleting in the app archives the file
-  (`archived: true`) — nothing is ever deleted from your vault. The note body
-  under the properties belongs to Obsidian and is never touched by the app.
+- **Two-way task sync** — every Work task becomes a readable
+  `<vault>/Tasks/<Title> (<id>).md` note with its fields as YAML properties.
+  Edit tasks in either place; the newest edit wins per task. Deletes and
+  duplicate titles become `archived: true` — nothing is ever deleted from your
+  vault. The note body under the properties belongs to Obsidian and is never
+  touched by the app.
+- **A structured graph** — tasks link to `[[Velman OS]]` and an area note
+  (`Areas/Work`, `Areas/Finance`, …) via properties, so Obsidian's graph
+  clusters by what things belong to instead of scattering.
+- **A daily journal** — each day the app mirrors what you got done (agenda,
+  tasks, gratitude, reflection) into `<vault>/Journal/<date>.md`. It only
+  rewrites its own marked block; anything you write in that note yourself is
+  preserved.
 - **A smarter assistant** — with a vault configured, the ⌘J assistant can
   search and read your notes (read-only) to answer questions the app data
   can't, citing the note it used.

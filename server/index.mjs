@@ -11,7 +11,7 @@
 //   3. put the printed token in app/.env as CLAUDE_CODE_OAUTH_TOKEN=...
 //   4. npm run server   (or npm run dev:all to run this + the web app together)
 import { readFileSync } from 'node:fs'
-import { mkdir, readdir, readFile, stat, writeFile } from 'node:fs/promises'
+import { mkdir, readdir, readFile, rename, stat, writeFile } from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
 import { dirname, join, resolve, sep } from 'node:path'
 import { networkInterfaces } from 'node:os'
@@ -331,6 +331,13 @@ const isoDay = (v) => {
 }
 const slugify = (s) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 40) || 'note'
 
+// Human-readable note filename: the task TITLE leads (that's what Obsidian's
+// graph and file list show), a short id tail keeps it collision-proof.
+// e.g. "Ship pricing v2 (3cd567ef).md"
+const fsSafe = (s) => s.replace(/[\\/:*?"<>|#^[\]]/g, '').replace(/\s+/g, ' ').trim().replace(/[. ]+$/, '')
+const idTail = (id) => String(id).replace(/[^a-zA-Z0-9]/g, '').slice(0, 8) || 'x'
+const taskFileName = (t) => `${fsSafe(t.title).slice(0, 60) || 'Task'} (${idTail(t.id)}).md`
+
 const TASK_STATUSES = ['Backlog', 'In Progress', 'Review', 'Done', 'On Hold']
 const TASK_PRIORITIES = ['Urgent', 'High', 'Med', 'Low']
 
@@ -352,6 +359,8 @@ function vaultTask(data, fileMtimeIso) {
 }
 
 // App task → frontmatter, keeping any extra fields the user added in Obsidian.
+// `up` and `area` are wikilinks — Obsidian renders frontmatter links in the
+// graph, so every task clusters around the Velman OS hub and its area note.
 function taskFrontmatter(t, existing = {}) {
   return {
     ...existing,
@@ -365,7 +374,41 @@ function taskFrontmatter(t, existing = {}) {
     notes: t.notes || '',
     created: existing.created ?? t.createdAt,
     updated: t.updated || new Date().toISOString(),
+    up: '[[Velman OS]]',
+    area: `[[${fsSafe(t.category || 'Other') || 'Other'}]]`,
     tags: Array.isArray(existing.tags) && existing.tags.length ? existing.tags : ['velman-task'],
+  }
+}
+
+// Hub notes give the graph its shape: tasks/journal link up to "Velman OS",
+// and each category links to an Areas/<name> note. Created once, never touched
+// again — the user owns their content.
+async function ensureHubNotes(categories) {
+  const root = vaultRoot()
+  if (!root) return
+  const hub = join(root, 'Velman OS.md')
+  try {
+    await stat(hub)
+  } catch {
+    await writeFile(
+      hub,
+      matter.stringify(
+        '# Velman OS\n\nHome of everything the dashboard writes into this vault: tasks in Tasks/, day logs in Journal/, quick captures in Inbox/. Task and journal notes link back here, so the graph clusters around this note.\n',
+        { tags: ['velman'] },
+      ),
+    ).catch(() => {})
+  }
+  const dir = safeVaultPath('Areas')
+  await mkdir(dir, { recursive: true })
+  for (const c of categories) {
+    const name = fsSafe(c)
+    if (!name) continue
+    const f = join(dir, `${name}.md`)
+    try {
+      await stat(f)
+    } catch {
+      await writeFile(f, matter.stringify(`# ${name}\n`, { up: '[[Velman OS]]', tags: ['velman-area'] })).catch(() => {})
+    }
   }
 }
 
@@ -433,7 +476,7 @@ app.post('/api/vault/tasks/sync', async (req, res) => {
       if (!t?.id || deletedIds.has(String(t.id))) continue
       const f = byId.get(String(t.id))
       if (!f) {
-        const file = join(safeVaultPath(VAULT_TASKS_DIR), `${t.id}-${slugify(t.title || 'task')}.md`)
+        const file = join(safeVaultPath(VAULT_TASKS_DIR), taskFileName(t))
         await writeFile(file, matter.stringify('', taskFrontmatter(t)))
         counts.created++
       } else if (!f.data.archived) {
@@ -446,12 +489,56 @@ app.post('/api/vault/tasks/sync', async (req, res) => {
       }
     }
 
+    const final = await readVaultTasks()
+
+    // Migration: rename legacy "<uuid>-slug.md" files to readable
+    // "<Title> (id).md" so the Obsidian graph and file list make sense.
+    counts.renamed = 0
+    for (const f of final.values()) {
+      const t = vaultTask(f.data, f.mtime)
+      if (!t) continue
+      const want = taskFileName(t)
+      if (f.file.split(sep).pop() === want) continue
+      const target = join(dirname(f.file), want)
+      try {
+        await stat(target) // someone else owns that name — leave this file be
+      } catch {
+        await rename(f.file, target).then(() => {
+          f.file = target
+          counts.renamed++
+        }).catch(() => {})
+      }
+    }
+
+    // Dedupe: identical titles (the seeded demo tasks arrive once per browser
+    // profile) keep only the most recently updated copy; the rest are archived,
+    // never deleted.
+    counts.deduped = 0
+    const byTitle = new Map()
+    for (const f of final.values()) {
+      if (f.data.archived) continue
+      const k = String(f.data.title ?? '').toLowerCase().trim()
+      if (!k) continue
+      if (!byTitle.has(k)) byTitle.set(k, [])
+      byTitle.get(k).push(f)
+    }
+    for (const group of byTitle.values()) {
+      if (group.length < 2) continue
+      group.sort((a, b) => (Date.parse(isoStamp(b.data.updated) ?? b.mtime) || 0) - (Date.parse(isoStamp(a.data.updated) ?? a.mtime) || 0))
+      for (const f of group.slice(1)) {
+        await writeFile(f.file, matter.stringify(f.body, { ...f.data, archived: true, updated: now }))
+        f.data.archived = true
+        counts.deduped++
+      }
+    }
+
     const canonical = []
-    for (const f of (await readVaultTasks()).values()) {
+    for (const f of final.values()) {
       if (f.data.archived) continue
       const t = vaultTask(f.data, f.mtime)
       if (t) canonical.push(t)
     }
+    await ensureHubNotes([...new Set(canonical.map((t) => t.category || 'Other'))])
     res.json({ ok: true, tasks: canonical, counts, clearedTombstones: [...deletedIds] })
   } catch (e) {
     res.status(500).json({ error: e instanceof Error ? e.message : 'Vault sync failed.' })
@@ -502,6 +589,64 @@ app.get('/api/vault/note', async (req, res) => {
     res.json({ path: p, content })
   } catch {
     res.status(404).json({ error: 'Note not found.' })
+  }
+})
+
+// Daily journal — one note per day in <vault>/Journal, mirroring what got done
+// in the dashboard (agenda, tasks, gratitude, reflection). The app owns ONLY
+// the block between the velman markers; anything the user writes above or
+// below it in Obsidian is preserved on every update.
+const VAULT_JOURNAL_DIR = process.env.OBSIDIAN_JOURNAL_DIR || 'Journal'
+const J_START = '<!-- velman:journal:start -->'
+const J_END = '<!-- velman:journal:end -->'
+
+app.post('/api/vault/journal', async (req, res) => {
+  if (!vaultRoot()) return res.status(400).json({ error: 'No OBSIDIAN_VAULT configured.' })
+  const { date, agenda, tasksDone, gratitude, reflection } = req.body ?? {}
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(String(date ?? ''))) return res.status(400).json({ error: 'Expected { date: "YYYY-MM-DD", ... }.' })
+  try {
+    const dir = safeVaultPath(VAULT_JOURNAL_DIR)
+    await mkdir(dir, { recursive: true })
+    const file = join(dir, `${date}.md`)
+
+    const lines = [J_START, '## Velman OS — day log']
+    const ag = (Array.isArray(agenda) ? agenda : []).filter((a) => a?.task)
+    if (ag.length) {
+      lines.push('', '### Agenda')
+      for (const a of ag) lines.push(`- [${a.done ? 'x' : ' '}] ${a.time ? `${a.time} — ` : ''}${a.task}`)
+    }
+    const td = (Array.isArray(tasksDone) ? tasksDone : []).filter(Boolean)
+    if (td.length) {
+      lines.push('', '### Done')
+      for (const t of td) lines.push(`- ${t}`)
+    }
+    const gr = (Array.isArray(gratitude) ? gratitude : []).filter(Boolean)
+    if (gr.length) {
+      lines.push('', '### Gratitude')
+      for (const g of gr) lines.push(`- ${g}`)
+    }
+    if (typeof reflection === 'string' && reflection.trim()) lines.push('', '### Reflection', `> ${reflection.trim()}`)
+    lines.push(J_END)
+    const section = lines.join('\n')
+
+    let existing = null
+    try {
+      existing = await readFile(file, 'utf8')
+    } catch {
+      /* new day */
+    }
+    let out
+    if (existing === null) {
+      out = matter.stringify(`${section}\n`, { date, up: '[[Velman OS]]', tags: ['velman-journal'] })
+    } else if (existing.includes(J_START) && existing.includes(J_END)) {
+      out = existing.replace(new RegExp(`${J_START}[\\s\\S]*?${J_END}`), section)
+    } else {
+      out = `${existing.replace(/\s*$/, '')}\n\n${section}\n`
+    }
+    await writeFile(file, out)
+    res.json({ ok: true, path: `${VAULT_JOURNAL_DIR}/${date}.md` })
+  } catch (e) {
+    res.status(500).json({ error: e instanceof Error ? e.message : 'Journal write failed.' })
   }
 })
 

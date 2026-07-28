@@ -11,7 +11,8 @@ import {
   readVaultNote,
   captureToVault,
   syncTasksWithVault,
-  autoSyncTasks,
+  syncTodayJournal,
+  autoSyncAll,
   type VaultSearchResult,
 } from '@/lib/vault'
 
@@ -63,8 +64,13 @@ export default function SecondBrain() {
     setSyncMsg('')
     try {
       const r = await syncTasksWithVault()
+      await syncTodayJournal().catch(() => null)
+      const extras = [
+        r.counts.renamed ? `${r.counts.renamed} renamed` : '',
+        r.counts.deduped ? `${r.counts.deduped} duplicates archived` : '',
+      ].filter(Boolean)
       setSyncMsg(
-        `Synced — ${r.total} tasks in the vault (${r.counts.created} created, ${r.counts.updated} updated, ${r.counts.archived} archived).`,
+        `Synced — ${r.total} tasks in the vault (${r.counts.created} created, ${r.counts.updated} updated, ${r.counts.archived} archived${extras.length ? ', ' + extras.join(', ') : ''}).`,
       )
     } catch (e) {
       setSyncMsg(e instanceof Error ? e.message : 'Sync failed.')
@@ -72,9 +78,9 @@ export default function SecondBrain() {
       setSyncing(false)
     }
   }
-  // Quiet sync once when the page opens and the vault is reachable.
+  // Quiet sync (tasks + today's journal) once the page opens and the vault is reachable.
   useEffect(() => {
-    if (connected) void autoSyncTasks()
+    if (connected) void autoSyncAll()
   }, [connected])
 
   // --- search + reader ---
@@ -164,10 +170,12 @@ export default function SecondBrain() {
             }
           >
             <p className="text-sm text-ink-muted">
-              Every Work task is a markdown file in <span className="font-mono text-xs">{status.tasksDir}/</span> with its
-              fields as properties. Edit either side — newest edit wins per task; deletes become{' '}
-              <span className="font-mono text-xs">archived: true</span> instead of removing files. Tasks also sync
-              automatically when this page or Work opens.
+              Every Work task is a markdown file in <span className="font-mono text-xs">{status.tasksDir}/</span>, named by
+              its title, with its fields as properties. Tasks link to <span className="font-mono text-xs">[[Velman OS]]</span>{' '}
+              and their area note, so the graph clusters by what they belong to. Edit either side — newest edit wins per
+              task; deletes and duplicates become <span className="font-mono text-xs">archived: true</span> instead of
+              removed files. Each day also writes a <span className="font-mono text-xs">Journal/</span> note of what got
+              done. Syncs automatically when this page or Work opens.
             </p>
             {syncMsg && <p className="mt-2 text-xs text-ink-faint">{syncMsg}</p>}
           </Card>

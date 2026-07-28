@@ -78,7 +78,7 @@ export function captureToVault(title: string, text: string): Promise<{ path: str
 }
 
 export interface SyncResult {
-  counts: { created: number; updated: number; archived: number }
+  counts: { created: number; updated: number; archived: number; renamed?: number; deduped?: number }
   total: number
 }
 
@@ -108,4 +108,36 @@ export async function autoSyncTasks(): Promise<SyncResult | null> {
   } catch {
     return null
   }
+}
+
+// Push today's day-log into the vault's Journal folder (one note per day; the
+// server only rewrites its marked block, the user's own notes are untouched).
+export async function syncTodayJournal(): Promise<{ path: string } | null> {
+  const date = new Date().toLocaleDateString('en-CA')
+  const agenda = (peekList<{ time: string; task: string; done: boolean }>(`gcos.agenda.${date}`) ?? []).filter((a) => a.task)
+  const tasksDone = (peekList<{ task: string; done: boolean }>(`gcos.todos.${date}`) ?? []).filter((t) => t.done).map((t) => t.task)
+  const gratitude = (peekList<{ text: string }>(`gcos.gratitude.${date}`) ?? []).map((g) => g.text).filter(Boolean)
+  let reflection = ''
+  try {
+    reflection = localStorage.getItem(`gcos.reflection.${date}`) ?? ''
+  } catch {
+    /* ignore */
+  }
+  if (!agenda.length && !tasksDone.length && !gratitude.length && !reflection.trim()) return null
+  return vaultFetch('/api/vault/journal', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ date, agenda, tasksDone, gratitude, reflection }),
+  })
+}
+
+// Everything the vault mirrors, in one quiet call — used on page mounts.
+export async function autoSyncAll(): Promise<SyncResult | null> {
+  const r = await autoSyncTasks()
+  try {
+    await syncTodayJournal()
+  } catch {
+    /* journal is best-effort */
+  }
+  return r
 }

@@ -5,6 +5,7 @@ import { Card } from '@/components/ui'
 import { useStoreTick, peekList, keysWithPrefix, replaceList, uid } from '@/lib/store'
 import { prettyDate, todayKey, parseTimeToMinutes } from '@/lib/time'
 import { useSelectedDate } from '@/modules/planner/plannerStore'
+import { syncTodayJournal } from '@/lib/vault'
 
 interface AgendaB { id: string; time: string; task: string; done: boolean; category?: string }
 interface TodoR { id: string; task: string; done: boolean; mit?: boolean }
@@ -158,6 +159,11 @@ export default function DailyLog() {
       document.getElementById(`day-${target}`)?.scrollIntoView({ block: 'center', behavior: 'smooth' })
     }
   }, [target])
+
+  // Mirror today's log into the Obsidian journal (silent no-op when offline).
+  useEffect(() => {
+    void syncTodayJournal().catch(() => null)
+  }, [])
 
   return (
     <div className="space-y-4">
