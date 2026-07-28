@@ -7,14 +7,16 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   Plane, Mic, Square, ArrowRight, Ticket, BadgePercent, ExternalLink,
   ShieldCheck, Loader2, Sparkles, Clock, Server, Copy, Check, X,
+  Hotel as HotelIcon, UtensilsCrossed, MapPin, Star,
 } from 'lucide-react'
 import { Card, Empty, Pill } from '@/components/ui'
 import { useCollection, uid, useEphemeral } from '@/lib/store'
 import { useServerHealth } from '@/lib/ai'
 import { useSpeechInput } from '@/lib/speech'
 import {
-  searchFlights, quickLinks, exactFlightUrl, durationMinutes, inrFmt,
+  searchFlights, searchBookings, quickLinks, exactFlightUrl, durationMinutes, inrFmt,
   type FlightResults, type FlightOption, type FlightCoupon, type ParsedTrip, type PriorSearch,
+  type BookingKind, type BookingResults, type StayOption, type DineOption, type PriorBooking,
 } from './flightsApi'
 
 const EXAMPLES = [
@@ -36,7 +38,7 @@ function OfflineCard() {
   return (
     <Card title="AGENT OFFLINE" icon={Server}>
       <p className="text-sm text-ink-muted">
-        Flight search runs on your local agent server (your <b className="text-ink">Claude</b> subscription — no API keys).
+        The booking agent runs on your local server (your <b className="text-ink">Claude</b> subscription — no API keys).
         Start it with <code className="rounded bg-surface-2 px-1.5 py-0.5 font-mono text-xs">npm run dev:all</code> — this page connects automatically.
       </p>
     </Card>
@@ -207,7 +209,7 @@ function PaymentGate({ option, parsed, coupon, onClose }: { option: FlightOption
 // useSyncExternalStore's snapshot caching).
 const NO_STEPS: string[] = []
 
-export default function Flights() {
+function FlightAgent() {
   const health = useServerHealth()
   // Search state lives in the module-level ephemeral store, NOT component
   // state: navigating to another pillar and back keeps the results, and an
@@ -447,6 +449,280 @@ export default function Flights() {
       )}
 
       {paying && results && <PaymentGate option={paying} parsed={results.parsed} coupon={payingCoupon} onClose={() => setPaying(null)} />}
+    </div>
+  )
+}
+
+// ─── Hotel & restaurant agents (generic research flow) ───────────────────────
+
+const KIND_META = {
+  hotel: {
+    icon: HotelIcon,
+    title: 'Hotel booking agent',
+    placeholder: 'e.g. "Hotel in Dubai Marina, 21–24 July, 2 adults, under ₹15k a night"',
+    examples: [
+      'Hotel in Dubai Marina, 21–24 July, 2 adults, under ₹15k a night',
+      '5-star stay in Goa this weekend for 2',
+      'Business hotel near BKC Mumbai next Tuesday, 1 night',
+    ],
+  },
+  restaurant: {
+    icon: UtensilsCrossed,
+    title: 'Restaurant agent',
+    placeholder: 'e.g. "Rooftop dinner for 4 in Chennai tomorrow night"',
+    examples: [
+      'Rooftop dinner for 4 in Chennai tomorrow night',
+      'Best biryani places in Hyderabad tonight',
+      'Anniversary fine dining in Mumbai this Saturday, vegetarian',
+    ],
+  },
+} as const
+
+// One suggestion row for either kind — hotels show ₹/night, dining ₹ for two.
+function SuggestionRow({ kind, o, city }: { kind: BookingKind; o: StayOption | DineOption; city: string }) {
+  const price =
+    kind === 'hotel'
+      ? (o as StayOption).priceINR != null
+        ? `${(o as StayOption).approx ? '~' : ''}${inrFmt((o as StayOption).priceINR as number)}/night`
+        : 'see site'
+      : (o as DineOption).priceForTwoINR != null
+        ? `${inrFmt((o as DineOption).priceForTwoINR as number)} for two`
+        : ''
+  const meta = [kind === 'restaurant' ? (o as DineOption).cuisine : null, o.area].filter(Boolean).join(' · ')
+  const url = o.bookUrl || `https://www.google.com/search?q=${encodeURIComponent(`${o.name} ${city} ${kind === 'hotel' ? 'booking' : ''}`.trim())}`
+  return (
+    <div className="rounded-xl border-2 border-border bg-surface p-3.5 transition-colors hover:border-brand-border">
+      <div className="flex items-start justify-between gap-4">
+        <div className="min-w-0 flex-1">
+          <div className="text-sm font-bold text-ink">{o.name}</div>
+          <div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-ink-muted">
+            {o.rating && (
+              <span className="inline-flex items-center gap-1 font-semibold text-ink">
+                <Star size={12} className="fill-current text-warn" /> {o.rating}
+              </span>
+            )}
+            {meta && (
+              <span className="inline-flex items-center gap-1">
+                <MapPin size={12} className="text-ink-faint" /> {meta}
+              </span>
+            )}
+            <Pill color="#1c4d8c">{o.site}</Pill>
+          </div>
+          {o.notes && <div className="mt-1.5 text-[11px] text-ink-faint">{o.notes}</div>}
+        </div>
+        <div className="shrink-0 text-right">
+          {price && <div className="font-mono text-sm font-semibold tabular-nums text-ink">{price}</div>}
+          <a
+            href={url}
+            target="_blank"
+            rel="noreferrer"
+            className="mt-2 inline-flex items-center gap-1.5 rounded-[10px] bg-accent px-3 py-1.5 text-xs font-semibold text-white hover:opacity-90"
+          >
+            View <ExternalLink size={12} />
+          </a>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function BookingAgent({ kind }: { kind: BookingKind }) {
+  const meta = KIND_META[kind]
+  const health = useServerHealth()
+  const [request, setRequest] = useEphemeral(`gcos.book.${kind}.request`, '')
+  const [phase, setPhase] = useEphemeral<'idle' | 'searching' | 'results'>(`gcos.book.${kind}.phase`, 'idle')
+  const [steps, setSteps] = useEphemeral<string[]>(`gcos.book.${kind}.steps`, NO_STEPS)
+  const [startedAt, setStartedAt] = useEphemeral(`gcos.book.${kind}.startedAt`, 0)
+  const [results, setResults] = useEphemeral<BookingResults<StayOption | DineOption> | null>(`gcos.book.${kind}.results`, null)
+  const [error, setError] = useEphemeral(`gcos.book.${kind}.error`, '')
+  const [prior, setPrior] = useEphemeral<PriorBooking | null>(`gcos.book.${kind}.prior`, null)
+  const [elapsed, setElapsed] = useState(0)
+  const inputRef = useRef<HTMLInputElement>(null)
+  const speech = useSpeechInput({ getBase: () => request, onText: setRequest, onError: setError })
+  const ready = health.online
+
+  useEffect(() => {
+    if (phase !== 'searching') return
+    const tick = () => setElapsed(Math.max(0, Math.round((Date.now() - startedAt) / 1000)))
+    tick()
+    const id = setInterval(tick, 1000)
+    return () => clearInterval(id)
+  }, [phase, startedAt])
+
+  const search = async (text: string) => {
+    const q = text.trim()
+    if (!q || phase === 'searching' || !ready) return
+    speech.abort()
+    setError('')
+    setRequest(q)
+    setSteps(NO_STEPS)
+    setStartedAt(Date.now())
+    setPhase('searching')
+    const stepLog: string[] = []
+    try {
+      const r = await searchBookings<StayOption | DineOption>(kind, q, prior, (label) => {
+        stepLog.push(label)
+        setSteps([...stepLog])
+      })
+      setPrior({ request: q, parsed: r.parsed })
+      setResults(r)
+      setPhase('results')
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Search failed — try again.')
+      setPhase(results ? 'results' : 'idle')
+    }
+  }
+
+  const toggleMic = () => {
+    if (!speech.listening) setError('')
+    speech.toggle()
+    setTimeout(() => inputRef.current?.focus(), 0)
+  }
+
+  const city = String(results?.parsed?.city ?? '')
+  const parsedPills = Object.entries(results?.parsed ?? {})
+    .filter(([, v]) => v !== null && v !== '' && v !== undefined)
+    .map(([k, v]) => `${k}: ${v}`)
+
+  return (
+    <div className="space-y-4">
+      <Card>
+        <div className="flex items-center gap-3">
+          <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-accent to-[#2f6fbf] text-white shadow-sm">
+            <meta.icon size={19} />
+          </div>
+          <div className="min-w-0 flex-1 leading-tight">
+            <h3 className="text-[12px]">{meta.title}</h3>
+          </div>
+        </div>
+
+        {ready ? (
+          <>
+            <div className={`mt-4 flex items-end gap-1.5 rounded-2xl border-2 p-1.5 transition-all ${speech.listening ? 'border-danger/60 brand-glow' : 'border-border focus-within:border-accent focus-within:brand-glow'}`}>
+              {speech.supported && (
+                <button
+                  onClick={toggleMic}
+                  disabled={phase === 'searching'}
+                  aria-label={speech.listening ? 'Stop voice input' : 'Start voice input'}
+                  className={`grid size-9 shrink-0 place-items-center rounded-xl transition-colors disabled:opacity-40 ${speech.listening ? 'animate-pulse bg-danger/10 text-danger' : 'text-ink-faint hover:bg-surface-2 hover:text-accent'}`}
+                >
+                  {speech.listening ? <Square size={15} className="fill-current" /> : <Mic size={17} />}
+                </button>
+              )}
+              <input
+                ref={inputRef}
+                value={request}
+                onChange={(e) => setRequest(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && search(request)}
+                placeholder={speech.listening ? 'Listening…' : meta.placeholder}
+                disabled={phase === 'searching'}
+                className="min-w-0 flex-1 self-center bg-transparent px-1.5 py-2 text-sm text-ink outline-none placeholder:text-ink-faint disabled:opacity-60"
+              />
+              <button
+                onClick={() => search(request)}
+                disabled={phase === 'searching' || !request.trim()}
+                className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-xl bg-accent px-3.5 text-sm font-semibold text-white shadow-sm transition-all hover:opacity-90 disabled:cursor-not-allowed disabled:bg-surface-2 disabled:text-ink-faint disabled:shadow-none"
+              >
+                {phase === 'searching' ? <Loader2 size={15} className="animate-spin" /> : <>Search <ArrowRight size={14} /></>}
+              </button>
+            </div>
+
+            {phase === 'idle' && (
+              <div className="mt-3 flex flex-wrap gap-1.5">
+                {meta.examples.map((ex) => (
+                  <button key={ex} onClick={() => search(ex)} className="rounded-[10px] border-2 border-border px-2.5 py-1.5 text-xs text-ink-muted hover:border-brand-border hover:text-ink">
+                    {ex}
+                  </button>
+                ))}
+              </div>
+            )}
+          </>
+        ) : !health.checking ? (
+          <div className="mt-4"><OfflineCard /></div>
+        ) : null}
+      </Card>
+
+      {error && <div className="rounded-xl border-2 border-danger/40 bg-danger/5 px-3 py-2.5 text-xs font-medium text-danger">{error}</div>}
+
+      {phase === 'searching' && <AgentActivity steps={steps} elapsed={elapsed} />}
+
+      {phase === 'results' && results && (
+        <>
+          <Card
+            title="UNDERSTOOD AS"
+            icon={meta.icon}
+            action={results.asOf ? <span className="text-[11px] text-ink-faint">{results.asOf}</span> : undefined}
+          >
+            <div className="flex flex-wrap gap-1.5">
+              {parsedPills.map((p) => <Pill key={p}>{p}</Pill>)}
+            </div>
+            <p className="mt-2 text-[11px] text-ink-faint">Not right? Just ask again — e.g. "cheaper" or "closer to the airport".</p>
+          </Card>
+
+          <Card title={`SUGGESTIONS · ${results.options.length}`} icon={Sparkles}>
+            {results.options.length === 0 ? (
+              <Empty>Nothing matched — try rephrasing the request.</Empty>
+            ) : (
+              <div className="space-y-2.5">
+                {results.options.map((o, i) => (
+                  <SuggestionRow key={`${o.name}-${i}`} kind={kind} o={o} city={city} />
+                ))}
+              </div>
+            )}
+            <p className="mt-3 border-t border-border pt-3 text-[11px] text-ink-faint">
+              Research only — prices and availability are indicative; confirm and {kind === 'hotel' ? 'book' : 'reserve'} on the site.
+            </p>
+          </Card>
+
+          {results.advice && (
+            <Card title="AGENT'S TAKE" icon={Sparkles}>
+              <p className="text-sm leading-relaxed text-ink-muted">{results.advice}</p>
+            </Card>
+          )}
+        </>
+      )}
+    </div>
+  )
+}
+
+// ─── The Booking page: three tiles, one agent each ───────────────────────────
+
+const TILES: { id: 'flight' | BookingKind; label: string; blurb: string; icon: typeof Plane }[] = [
+  { id: 'flight', label: 'Flight', blurb: 'Fares, routes & coupons', icon: Plane },
+  { id: 'hotel', label: 'Hotel', blurb: 'Stays & nightly rates', icon: HotelIcon },
+  { id: 'restaurant', label: 'Restaurant', blurb: 'Tables worth booking', icon: UtensilsCrossed },
+]
+
+export default function Flights() {
+  const [kind, setKind] = useEphemeral<'flight' | BookingKind>('gcos.book.kind', 'flight')
+  return (
+    <div className="space-y-4">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+        {TILES.map((t) => {
+          const active = kind === t.id
+          return (
+            <button
+              key={t.id}
+              onClick={() => setKind(t.id)}
+              className={`flex items-center gap-3 rounded-2xl border-2 p-4 text-left transition-all ${
+                active ? 'border-accent bg-accent-soft brand-glow' : 'border-border bg-surface hover:border-brand-border'
+              }`}
+            >
+              <span className={`grid size-11 shrink-0 place-items-center rounded-xl ${active ? 'bg-accent text-white' : 'bg-surface-2 text-ink-muted'}`}>
+                <t.icon size={20} />
+              </span>
+              <span className="min-w-0">
+                <span className={`block font-heading text-[12px] font-bold uppercase tracking-[0.14em] ${active ? 'text-accent' : 'text-ink'}`}>
+                  {t.label}
+                </span>
+                <span className="block text-xs text-ink-muted">{t.blurb}</span>
+              </span>
+            </button>
+          )
+        })}
+      </div>
+
+      {kind === 'flight' ? <FlightAgent /> : <BookingAgent key={kind} kind={kind} />}
     </div>
   )
 }

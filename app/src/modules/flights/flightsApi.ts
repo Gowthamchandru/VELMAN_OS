@@ -85,17 +85,19 @@ export function quickLinks(p: ParsedTrip): { label: string; url: string }[] {
   ]
 }
 
-export async function searchFlights(
-  request: string,
-  prior: PriorSearch | null,
+// Shared SSE reader for all agent endpoints: `step` events feed onStep, one
+// `done` event carries the JSON payload, `error` aborts.
+async function streamAgent<T extends { options: unknown[] }>(
+  path: string,
+  body: unknown,
   onStep: (label: string) => void,
-): Promise<FlightResults> {
+): Promise<T> {
   let res: Response
   try {
-    res = await fetch(`${SERVER}/api/flights`, {
+    res = await fetch(`${SERVER}${path}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ request, prior }),
+      body: JSON.stringify(body),
     })
   } catch {
     throw new Error(`Can't reach the assistant server at ${SERVER}. Start it with "npm run dev:all".`)
@@ -108,7 +110,7 @@ export async function searchFlights(
   const reader = res.body.getReader()
   const decoder = new TextDecoder()
   let buffer = ''
-  let done: FlightResults | null = null
+  let done: T | null = null
   let error: string | null = null
 
   while (true) {
@@ -123,8 +125,8 @@ export async function searchFlights(
       try {
         const ev = JSON.parse(line.slice(6))
         if (ev.t === 'step') onStep(String(ev.label ?? ''))
-        else if (ev.t === 'done') done = ev.data as FlightResults
-        else if (ev.t === 'error') error = String(ev.message ?? 'Flight search failed.')
+        else if (ev.t === 'done') done = ev.data as T
+        else if (ev.t === 'error') error = String(ev.message ?? 'Search failed.')
       } catch {
         /* skip malformed frame */
       }
@@ -134,4 +136,60 @@ export async function searchFlights(
   if (error) throw new Error(error)
   if (!done || !Array.isArray(done.options)) throw new Error('The agent stream ended without results — try again.')
   return done
+}
+
+export function searchFlights(
+  request: string,
+  prior: PriorSearch | null,
+  onStep: (label: string) => void,
+): Promise<FlightResults> {
+  return streamAgent<FlightResults>('/api/flights', { request, prior }, onStep)
+}
+
+// ---------------------------------------------------------------------------
+// Hotel & restaurant agents — same stream, simpler shapes.
+// ---------------------------------------------------------------------------
+export type BookingKind = 'hotel' | 'restaurant'
+
+export interface StayOption {
+  name: string
+  area?: string | null
+  rating?: string | null
+  priceINR: number | null
+  approx?: boolean
+  site: string
+  bookUrl?: string | null
+  notes?: string | null
+}
+
+export interface DineOption {
+  name: string
+  cuisine?: string | null
+  area?: string | null
+  rating?: string | null
+  priceForTwoINR?: number | null
+  site: string
+  bookUrl?: string | null
+  notes?: string | null
+}
+
+export interface BookingResults<T> {
+  parsed: Record<string, string | number | null>
+  options: T[]
+  advice?: string
+  asOf?: string
+}
+
+export interface PriorBooking {
+  request: string
+  parsed: Record<string, string | number | null>
+}
+
+export function searchBookings<T extends StayOption | DineOption>(
+  kind: BookingKind,
+  request: string,
+  prior: PriorBooking | null,
+  onStep: (label: string) => void,
+): Promise<BookingResults<T>> {
+  return streamAgent<BookingResults<T>>('/api/bookings', { kind, request, prior }, onStep)
 }

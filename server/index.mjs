@@ -925,6 +925,100 @@ app.post('/api/flights', async (req, res) => {
   }
 })
 
+// ---------------------------------------------------------------------------
+// Hotel & restaurant agents — same research-only pattern as flights: one
+// agentic run with web tools per request, streamed as SSE steps, JSON out.
+// The agent suggests and links; the user books/reserves manually on the site.
+// ---------------------------------------------------------------------------
+const HOTELS_SYSTEM = (today) => `You are the hotel-booking RESEARCH agent inside "Velman OS" for Dr. Gowtham (based in India; money in INR; timezone IST). Today is ${today} (IST).
+
+You receive a natural-language stay request (e.g. "hotel in Dubai Marina 21-24 July, 2 adults, under 15k a night"). Do this:
+
+1. PARSE it: city, area (null if none), check-in and check-out dates (resolve relative dates against today; default to a 1-night stay starting on the nearest sensible date and flag it in "advice"), nights, guests (default 2), budgetINR per night (null if not given).
+2. RESEARCH live options with WebSearch (and WebFetch on promising results pages): check Google Hotels, Booking.com, MakeMyTrip, Agoda and Goibibo. Collect 6-10 concrete hotels matching the request. TIME BUDGET: the user is waiting live — at most ~8 searches and ~6 page reads; once you have 6 solid options, STOP and compile.
+3. Reply with ONLY one JSON object — no prose, no markdown fences — exactly this shape:
+{
+  "parsed": { "city": "Dubai", "area": "Marina", "checkIn": "YYYY-MM-DD", "checkOut": "YYYY-MM-DD", "nights": 3, "guests": 2, "budgetINR": 15000 },
+  "options": [ { "name": "Rove Dubai Marina", "area": "Dubai Marina", "rating": "4.4", "priceINR": 12800, "approx": true, "site": "Booking.com", "bookUrl": "https://...", "notes": "breakfast included, metro 5 min" } ],
+  "advice": "2-3 sentences: which stay you'd pick and why, plus one watch-out (location, taxes, refundability).",
+  "asOf": "web results, ${today}"
+}
+
+Rules:
+- priceINR is the nightly rate as an integer INR when you saw a figure; "approx": true unless it came from a live rates page; null only if no figure at all. Sort options by priceINR ascending (nulls last).
+- rating: the site's score as a short string ("4.4"). bookUrl: a link you actually saw (a search/results page is fine) — NEVER invent a checkout link.
+- You RESEARCH only. You never reserve, hold, or pay, and never ask for card details.
+- If the web tools return nothing usable, return typical well-known hotels for that city/area from knowledge — every option "approx": true — and say in "advice" that live rates must be confirmed on the booking site.`
+
+const RESTAURANTS_SYSTEM = (today) => `You are the restaurant RESEARCH agent inside "Velman OS" for Dr. Gowtham (based in India; money in INR; timezone IST). Today is ${today} (IST).
+
+You receive a natural-language dining request (e.g. "rooftop dinner for 4 in Chennai tomorrow night"). Do this:
+
+1. PARSE it: city, area (null if none), date (resolve relative dates against today; null if not implied), time (null if not given), party size (default 2), cuisine/vibe (null if none).
+2. RESEARCH with WebSearch (and WebFetch on promising pages): check Zomato, EazyDiner, Google Maps results and TripAdvisor. Collect 6-10 concrete restaurants that fit. TIME BUDGET: at most ~8 searches and ~6 page reads; once you have 6 solid options, STOP and compile.
+3. Reply with ONLY one JSON object — no prose, no markdown fences — exactly this shape:
+{
+  "parsed": { "city": "Chennai", "area": null, "date": "YYYY-MM-DD", "time": "8:00 PM", "party": 4, "cuisine": "rooftop" },
+  "options": [ { "name": "The Flying Elephant", "cuisine": "Multi-cuisine", "area": "Guindy", "rating": "4.5", "priceForTwoINR": 4000, "site": "Zomato", "bookUrl": "https://...", "notes": "rooftop seating, book ahead on weekends" } ],
+  "advice": "2-3 sentences: which table you'd book and why, plus one practical tip (timing, dress code, reservation).",
+  "asOf": "web results, ${today}"
+}
+
+Rules:
+- priceForTwoINR: integer INR approximate cost for two (null if unknown). rating as a short string. Sort by rating descending.
+- bookUrl: a listing/reservation page you actually saw — never an invented deep link.
+- You RESEARCH only. You never reserve a table or pay; the user does that on the site or by phone.
+- If web tools return nothing usable, return well-known fitting restaurants for that city from knowledge — and say in "advice" that availability must be checked directly.`
+
+const BOOKING_AGENTS = { hotel: HOTELS_SYSTEM, restaurant: RESTAURANTS_SYSTEM }
+
+app.post('/api/bookings', async (req, res) => {
+  const { kind, request, prior } = req.body ?? {}
+  if (authMode() === 'none') return res.status(401).json({ error: 'No Claude credentials. Run `claude setup-token` and put CLAUDE_CODE_OAUTH_TOKEN in .env.' })
+  if (!BOOKING_AGENTS[kind]) return res.status(400).json({ error: 'Expected { kind: "hotel" | "restaurant", request }.' })
+  if (typeof request !== 'string' || !request.trim()) return res.status(400).json({ error: 'Expected { request: string }.' })
+
+  res.setHeader('Content-Type', 'text/event-stream')
+  res.setHeader('Cache-Control', 'no-cache, no-transform')
+  res.setHeader('Connection', 'keep-alive')
+  res.flushHeaders?.()
+  const send = (obj) => res.write(`data: ${JSON.stringify(obj)}\n\n`)
+
+  const ac = new AbortController()
+  res.on('close', () => { if (!res.writableEnded) ac.abort() })
+
+  const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' })
+  try {
+    send({ t: 'step', label: 'Understanding your request…' })
+    let text = ''
+    let failure = null
+    for await (const msg of query({
+      prompt: buildFlightPrompt(request.trim(), prior),
+      options: {
+        model: MODEL,
+        systemPrompt: BOOKING_AGENTS[kind](today),
+        allowedTools: ['WebSearch', 'WebFetch'],
+        maxTurns: 16,
+        permissionMode: 'default',
+        abortController: ac,
+      },
+    })) {
+      sendToolSteps(msg, send)
+      if (msg.type === 'result') {
+        if (msg.subtype === 'success') text = msg.result
+        else failure = msg.subtype
+      }
+    }
+    if (!text) throw new Error(failure ? `Agent run ended: ${failure}` : 'No result from the agent.')
+    send({ t: 'step', label: 'Compiling suggestions…' })
+    send({ t: 'done', data: { ...extractJson(text), source: 'research' } })
+  } catch (e) {
+    if (!ac.signal.aborted) send({ t: 'error', message: e instanceof Error ? e.message : 'Search failed.' })
+  } finally {
+    res.end()
+  }
+})
+
 // Get local network IP address
 function getNetworkIP() {
   const nets = networkInterfaces()
