@@ -61,10 +61,7 @@ export default function Health() {
           <div className="grid size-10 place-items-center rounded-xl bg-accent-soft text-accent">
             <HeartPulse size={20} />
           </div>
-          <div>
-            <h1 className="text-2xl font-semibold text-ink">Health</h1>
-            <p className="text-sm text-ink-muted">Body, sleep &amp; recovery · this week</p>
-          </div>
+          <h1 className="text-2xl font-semibold text-ink">Health</h1>
         </div>
         <span className="rounded-full border border-border px-2.5 py-1 text-[11px] text-ink-faint">
           demo data · Apple Watch sync pending
