@@ -439,12 +439,6 @@ function FlightAgent() {
             </Card>
           )}
 
-          {/* The agent's recommendation */}
-          {results.advice && (
-            <Card title="AGENT'S TAKE" icon={Sparkles}>
-              <p className="text-sm leading-relaxed text-ink-muted">{results.advice}</p>
-            </Card>
-          )}
         </>
       )}
 
