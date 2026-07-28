@@ -4,9 +4,10 @@
 // one is picked. What each mode actually opens is decided in the next step.
 import { useRef, type CSSProperties, type MouseEvent, type ReactNode } from 'react'
 import { Navigate, useNavigate } from 'react-router-dom'
-import { ArrowLeft, ArrowRight, Briefcase, User } from 'lucide-react'
+import { ArrowLeft, Briefcase, User } from 'lucide-react'
 import ShatterableGlassCard from '@/components/ui/shatterable-glass-card'
 import ParticleField from '@/components/ui/particle-field'
+import SlideArrowButton from '@/components/ui/slide-arrow-button'
 import { getEntryMode, setEntryMode, type EntryMode } from './entryMode'
 
 // Route guard: the app proper is unreachable until a mode has been chosen.
@@ -47,13 +48,9 @@ export function Welcome() {
         </div>
       </div>
 
-      <button
-        onClick={() => navigate('/mode')}
-        className="entry-rise z-10 flex items-center gap-2.5 rounded-[10px] bg-accent px-8 py-3.5 font-heading text-[12px] font-bold uppercase tracking-[0.2em] text-white transition-all hover:opacity-90 hover:shadow-[0_0_30px_rgba(28,77,140,0.6)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
-        style={delay(140)}
-      >
-        Continue <ArrowRight size={15} />
-      </button>
+      <SlideArrowButton onClick={() => navigate('/mode')} className="entry-rise z-10" style={delay(140)}>
+        Continue
+      </SlideArrowButton>
 
       <p
         className="entry-rise absolute bottom-8 z-10 flex items-center gap-2 text-[10px] uppercase tracking-[0.22em] text-sidebar-muted"
