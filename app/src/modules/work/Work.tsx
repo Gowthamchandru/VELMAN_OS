@@ -470,10 +470,7 @@ export default function Work() {
     <div className="space-y-4">
       <div className="flex flex-wrap items-center gap-3">
         <div className="grid size-10 place-items-center rounded-xl bg-accent-soft text-accent"><Briefcase size={20} /></div>
-        <div>
-          <h1 className="text-2xl font-semibold text-ink">Work</h1>
-          <p className="text-sm text-ink-muted">Your companies — tap one for departments &amp; legal vault.</p>
-        </div>
+        <h1 className="text-2xl font-semibold text-ink">Work</h1>
         <div className="ml-auto hidden gap-2 lg:flex">
           <Stat label="Group headcount" value={groupTotal(items)} sub={`${items.length} companies`} />
         </div>
