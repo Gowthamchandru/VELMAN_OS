@@ -2,7 +2,7 @@
 // Continue button; `/mode` asks Personal vs Professional. The chosen mode lasts
 // for the browser session (sessionStorage), and the shell redirects here until
 // one is picked. What each mode actually opens is decided in the next step.
-import type { CSSProperties, ReactNode } from 'react'
+import { useEffect, useState, type CSSProperties, type ReactNode } from 'react'
 import { Navigate, useNavigate } from 'react-router-dom'
 import { ArrowLeft, ArrowRight, Briefcase, User } from 'lucide-react'
 import ShatterableGlassCard from '@/components/ui/shatterable-glass-card'
@@ -17,6 +17,38 @@ export function RequireEntry({ children }: { children: ReactNode }) {
 // Staggered entrance delay for .entry-rise elements.
 const delay = (ms: number) => ({ '--delay': `${ms}ms` }) as CSSProperties
 
+// Boot-up decode: characters churn through glyphs and settle left-to-right
+// into the real text. Reduced-motion users see the final text immediately.
+const GLYPHS = '!<>-_\\/[]{}=+*^?#01'
+const scrambleChar = () => GLYPHS[Math.floor(Math.random() * GLYPHS.length)]
+
+function DecodeText({ text }: { text: string }) {
+  const [shown, setShown] = useState(() =>
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches ? text : text.replace(/[^ ]/g, scrambleChar),
+  )
+  useEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    let frame = 0
+    const id = window.setInterval(() => {
+      frame++
+      const revealed = Math.floor(frame / 2)
+      if (revealed >= text.length) {
+        setShown(text)
+        window.clearInterval(id)
+        return
+      }
+      setShown(
+        text
+          .split('')
+          .map((c, i) => (c === ' ' ? ' ' : i < revealed ? c : scrambleChar()))
+          .join(''),
+      )
+    }, 45)
+    return () => window.clearInterval(id)
+  }, [text])
+  return <>{shown}</>
+}
+
 export function Welcome() {
   const navigate = useNavigate()
   return (
@@ -24,7 +56,9 @@ export function Welcome() {
       <ParticleField className="absolute inset-0 z-0 h-full w-full" />
       <div className="entry-rise z-10 flex flex-col items-center gap-7" style={delay(0)}>
         <div>
-          <h1 className="font-heading text-4xl font-black tracking-[0.18em] text-white sm:text-6xl">VELMAN OS</h1>
+          <h1 className="gc-wordmark font-heading text-4xl font-black tracking-[0.18em] sm:text-6xl">
+            <DecodeText text="VELMAN OS" />
+          </h1>
           <p className="tabular-nums mt-4 text-[11px] uppercase tracking-[0.34em] text-sidebar-muted">
             Personal operating system · Dr. Gowtham
           </p>
