@@ -23,9 +23,6 @@ export function Welcome() {
     <main className="entry-bg relative flex min-h-screen flex-col items-center justify-center gap-12 px-6 text-center">
       <ParticleField className="absolute inset-0 z-0 h-full w-full" />
       <div className="entry-rise z-10 flex flex-col items-center gap-7" style={delay(0)}>
-        <div className="grid size-16 place-items-center rounded-[14px] bg-accent font-heading text-xl font-black text-white shadow-[0_0_44px_rgba(28,77,140,0.55)]">
-          VO
-        </div>
         <div>
           <h1 className="font-heading text-4xl font-black tracking-[0.18em] text-white sm:text-6xl">VELMAN OS</h1>
           <p className="tabular-nums mt-4 text-[11px] uppercase tracking-[0.34em] text-sidebar-muted">
