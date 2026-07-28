@@ -9,7 +9,7 @@ import {
   ResponsiveContainer,
   CartesianGrid,
 } from 'recharts'
-import { HeartPulse, Moon, Activity, Flame, Scale, Dumbbell, TrendingUp } from 'lucide-react'
+import { HeartPulse, Moon, Activity, Flame, Scale, Dumbbell } from 'lucide-react'
 import { Card } from '@/components/ui'
 import { Gauge, ActivityRings, BandPill, bandColor } from './HealthBits'
 import {
@@ -216,13 +216,6 @@ export default function Health() {
         </Card>
       </div>
 
-      <Card title="Health ↔ productivity" icon={TrendingUp}>
-        <p className="text-sm leading-relaxed text-ink-muted">
-          Once a few weeks of data accrue, this links recovery to output — e.g.{' '}
-          <span className="text-ink">“nights with 7h+ sleep → 78% of your MITs done, vs 41% on short nights.”</span>{' '}
-          The correlation engine activates after the Apple Watch ingest and the task data both flow.
-        </p>
-      </Card>
     </div>
   )
 }
