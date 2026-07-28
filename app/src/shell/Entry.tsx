@@ -51,13 +51,6 @@ export function Welcome() {
       <SlideArrowButton onClick={() => navigate('/mode')} className="entry-rise z-10" style={delay(140)}>
         Continue
       </SlideArrowButton>
-
-      <p
-        className="entry-rise absolute bottom-8 z-10 flex items-center gap-2 text-[10px] uppercase tracking-[0.22em] text-sidebar-muted"
-        style={delay(280)}
-      >
-        <span className="dot-online size-1.5 rounded-full bg-online" /> All data stays on this device
-      </p>
     </main>
   )
 }
