@@ -114,22 +114,32 @@ export default function ShatterableGlassCard({
   const timers = useRef<number[]>([])
   const synths = useRef<{ crack?: Tone.PluckSynth; shatter?: Tone.PolySynth<Tone.MetalSynth> }>({})
 
+  // Synths are built on the FIRST CLICK, not on mount: constructing them
+  // eagerly spins up an AudioContext before any user gesture, which browsers
+  // block and log an autoplay warning about.
+  const ensureSynths = () => {
+    if (!synths.current.crack) {
+      const crack = new Tone.PluckSynth({ attackNoise: 1, dampening: 4000, resonance: 0.9 }).toDestination()
+      const shatter = new Tone.PolySynth(Tone.MetalSynth, {
+        envelope: { attack: 0.001, decay: 0.4, release: 0.2 },
+        harmonicity: 5.1,
+        modulationIndex: 32,
+        resonance: 4000,
+        octaves: 1.5,
+      }).toDestination()
+      crack.volume.value = -6
+      shatter.volume.value = -12
+      synths.current = { crack, shatter }
+    }
+    return synths.current
+  }
+
   useEffect(() => {
-    const crack = new Tone.PluckSynth({ attackNoise: 1, dampening: 4000, resonance: 0.9 }).toDestination()
-    const shatter = new Tone.PolySynth(Tone.MetalSynth, {
-      envelope: { attack: 0.001, decay: 0.4, release: 0.2 },
-      harmonicity: 5.1,
-      modulationIndex: 32,
-      resonance: 4000,
-      octaves: 1.5,
-    }).toDestination()
-    crack.volume.value = -6
-    shatter.volume.value = -12
-    synths.current = { crack, shatter }
     const pending = timers.current
+    const built = synths.current
     return () => {
-      crack.dispose()
-      shatter.dispose()
+      built.crack?.dispose()
+      built.shatter?.dispose()
       pending.forEach(clearTimeout)
     }
   }, [])
@@ -148,7 +158,7 @@ export default function ShatterableGlassCard({
     setShards(generateShards(x, y, rect.width, rect.height))
     setState('cracked')
     void Tone.start()
-      .then(() => synths.current.crack?.triggerAttack('C6'))
+      .then(() => ensureSynths().crack?.triggerAttack('C6'))
       .catch(() => {})
     timers.current.push(
       window.setTimeout(() => {
