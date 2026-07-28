@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Plus, X, Flame } from 'lucide-react'
+import { Plus, X, Flame, Repeat } from 'lucide-react'
 import { Card } from '@/components/ui'
 import { useStoreTick, type Collection } from '@/lib/store'
 import {
@@ -121,7 +121,12 @@ export default function Habits() {
   const { dates, todayIdx } = weekDateKeys()
   return (
     <div className="space-y-4">
-      <h1 className="text-2xl font-semibold text-ink">Habits &amp; self-care</h1>
+      <div className="flex items-center gap-3">
+        <div className="grid size-10 place-items-center rounded-xl bg-accent-soft text-accent">
+          <Repeat size={20} />
+        </div>
+        <h1 className="text-2xl font-semibold text-ink">Habits &amp; self-care</h1>
+      </div>
       <Card title="Daily self-care checklist">
         <Grid defs={selfCare} dates={dates} todayIdx={todayIdx} />
       </Card>
