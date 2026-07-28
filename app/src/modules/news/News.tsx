@@ -82,10 +82,7 @@ export default function News() {
     <div className="space-y-4">
       <div className="flex flex-wrap items-center gap-3">
         <div className="grid size-10 place-items-center rounded-xl bg-accent-soft text-accent"><Newspaper size={20} /></div>
-        <div>
-          <h1 className="text-2xl font-semibold text-ink">News</h1>
-          <p className="text-sm text-ink-muted">Latest across your fields + tech. The assistant will rank these &amp; suggest how each helps your work.</p>
-        </div>
+        <h1 className="text-2xl font-semibold text-ink">News</h1>
       </div>
 
       {/* Add a field */}
