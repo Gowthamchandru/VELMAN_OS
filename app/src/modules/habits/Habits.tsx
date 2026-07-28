@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { Plus, X, Flame } from 'lucide-react'
 import { Card } from '@/components/ui'
 import { useStoreTick, type Collection } from '@/lib/store'
-import { shortDate } from '@/lib/time'
 import {
   useSelfCareDefs,
   useDailyDefs,
@@ -122,12 +121,7 @@ export default function Habits() {
   const { dates, todayIdx } = weekDateKeys()
   return (
     <div className="space-y-4">
-      <div>
-        <h1 className="text-2xl font-semibold text-ink">Habits &amp; self-care</h1>
-        <p className="text-sm text-ink-muted">
-          Week of {shortDate(dates[0])} – {shortDate(dates[6])} · tap a day to mark it (today is highlighted). Apple Watch will auto-tick steps, sleep &amp; workouts once sync is wired.
-        </p>
-      </div>
+      <h1 className="text-2xl font-semibold text-ink">Habits &amp; self-care</h1>
       <Card title="Daily self-care checklist">
         <Grid defs={selfCare} dates={dates} todayIdx={todayIdx} />
       </Card>
