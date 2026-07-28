@@ -1,12 +1,12 @@
-import { useEffect, type ReactNode } from 'react'
-import { History, CheckCircle2, ListChecks } from 'lucide-react'
+import { useEffect, useState, type ReactNode } from 'react'
+import { History, CheckCircle2, ListChecks, Plus } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { Card } from '@/components/ui'
-import { useStoreTick, peekList, keysWithPrefix } from '@/lib/store'
+import { useStoreTick, peekList, keysWithPrefix, replaceList, uid } from '@/lib/store'
 import { prettyDate, todayKey, parseTimeToMinutes } from '@/lib/time'
 import { useSelectedDate } from '@/modules/planner/plannerStore'
 
-interface AgendaB { id: string; time: string; task: string; done: boolean }
+interface AgendaB { id: string; time: string; task: string; done: boolean; category?: string }
 interface TodoR { id: string; task: string; done: boolean; mit?: boolean }
 
 function summary(date: string) {
@@ -50,6 +50,64 @@ function Point({ icon: Icon, label, children }: { icon: LucideIcon; label: strin
   )
 }
 
+const nowLabel = () => new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
+
+// Inline "add a log entry" — appends a completed agenda block to that day, so
+// it appears here and stays consistent with the Command Center's agenda.
+function AddEntry({ date }: { date: string }) {
+  const [open, setOpen] = useState(false)
+  const [time, setTime] = useState('')
+  const [text, setText] = useState('')
+
+  const save = () => {
+    if (!text.trim()) return
+    const key = `gcos.agenda.${date}`
+    const cur = peekList<AgendaB>(key) ?? []
+    replaceList<AgendaB>(key, [...cur, { id: uid(), time: time.trim() || nowLabel(), task: text.trim(), category: 'Personal', done: true }])
+    setText('')
+    setOpen(false)
+  }
+
+  if (!open) {
+    return (
+      <button
+        onClick={() => { setTime(nowLabel()); setOpen(true) }}
+        className="mt-2 flex items-center gap-1.5 text-xs text-ink-faint transition-colors hover:text-accent"
+      >
+        <Plus size={13} /> Add entry
+      </button>
+    )
+  }
+  return (
+    <div className="mt-2 flex flex-wrap items-center gap-2 border-t-2 border-border pt-2">
+      <input
+        value={time}
+        onChange={(e) => setTime(e.target.value)}
+        placeholder="9:00 AM"
+        className="w-24 rounded-[10px] border-2 border-border bg-surface px-2 py-1.5 font-mono text-xs text-ink outline-none focus:border-accent"
+      />
+      <input
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+        onKeyDown={(e) => { if (e.key === 'Enter') save(); if (e.key === 'Escape') setOpen(false) }}
+        placeholder="What did you do?"
+        autoFocus
+        className="min-w-0 flex-1 rounded-[10px] border-2 border-border bg-surface px-2.5 py-1.5 text-sm text-ink outline-none focus:border-accent"
+      />
+      <button
+        onClick={save}
+        disabled={!text.trim()}
+        className="rounded-[10px] bg-accent px-3 py-1.5 font-heading text-[10px] font-bold uppercase tracking-[0.12em] text-white hover:opacity-90 disabled:opacity-50"
+      >
+        Save
+      </button>
+      <button onClick={() => setOpen(false)} className="text-xs text-ink-faint hover:text-ink">
+        Cancel
+      </button>
+    </div>
+  )
+}
+
 function DayRecap({ s, target }: { s: Summary; target: boolean }) {
   const isToday = s.date === todayKey()
   return (
@@ -80,6 +138,8 @@ function DayRecap({ s, target }: { s: Summary; target: boolean }) {
           <Point icon={ListChecks} label="Tasks done">{s.doneTodos.join(', ')}</Point>
         </ul>
       )}
+
+      <AddEntry date={s.date} />
     </Card>
   )
 }
@@ -87,7 +147,11 @@ function DayRecap({ s, target }: { s: Summary; target: boolean }) {
 export default function DailyLog() {
   useStoreTick()
   const [target] = useSelectedDate()
-  const days = activeDates().map(summary).filter(hasContent)
+  const today = todayKey()
+  const dates = activeDates()
+  if (!dates.includes(today)) dates.unshift(today)
+  // Today's card always shows (even empty) so there's always a place to log.
+  const days = dates.map(summary).filter((s) => hasContent(s) || s.date === today)
 
   useEffect(() => {
     if (target && target !== todayKey()) {
