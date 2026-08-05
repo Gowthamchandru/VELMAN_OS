@@ -136,7 +136,7 @@ export const modules: ModuleManifest[] = [
   },
   {
     id: 'finance',
-    mode: 'professional',
+    mode: 'personal',
     title: 'Financial',
     icon: Wallet,
     route: '/finance',
