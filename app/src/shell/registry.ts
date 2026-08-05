@@ -39,7 +39,7 @@ export const modules: ModuleManifest[] = [
   {
     id: 'work',
     mode: 'professional',
-    title: 'Work',
+    title: 'Task Management',
     icon: Briefcase,
     route: '/work',
     nav: true,
