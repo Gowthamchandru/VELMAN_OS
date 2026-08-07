@@ -55,11 +55,14 @@ export function Welcome() {
       <CityHaze className="absolute inset-0 z-0 h-full w-full" />
       <div className="entry-rise z-10 flex flex-col items-center gap-7" style={delay(0)}>
         <div className="flex flex-col items-start">
-          <span className="gc-eyebrow text-[12px] uppercase tracking-[0.3em] text-white sm:text-[13px]">Personal OS</span>
-          <h1 ref={markRef} className="gc-wordmark -mt-1 text-5xl tracking-[0.14em] sm:text-7xl">
+          <span className="gc-eyebrow text-[14px] uppercase tracking-[0.3em] text-white sm:text-[17px]">Personal OS</span>
+          {/* Steps up in three stages. 48px is the ceiling that still fits
+              "VELMAN OS" on a 390px phone at this tracking; 96px waits for lg,
+              where there is room to spare. */}
+          <h1 ref={markRef} className="gc-wordmark -mt-1 text-5xl tracking-[0.14em] sm:text-7xl lg:text-8xl">
             VELMAN OS
           </h1>
-          <p className="tabular-nums mt-4 self-center text-[13px] uppercase tracking-[0.34em] text-sidebar-muted">
+          <p className="tabular-nums mt-5 self-center text-[15px] uppercase tracking-[0.34em] text-sidebar-muted">
             Dr. Gowtham
           </p>
         </div>

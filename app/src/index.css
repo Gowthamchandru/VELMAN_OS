@@ -289,8 +289,8 @@ input, textarea, select {
 }
 .gc-eyebrow::after {
   content: '';
-  width: clamp(3rem, 22vw, 13rem);
-  height: 1.5rem;
+  width: clamp(3.5rem, 24vw, 15rem);
+  height: 1.7rem;
   border-top: 1.5px solid rgba(0, 217, 255, 0.55);
   border-right: 1.5px solid rgba(0, 217, 255, 0.55);
   border-top-right-radius: 14px;
