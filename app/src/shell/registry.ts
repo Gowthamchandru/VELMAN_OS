@@ -1,5 +1,6 @@
-﻿import { LayoutDashboard, HeartPulse, Wallet, Briefcase, Repeat, History, ShieldCheck, CreditCard, Newspaper, Plane, Building2, Brain } from 'lucide-react'
+﻿import { LayoutDashboard, HeartPulse, Wallet, Briefcase, Repeat, History, ShieldCheck, CreditCard, Newspaper, Plane, Building2, Brain, Zap } from 'lucide-react'
 import SecondBrain from '@/modules/brain/SecondBrain'
+import Productivity from '@/modules/productivity/Productivity'
 import type { ModuleManifest } from './types'
 import CommandCenter from '@/modules/command-center/CommandCenter'
 import DailyLog from '@/modules/log/DailyLog'
@@ -35,6 +36,16 @@ export const modules: ModuleManifest[] = [
     nav: true,
     status: 'live',
     page: SecondBrain,
+  },
+  {
+    id: 'productivity',
+    mode: 'both',
+    title: 'Productivity',
+    icon: Zap,
+    route: '/productivity',
+    nav: true,
+    status: 'live',
+    page: Productivity,
   },
   {
     id: 'work',
