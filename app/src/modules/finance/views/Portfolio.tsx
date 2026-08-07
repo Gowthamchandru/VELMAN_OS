@@ -3,7 +3,7 @@ import { BarChart, Bar, XAxis, YAxis, Cell, Tooltip, ResponsiveContainer } from 
 import { Card, Stat } from '@/components/ui'
 import { useHoldings, newHolding, compute, ASSET_LIST, portfolioTotals, inr, pct } from '../financeReal'
 
-const STATUS_COLOR = { gain: '#059669', loss: '#d93a2b', flat: '#9ca3af' }
+const STATUS_COLOR = { gain: '#00ffa3', loss: '#ff2e63', flat: '#566d91' }
 const num = (v: string) => { const n = parseFloat(v.replace(/,/g, '')); return isNaN(n) ? 0 : n }
 const inputBase = 'w-full rounded bg-transparent px-1 py-1 text-sm text-ink outline-none focus:bg-surface-2 focus:ring-1 focus:ring-accent'
 const numInput = `${inputBase} text-right tabular-nums`
@@ -97,7 +97,7 @@ export default function Portfolio() {
               <YAxis type="category" dataKey="name" width={130} tick={{ fill: 'var(--color-ink-muted)', fontSize: 11 }} axisLine={false} tickLine={false} />
               <Tooltip contentStyle={tooltipStyle} cursor={{ fill: 'var(--color-surface-2)' }} formatter={(v) => [inr(Number(v), true), 'P&L']} />
               <Bar isAnimationActive={false} dataKey="pnl" radius={[0, 4, 4, 0]}>
-                {byPnl.map((h) => <Cell key={h.id} fill={h.pnl >= 0 ? '#059669' : '#d93a2b'} />)}
+                {byPnl.map((h) => <Cell key={h.id} fill={h.pnl >= 0 ? '#00ffa3' : '#ff2e63'} />)}
               </Bar>
             </BarChart>
           </ResponsiveContainer>

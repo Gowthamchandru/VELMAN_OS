@@ -4,9 +4,9 @@ import { todayKey } from '@/lib/time'
 export type DeptTaskStatus = 'Todo' | 'In Progress' | 'Done'
 export const DEPT_TASK_STATUSES: DeptTaskStatus[] = ['Todo', 'In Progress', 'Done']
 export const DEPT_TASK_STATUS_COLOR: Record<DeptTaskStatus, string> = {
-  Todo: '#9ca3af',
-  'In Progress': '#1c4d8c',
-  Done: '#059669',
+  Todo: '#566d91',
+  'In Progress': '#00d9ff',
+  Done: '#00ffa3',
 }
 
 export interface DeptTask {

@@ -20,10 +20,10 @@ const fld = 'rounded-[10px] border-2 border-border bg-surface px-3 py-2 text-sm 
 
 function StatusPill({ s }: { s: ReturnType<typeof useVaultStatus> }) {
   if (s.checking) return <Pill>Checking…</Pill>
-  if (!s.online) return <Pill color="#9ca3af">Server offline</Pill>
-  if (!s.configured) return <Pill color="#d97706">Not configured</Pill>
-  if (!s.exists) return <Pill color="#d93a2b">Vault path invalid</Pill>
-  return <Pill color="#059669">Connected</Pill>
+  if (!s.online) return <Pill color="#566d91">Server offline</Pill>
+  if (!s.configured) return <Pill color="#ffb020">Not configured</Pill>
+  if (!s.exists) return <Pill color="#ff2e63">Vault path invalid</Pill>
+  return <Pill color="#00ffa3">Connected</Pill>
 }
 
 function SetupCard({ offline }: { offline: boolean }) {

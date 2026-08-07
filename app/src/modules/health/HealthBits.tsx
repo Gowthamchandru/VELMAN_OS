@@ -1,9 +1,9 @@
 import type { ReactNode } from 'react'
 
 const BAND: Record<string, string> = {
-  green: '#059669',
-  amber: '#d97706',
-  red: '#d93a2b',
+  green: '#00ffa3',
+  amber: '#ffb020',
+  red: '#ff2e63',
 }
 
 export function bandColor(band: string): string {

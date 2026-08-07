@@ -149,7 +149,7 @@ export default function Shell() {
       </aside>
 
       {navOpen && (
-        <div className="fixed inset-0 z-40 bg-ink/40 lg:hidden" onClick={() => setNavOpen(false)} aria-hidden />
+        <div className="fixed inset-0 z-40 bg-black/70 lg:hidden" onClick={() => setNavOpen(false)} aria-hidden />
       )}
 
       <div className="flex min-w-0 flex-1 flex-col">

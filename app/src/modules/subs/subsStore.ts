@@ -65,7 +65,7 @@ export function dueLabel(s: Sub): string {
   if (d <= SUB_REMINDER_DAYS) return `due in ${d}d`
   return `due ${shortDate(s.nextDue)}`
 }
-export const STATUS_COLOR: Record<DueStatus, string> = { ok: '#059669', soon: '#d97706', overdue: '#d93a2b' }
+export const STATUS_COLOR: Record<DueStatus, string> = { ok: '#00ffa3', soon: '#ffb020', overdue: '#ff2e63' }
 
 // Advance the due date by one billing period (after paying/renewing).
 export function nextPeriod(s: Sub): string {

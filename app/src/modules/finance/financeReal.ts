@@ -8,13 +8,13 @@ export interface AssetMeta { color: string; risk: RiskLevel; maxAlloc: number; r
 
 export const ASSET_TYPES: Record<string, AssetMeta> = {
   Stock: { color: '#3b82f6', risk: 'High', maxAlloc: 0.4, riskScore: 75 },
-  ETF: { color: '#06b6d4', risk: 'Medium', maxAlloc: 0.3, riskScore: 50 },
-  'Mutual Fund': { color: '#8b5cf6', risk: 'Medium', maxAlloc: 0.4, riskScore: 50 },
+  ETF: { color: '#22d3ee', risk: 'Medium', maxAlloc: 0.3, riskScore: 50 },
+  'Mutual Fund': { color: '#a78bfa', risk: 'Medium', maxAlloc: 0.4, riskScore: 50 },
   SIP: { color: '#a78bfa', risk: 'Medium', maxAlloc: 0.3, riskScore: 50 },
-  Cryptocurrency: { color: '#f59e0b', risk: 'Very High', maxAlloc: 0.1, riskScore: 95 },
+  Cryptocurrency: { color: '#fbbf24', risk: 'Very High', maxAlloc: 0.1, riskScore: 95 },
   Bond: { color: '#10b981', risk: 'Low', maxAlloc: 0.3, riskScore: 25 },
-  Gold: { color: '#eab308', risk: 'Low-Medium', maxAlloc: 0.2, riskScore: 35 },
-  'Real Estate': { color: '#ec4899', risk: 'Medium', maxAlloc: 0.3, riskScore: 50 },
+  Gold: { color: '#fde047', risk: 'Low-Medium', maxAlloc: 0.2, riskScore: 35 },
+  'Real Estate': { color: '#f472b6', risk: 'Medium', maxAlloc: 0.3, riskScore: 50 },
   Savings: { color: '#64748b', risk: 'Very Low', maxAlloc: 0.2, riskScore: 10 },
   'Fixed Deposit': { color: '#22c55e', risk: 'Very Low', maxAlloc: 0.3, riskScore: 10 },
 }

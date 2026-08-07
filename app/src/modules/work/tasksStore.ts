@@ -8,9 +8,9 @@ export const PRIORITIES: Priority[] = ['Urgent', 'High', 'Med', 'Low']
 export const STATUSES: Status[] = ['Backlog', 'In Progress', 'Review', 'Done', 'On Hold']
 export const CATEGORIES = ['Work', 'Finance', 'Health', 'Personal', 'Family', 'Education', 'Travel', 'Other'] as const
 
-export const PRIORITY_COLOR: Record<Priority, string> = { Urgent: '#d93a2b', High: '#d97706', Med: '#1c4d8c', Low: '#059669' }
+export const PRIORITY_COLOR: Record<Priority, string> = { Urgent: '#ff2e63', High: '#ffb020', Med: '#00d9ff', Low: '#00ffa3' }
 export const STATUS_COLOR: Record<Status, string> = {
-  Backlog: '#9ca3af', 'In Progress': '#1c4d8c', Review: '#d97706', Done: '#059669', 'On Hold': '#6b7280',
+  Backlog: '#566d91', 'In Progress': '#00d9ff', Review: '#ffb020', Done: '#00ffa3', 'On Hold': '#64748b',
 }
 
 export interface Task {

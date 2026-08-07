@@ -7,7 +7,7 @@ import {
   type Priority, type Status,
 } from '../tasksStore'
 
-const CAT_PALETTE = ['#1c4d8c', '#059669', '#d97706', '#8b5cf6', '#06b6d4', '#ec4899', '#eab308', '#64748b']
+const CAT_PALETTE = ['#00d9ff', '#00ffa3', '#ffb020', '#a78bfa', '#22d3ee', '#f472b6', '#fde047', '#64748b']
 const tooltipStyle = { background: 'var(--color-surface-2)', border: '1px solid var(--color-border)', borderRadius: 10, fontSize: 12, color: 'var(--color-ink)' }
 const sel = 'w-full rounded bg-transparent px-1 py-1 text-sm outline-none focus:bg-surface-2 focus:ring-1 focus:ring-accent'
 const COLS = [38, 230, 118, 112, 120, 56, 134, 108, 30]
@@ -51,7 +51,7 @@ export default function Tasks() {
                 <XAxis type="number" hide allowDecimals={false} />
                 <YAxis type="category" dataKey="key" width={70} tick={{ fill: 'var(--color-ink-muted)', fontSize: 11 }} axisLine={false} tickLine={false} />
                 <Tooltip contentStyle={tooltipStyle} cursor={{ fill: 'var(--color-surface-2)' }} />
-                <Bar isAnimationActive={false} dataKey="n" fill="#1c4d8c" radius={[0, 4, 4, 0]} />
+                <Bar isAnimationActive={false} dataKey="n" fill="#00d9ff" radius={[0, 4, 4, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -127,7 +127,7 @@ export default function Tasks() {
                       </select>
                     </td>
                     <td className="px-1"><input type="date" className={`${sel} text-ink-muted`} value={t.due ?? ''} onChange={(e) => update(t.id, { due: e.target.value || null })} /></td>
-                    <td className="px-1 text-right tabular-nums" style={{ color: dl !== null && dl < 0 ? '#d93a2b' : 'var(--color-ink-faint)' }}>{dl ?? '—'}</td>
+                    <td className="px-1 text-right tabular-nums" style={{ color: dl !== null && dl < 0 ? '#ff2e63' : 'var(--color-ink-faint)' }}>{dl ?? '—'}</td>
                     <td className="px-1">
                       <select className={`${sel} font-medium`} style={{ color: STATUS_COLOR[t.status] }} value={t.status} onChange={(e) => update(t.id, { status: e.target.value as Status })}>
                         {STATUSES.map((s) => <option key={s} className="text-ink">{s}</option>)}

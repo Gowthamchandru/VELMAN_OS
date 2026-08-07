@@ -25,7 +25,7 @@ function SubCard({ s, onUpdate, onRenew, onRemove }: { s: Sub; onUpdate: (p: Par
   const status = dueStatus(s)
   const c = STATUS_COLOR[status]
   return (
-    <div className="flex flex-col rounded-xl border-2 border-border bg-surface p-3" style={status === 'overdue' ? { borderColor: '#d93a2b55' } : undefined}>
+    <div className="flex flex-col rounded-xl border-2 border-border bg-surface p-3" style={status === 'overdue' ? { borderColor: '#ff2e6355' } : undefined}>
       <div className="flex items-start justify-between gap-2">
         <input value={s.name} onChange={(e) => onUpdate({ name: e.target.value })} className="min-w-0 flex-1 rounded bg-transparent text-sm font-medium text-ink outline-none focus:bg-surface-2" />
         <span className="shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold" style={{ color: c, background: `${c}1f` }}>
@@ -120,9 +120,9 @@ export default function Subscriptions() {
       </div>
 
       {reminders.length > 0 && (
-        <Card className="border-l-4 border-l-[#d97706]">
+        <Card className="border-l-4 border-l-[#ffb020]">
           <div className="mb-2 flex items-center gap-2 font-heading text-[10px] font-bold uppercase tracking-[0.14em] text-ink-faint">
-            <Bell size={13} className="text-[#d97706]" /> Renewals coming up
+            <Bell size={13} className="text-[#ffb020]" /> Renewals coming up
           </div>
           <ul className="space-y-1">
             {reminders.map((s) => {

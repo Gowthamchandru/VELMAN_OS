@@ -121,7 +121,7 @@ export function LockScreen({ id, label, children }: { id: string; label: string;
             {pinErr && <p className="w-full text-xs text-danger">{pinErr}</p>}
           </div>
         )}
-        {pinSaved && <p className="mt-1 text-xs text-[#059669]">PIN updated successfully.</p>}
+        {pinSaved && <p className="mt-1 text-xs text-[#00ffa3]">PIN updated successfully.</p>}
       </div>
     </div>
   )

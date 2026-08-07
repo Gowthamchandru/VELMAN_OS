@@ -22,7 +22,7 @@ import {
 
 const TABS = ['Dashboard', 'Income', 'Investment', 'Saving', 'Spending'] as const
 type Tab = (typeof TABS)[number]
-const TYPE_COLOR: Record<TxnType, string> = { income: '#059669', spending: '#d93a2b', saving: '#1c4d8c', investment: '#d97706' }
+const TYPE_COLOR: Record<TxnType, string> = { income: '#00ffa3', spending: '#ff2e63', saving: '#00d9ff', investment: '#ffb020' }
 
 function CatBars({ data, color }: { data: { name: string; value: number }[]; color: string }) {
   const max = Math.max(...data.map((d) => d.value), 1)
@@ -76,15 +76,15 @@ function Dashboard({ txns, invCurrent, invPnl }: { txns: Txn[]; invCurrent: numb
       </div>
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <Card title="Income vs spending">
-          <CatBars data={[{ name: 'Income', value: income }, { name: 'Spending', value: spending }, { name: 'Saved', value: saving }, { name: 'Invested', value: invested }]} color="#1c4d8c" />
+          <CatBars data={[{ name: 'Income', value: income }, { name: 'Spending', value: spending }, { name: 'Saved', value: saving }, { name: 'Invested', value: invested }]} color="#00d9ff" />
         </Card>
         <Card title="Portfolio">
           <div className="flex items-baseline gap-3">
             <span className="text-2xl font-semibold tabular-nums text-ink">{inr(invCurrent, true)}</span>
-            <span className="text-sm font-medium" style={{ color: invPnl >= 0 ? '#059669' : '#d93a2b' }}>{invPnl >= 0 ? '+' : ''}{inr(invPnl, true)}</span>
+            <span className="text-sm font-medium" style={{ color: invPnl >= 0 ? '#00ffa3' : '#ff2e63' }}>{invPnl >= 0 ? '+' : ''}{inr(invPnl, true)}</span>
           </div>
           <p className="mt-1 text-xs text-ink-faint">current value · unrealised P&L</p>
-          <div className="mt-3"><CatBars data={byCategory(txns, 'spending').slice(0, 4)} color="#d93a2b" /></div>
+          <div className="mt-3"><CatBars data={byCategory(txns, 'spending').slice(0, 4)} color="#ff2e63" /></div>
         </Card>
       </div>
       <Card title="Recent transactions"><TxnTable txns={txns} /></Card>
@@ -169,7 +169,7 @@ function InvestmentTab() {
                     <td className="py-1.5 text-right tabular-nums text-ink-muted">
                       <input value={h.current} onChange={(e) => update(h.id, { current: Number(e.target.value) })} type="number" className="w-24 rounded bg-transparent text-right outline-none focus:bg-surface-2" />
                     </td>
-                    <td className="py-1.5 text-right tabular-nums" style={{ color: pnl >= 0 ? '#059669' : '#d93a2b' }}>{pnl >= 0 ? '+' : ''}{inr(pnl)} <span className="text-[10px] text-ink-faint">({roi.toFixed(0)}%)</span></td>
+                    <td className="py-1.5 text-right tabular-nums" style={{ color: pnl >= 0 ? '#00ffa3' : '#ff2e63' }}>{pnl >= 0 ? '+' : ''}{inr(pnl)} <span className="text-[10px] text-ink-faint">({roi.toFixed(0)}%)</span></td>
                     <td className="py-1.5 text-right"><button onClick={() => remove(h.id)} className="text-ink-faint opacity-0 group-hover:opacity-100 hover:text-danger"><Trash2 size={13} /></button></td>
                   </tr>
                 )
@@ -230,10 +230,10 @@ export default function Finance() {
       </div>
 
       {tab === 'Dashboard' && <Dashboard txns={txns} invCurrent={tot.current} invPnl={tot.pnl} />}
-      {tab === 'Income' && <FlowTab txns={txns} type="income" color="#059669" label="Income" />}
+      {tab === 'Income' && <FlowTab txns={txns} type="income" color="#00ffa3" label="Income" />}
       {tab === 'Investment' && <InvestmentTab />}
-      {tab === 'Saving' && <FlowTab txns={txns} type="saving" color="#1c4d8c" label="Saving" />}
-      {tab === 'Spending' && <FlowTab txns={txns} type="spending" color="#d93a2b" label="Spending" />}
+      {tab === 'Saving' && <FlowTab txns={txns} type="saving" color="#00d9ff" label="Saving" />}
+      {tab === 'Spending' && <FlowTab txns={txns} type="spending" color="#ff2e63" label="Spending" />}
     </div>
     </LockScreen>
   )

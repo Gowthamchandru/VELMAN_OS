@@ -41,7 +41,7 @@ export default function Kanban() {
                       <div className="mt-1.5 text-sm leading-snug text-ink">{t.title}</div>
                       <div className="mt-2 flex items-center justify-between">
                         <span className="text-[11px] text-ink-faint">
-                          {t.assignee}{dl !== null && <span style={{ color: dl < 0 ? '#d93a2b' : undefined }}> · {dl < 0 ? `${-dl}d late` : `${dl}d`}</span>}
+                          {t.assignee}{dl !== null && <span style={{ color: dl < 0 ? '#ff2e63' : undefined }}> · {dl < 0 ? `${-dl}d late` : `${dl}d`}</span>}
                         </span>
                         <div className="flex items-center gap-0.5">
                           <button onClick={() => move(t.id, t.status, -1)} disabled={i === 0} aria-label="move left" className="text-ink-faint hover:text-accent disabled:opacity-30"><ChevronLeft size={15} /></button>

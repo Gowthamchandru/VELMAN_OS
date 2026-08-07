@@ -64,9 +64,9 @@ export function expiryLabel(d: Doc): string {
 }
 export const STATUS_COLOR: Record<ExpiryStatus, string> = {
   none: 'var(--color-ink-faint)',
-  ok: '#059669',
-  soon: '#d97706',
-  overdue: '#d93a2b',
+  ok: '#00ffa3',
+  soon: '#ffb020',
+  overdue: '#ff2e63',
 }
 
 export const MAX_FILE_BYTES = 1.5 * 1024 * 1024 // localStorage-safe ceiling for now

@@ -83,8 +83,8 @@ export default function Health() {
           <div className="flex items-center gap-4">
             <ActivityRings
               rings={[
-                { pct: (activity.move.value / activity.move.goal) * 100, color: '#fb7185' },
-                { pct: (activity.exercise.value / activity.exercise.goal) * 100, color: '#a3e635' },
+                { pct: (activity.move.value / activity.move.goal) * 100, color: '#fda4af' },
+                { pct: (activity.exercise.value / activity.exercise.goal) * 100, color: '#bef264' },
                 { pct: (activity.stand.value / activity.stand.goal) * 100, color: '#38bdf8' },
               ]}
             />
@@ -103,7 +103,7 @@ export default function Health() {
           <div className="mt-3 flex h-3 overflow-hidden rounded-full">
             <span style={{ width: `${(stages.deep / totalStage) * 100}%`, background: '#6366f1' }} title="Deep" />
             <span style={{ width: `${(stages.rem / totalStage) * 100}%`, background: '#22d3ee' }} title="REM" />
-            <span style={{ width: `${(stages.core / totalStage) * 100}%`, background: '#60a5fa' }} title="Core" />
+            <span style={{ width: `${(stages.core / totalStage) * 100}%`, background: '#7dd3fc' }} title="Core" />
             <span style={{ width: `${(stages.awake / totalStage) * 100}%`, background: 'var(--color-ink-faint)' }} title="Awake" />
           </div>
           <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-ink-faint">
@@ -122,7 +122,7 @@ export default function Health() {
           <div className="mt-3 h-12">
             <ResponsiveContainer width="99%" height="100%">
               <LineChart data={heart.hrv7d}>
-                <Line isAnimationActive={false} type="monotone" dataKey="value" stroke="#059669" strokeWidth={2} dot={false} />
+                <Line isAnimationActive={false} type="monotone" dataKey="value" stroke="#00ffa3" strokeWidth={2} dot={false} />
               </LineChart>
             </ResponsiveContainer>
           </div>
@@ -138,7 +138,7 @@ export default function Health() {
                 <XAxis dataKey="day" tick={chartAxis} axisLine={false} tickLine={false} />
                 <YAxis tick={chartAxis} axisLine={false} tickLine={false} domain={[0, 9]} width={24} />
                 <Tooltip contentStyle={tooltipStyle} cursor={{ fill: 'var(--color-surface-2)' }} formatter={(v) => [`${v} h`, 'Sleep']} />
-                <Bar isAnimationActive={false} dataKey="value" fill="#60a5fa" radius={[4, 4, 0, 0]} />
+                <Bar isAnimationActive={false} dataKey="value" fill="#7dd3fc" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -154,7 +154,7 @@ export default function Health() {
           <div className="my-3 h-12">
             <ResponsiveContainer width="99%" height="100%">
               <LineChart data={body.weight30d}>
-                <Line isAnimationActive={false} type="monotone" dataKey="value" stroke="#d97706" strokeWidth={2} dot={{ r: 2 }} />
+                <Line isAnimationActive={false} type="monotone" dataKey="value" stroke="#ffb020" strokeWidth={2} dot={{ r: 2 }} />
                 <Tooltip contentStyle={tooltipStyle} formatter={(v) => [`${v} kg`, 'Weight']} />
               </LineChart>
             </ResponsiveContainer>
@@ -202,7 +202,7 @@ export default function Health() {
           <div className="flex items-center gap-4">
             <Gauge
               pct={(nutrition.kcal / nutrition.kcalTarget) * 100}
-              color="#fb923c"
+              color="#fdba74"
               center={nutrition.kcal}
               sub={`/ ${nutrition.kcalTarget}`}
             />

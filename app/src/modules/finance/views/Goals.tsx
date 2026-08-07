@@ -5,7 +5,7 @@ import { useGoals, goalProgress, inr, type Goal } from '../financeReal'
 
 const num = (v: string) => { const n = parseFloat(v.replace(/,/g, '')); return isNaN(n) ? 0 : n }
 const cellInput = 'rounded bg-transparent px-1 py-0.5 text-sm outline-none focus:bg-surface-2 focus:ring-1 focus:ring-accent'
-const PRIORITY: Record<string, string> = { High: '#d93a2b', Medium: '#d97706', Low: '#059669' }
+const PRIORITY: Record<string, string> = { High: '#ff2e63', Medium: '#ffb020', Low: '#00ffa3' }
 
 export default function Goals() {
   const { items, add, update, remove } = useGoals()

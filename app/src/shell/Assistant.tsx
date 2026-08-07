@@ -42,7 +42,7 @@ function BrandMark({ size = 'md' }: { size?: 'sm' | 'md' }) {
   const dim = size === 'sm' ? 'size-7' : 'size-9'
   const icon = size === 'sm' ? 15 : 18
   return (
-    <div className={`grid ${dim} shrink-0 place-items-center rounded-xl bg-gradient-to-br from-accent to-[#2f6fbf] text-white shadow-sm`}>
+    <div className={`grid ${dim} shrink-0 place-items-center rounded-xl bg-gradient-to-br from-accent to-[#0891b2] text-white shadow-sm`}>
       <Sparkles size={icon} />
     </div>
   )
@@ -54,7 +54,7 @@ function ServerOffline() {
     <div className="rounded-2xl border border-border bg-surface-2/50 p-4">
       <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-ink"><Server size={15} /> Assistant server not running</div>
       <p className="text-xs leading-relaxed text-ink-muted">The assistant runs on your machine and uses your <b className="text-ink">Claude Pro</b> plan. Start it once:</p>
-      <pre className="mt-3 overflow-x-auto rounded-xl bg-ink/95 p-3 font-mono text-[11px] leading-relaxed text-slate-100">{`# one-time setup
+      <pre className="mt-3 overflow-x-auto rounded-xl bg-[#04070e] p-3 font-mono text-[11px] leading-relaxed text-[#8ba3c7] ring-1 ring-inset ring-border">{`# one-time setup
 npm i -g @anthropic-ai/claude-code
 claude setup-token        # browser login to Pro
 # paste token into .env as CLAUDE_CODE_OAUTH_TOKEN=…
@@ -150,7 +150,7 @@ export default function Assistant({ open, onClose }: { open: boolean; onClose: (
           : 'No credentials'
 
   return (
-    <div className="fixed inset-0 z-50 flex justify-end bg-ink/40 backdrop-blur-sm gc-fade-in" onMouseDown={onClose}>
+    <div className="fixed inset-0 z-50 flex justify-end bg-black/70 backdrop-blur-sm gc-fade-in" onMouseDown={onClose}>
       <div
         className="gc-slide-in flex h-full w-full max-w-[460px] flex-col border-l border-border bg-bg shadow-2xl"
         onMouseDown={(e) => e.stopPropagation()}

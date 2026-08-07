@@ -298,19 +298,19 @@ export function printHtml(title: string, bodyHtml: string) {
   if (!w) return
   w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>${title}</title><style>
     body{font-family:Segoe UI,system-ui,sans-serif;color:#111827;max-width:760px;margin:32px auto;padding:0 24px;line-height:1.55}
-    h1{font-size:22px;border-bottom:2px solid #1c4d8c;padding-bottom:8px}
-    h2{font-size:15px;color:#1c4d8c;margin-top:22px;text-transform:uppercase;letter-spacing:.06em}
+    h1{font-size:22px;border-bottom:2px solid #00d9ff;padding-bottom:8px}
+    h2{font-size:15px;color:#00d9ff;margin-top:22px;text-transform:uppercase;letter-spacing:.06em}
     h3{font-size:13px;margin-top:16px}
     table{border-collapse:collapse;width:100%;font-size:12px;margin:10px 0}
-    th,td{border:1px solid #e5e7eb;padding:5px 8px;text-align:left}
-    th{background:#f3f4f6;font-weight:600}
+    th,td{border:1px solid #1d2b47;padding:5px 8px;text-align:left}
+    th{background:#141d31;font-weight:600}
     td.num{text-align:right;font-variant-numeric:tabular-nums}
     ul,ol{padding-left:20px}li{margin:3px 0}
     .kpis{display:flex;gap:12px;flex-wrap:wrap;margin:10px 0}
-    .kpi{border:1px solid #e5e7eb;border-radius:8px;padding:8px 12px;min-width:130px}
-    .kpi .l{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#6b7280}
+    .kpi{border:1px solid #1d2b47;border-radius:8px;padding:8px 12px;min-width:130px}
+    .kpi .l{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#64748b}
     .kpi .v{font-size:16px;font-weight:600}
-    .muted{color:#6b7280;font-size:11px}
+    .muted{color:#64748b;font-size:11px}
     @media print{body{margin:0}}
   </style></head><body>${bodyHtml}<script>window.onload=function(){setTimeout(function(){window.print()},250)}</script></body></html>`)
   w.document.close()

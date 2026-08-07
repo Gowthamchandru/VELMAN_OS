@@ -106,7 +106,7 @@ function OptionCard({ o, parsed, coupon, onBook }: { o: FlightOption; parsed: Pa
           </div>
           <div className="mt-2 flex flex-wrap items-center gap-1.5">
             <Pill>{o.cabin}</Pill>
-            <Pill color="#1c4d8c">{o.site}</Pill>
+            <Pill color="#00d9ff">{o.site}</Pill>
             {o.notes && <span className="text-[11px] text-ink-faint">{o.notes}</span>}
           </div>
         </div>
@@ -155,7 +155,7 @@ function PaymentGate({ option, parsed, coupon, onClose }: { option: FlightOption
   }
 
   return (
-    <div className="fixed inset-0 z-50 grid place-items-center bg-ink/40 p-4 backdrop-blur-sm gc-fade-in" onMouseDown={onClose}>
+    <div className="fixed inset-0 z-50 grid place-items-center bg-black/70 p-4 backdrop-blur-sm gc-fade-in" onMouseDown={onClose}>
       <div className="w-full max-w-md rounded-2xl border-2 border-border bg-surface p-5 shadow-2xl gc-msg-in" onMouseDown={(e) => e.stopPropagation()}>
         <div className="flex items-center gap-2.5">
           <div className="grid size-9 place-items-center rounded-xl bg-accent-soft text-accent"><ShieldCheck size={18} /></div>
@@ -293,7 +293,7 @@ function FlightAgent() {
       {/* Composer — talk to the booking agent */}
       <Card>
         <div className="flex items-center gap-3">
-          <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-accent to-[#2f6fbf] text-white shadow-sm"><Plane size={19} /></div>
+          <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-accent to-[#0891b2] text-white shadow-sm"><Plane size={19} /></div>
           <div className="min-w-0 flex-1 leading-tight">
             <h3 className="text-[12px]">Flight booking agent</h3>
           </div>
@@ -369,7 +369,7 @@ function FlightAgent() {
             icon={Plane}
             action={
               <span className="flex items-center gap-2">
-                {results.source === 'live' && <Pill color="#059669">LIVE FARES</Pill>}
+                {results.source === 'live' && <Pill color="#00ffa3">LIVE FARES</Pill>}
                 {results.asOf && <span className="text-[11px] text-ink-faint">{results.asOf}</span>}
               </span>
             }
@@ -395,7 +395,7 @@ function FlightAgent() {
             action={
               <div className="flex items-center gap-2">
                 <label className="flex cursor-pointer items-center gap-1.5 text-[11px] font-semibold text-ink-muted">
-                  <input type="checkbox" checked={nonstopOnly} onChange={(e) => setNonstopOnly(e.target.checked)} className="accent-[#1c4d8c]" />
+                  <input type="checkbox" checked={nonstopOnly} onChange={(e) => setNonstopOnly(e.target.checked)} className="accent-[#00d9ff]" />
                   Non-stop
                 </label>
                 <select value={sort} onChange={(e) => setSort(e.target.value as SortKey)} className="rounded-[8px] border-2 border-border bg-surface px-1.5 py-1 text-[11px] font-semibold text-ink-muted outline-none focus:border-accent">
@@ -500,7 +500,7 @@ function SuggestionRow({ kind, o, city }: { kind: BookingKind; o: StayOption | D
                 <MapPin size={12} className="text-ink-faint" /> {meta}
               </span>
             )}
-            <Pill color="#1c4d8c">{o.site}</Pill>
+            <Pill color="#00d9ff">{o.site}</Pill>
           </div>
           {o.notes && <div className="mt-1.5 text-[11px] text-ink-faint">{o.notes}</div>}
         </div>
@@ -582,7 +582,7 @@ function BookingAgent({ kind }: { kind: BookingKind }) {
     <div className="space-y-4">
       <Card>
         <div className="flex items-center gap-3">
-          <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-accent to-[#2f6fbf] text-white shadow-sm">
+          <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-accent to-[#0891b2] text-white shadow-sm">
             <meta.icon size={19} />
           </div>
           <div className="min-w-0 flex-1 leading-tight">

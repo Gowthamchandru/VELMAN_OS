@@ -69,8 +69,8 @@ export default function Calculators() {
               <YAxis tick={axis} axisLine={false} tickLine={false} tickFormatter={yFmt} width={34} />
               <Tooltip contentStyle={tooltipStyle} formatter={(v) => inr(Number(v), true)} labelFormatter={(l) => `Year ${l}`} />
               <Legend wrapperStyle={{ fontSize: 11 }} />
-              <Area isAnimationActive={false} type="monotone" dataKey="Value" stroke="#1c4d8c" fill="#1c4d8c22" strokeWidth={2} />
-              <Area isAnimationActive={false} type="monotone" dataKey="Invested" stroke="#9ca3af" fill="#9ca3af22" strokeWidth={1.5} />
+              <Area isAnimationActive={false} type="monotone" dataKey="Value" stroke="#00d9ff" fill="#00d9ff22" strokeWidth={2} />
+              <Area isAnimationActive={false} type="monotone" dataKey="Invested" stroke="#566d91" fill="#566d9122" strokeWidth={1.5} />
             </AreaChart>
           </ResponsiveContainer>
         </div>
@@ -98,8 +98,8 @@ export default function Calculators() {
               <XAxis dataKey="age" tick={axis} axisLine={false} tickLine={false} />
               <YAxis tick={axis} axisLine={false} tickLine={false} tickFormatter={yFmt} width={34} />
               <Tooltip contentStyle={tooltipStyle} formatter={(v) => inr(Number(v), true)} labelFormatter={(l) => `Age ${l}`} />
-              <ReferenceLine y={rf.fireNumber} stroke="#d97706" strokeDasharray="4 4" label={{ value: 'FIRE target', fill: '#d97706', fontSize: 10, position: 'insideTopRight' }} />
-              <Line isAnimationActive={false} type="monotone" dataKey="Portfolio" stroke="#059669" strokeWidth={2.5} dot={false} />
+              <ReferenceLine y={rf.fireNumber} stroke="#ffb020" strokeDasharray="4 4" label={{ value: 'FIRE target', fill: '#ffb020', fontSize: 10, position: 'insideTopRight' }} />
+              <Line isAnimationActive={false} type="monotone" dataKey="Portfolio" stroke="#00ffa3" strokeWidth={2.5} dot={false} />
             </LineChart>
           </ResponsiveContainer>
         </div>

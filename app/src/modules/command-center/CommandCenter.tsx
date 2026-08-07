@@ -36,7 +36,7 @@ import { modules } from '@/shell/registry'
 import { inCurrentMode } from '@/shell/entryMode'
 
 const tooltipStyle = { background: 'var(--color-surface-2)', border: '1px solid var(--color-border)', borderRadius: 10, fontSize: 12, color: 'var(--color-ink)' }
-const OVERVIEW_PALETTE = ['#1c4d8c', '#059669', '#d97706', '#8b5cf6', '#06b6d4', '#ec4899']
+const OVERVIEW_PALETTE = ['#00d9ff', '#00ffa3', '#ffb020', '#a78bfa', '#22d3ee', '#f472b6']
 
 function renderBrief(text: string) {
   return text.split('\n').filter((l) => l.trim() !== '').map((line, i) => {
@@ -269,7 +269,7 @@ function AgendaRow({ block, status, onUpdate, onRemove }: {
         onChange={(e) => onUpdate({ time: e.target.value })}
         className="w-20 shrink-0 rounded bg-transparent text-right text-xs tabular-nums text-ink-faint outline-none focus:bg-surface-2 focus:text-ink"
       />
-      <span className="mt-0.5 h-5 w-1 shrink-0 self-start rounded-full" style={{ background: elapsed ? '#059669' : categoryColor(block.category) }} />
+      <span className="mt-0.5 h-5 w-1 shrink-0 self-start rounded-full" style={{ background: elapsed ? '#00ffa3' : categoryColor(block.category) }} />
       <AutoTextarea
         value={block.task}
         onChange={(v) => onUpdate({ task: v })}
@@ -421,7 +421,7 @@ function NeedsYouToday() {
       .map(({ sub, s }) => ({ key: sub.id, label: `${sub.name} — ${subDueLabel(sub)}`, tag: 'pay', tone: s === 'overdue' ? ('danger' as const) : ('warn' as const) })),
   ]
   if (!chips.length) return null
-  const toneColor = (t: string) => (t === 'danger' ? '#d93a2b' : t === 'warn' ? '#d97706' : 'var(--color-accent)')
+  const toneColor = (t: string) => (t === 'danger' ? '#ff2e63' : t === 'warn' ? '#ffb020' : 'var(--color-accent)')
   return (
     <Card className="border-l-4 border-l-accent py-2.5!">
       <div className="flex flex-wrap items-center gap-2">

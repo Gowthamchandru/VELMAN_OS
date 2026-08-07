@@ -149,9 +149,9 @@ export default function Vault() {
       </div>
 
       {reminders.length > 0 && (
-        <Card className="border-l-4 border-l-[#d97706]">
+        <Card className="border-l-4 border-l-[#ffb020]">
           <div className="mb-2 flex items-center gap-2 font-heading text-[10px] font-bold uppercase tracking-[0.14em] text-ink-faint">
-            <Bell size={13} className="text-[#d97706]" /> Renewal reminders
+            <Bell size={13} className="text-[#ffb020]" /> Renewal reminders
           </div>
           <ul className="space-y-1">
             {reminders.map((d) => {

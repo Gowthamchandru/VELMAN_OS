@@ -25,8 +25,8 @@ import {
   type BizVertical, type BizStatement, type StatementTypeId, type StatementAnalysis, type Granularity,
 } from './businessStore'
 
-const PALETTE = ['#1c4d8c', '#059669', '#d97706', '#d93a2b', '#7c3aed', '#0891b2', '#be185d', '#65a30d']
-const TONE_COLOR = { good: '#059669', bad: '#d93a2b', neutral: undefined } as const
+const PALETTE = ['#00d9ff', '#00ffa3', '#ffb020', '#ff2e63', '#c4b5fd', '#0891b2', '#f9a8d4', '#84cc16']
+const TONE_COLOR = { good: '#00ffa3', bad: '#ff2e63', neutral: undefined } as const
 const tooltipStyle = {
   background: 'var(--color-surface)', border: '2px solid var(--color-border)',
   borderRadius: 10, fontSize: 12, color: 'var(--color-ink)',
@@ -80,7 +80,7 @@ function MergedTrendCard({ list }: { list: BizStatement[] }) {
               <Tooltip contentStyle={tooltipStyle} formatter={(v) => `₹${Number(v).toLocaleString('en-IN')}`} />
               {merged.seriesNames.length > 1 && <Legend wrapperStyle={{ fontSize: 11 }} />}
               {merged.seriesNames.map((name, i) => (
-                <Bar key={name} isAnimationActive={false} dataKey={name} fill={i === 0 ? '#1c4d8c' : '#d97706'} radius={[4, 4, 0, 0]} />
+                <Bar key={name} isAnimationActive={false} dataKey={name} fill={i === 0 ? '#00d9ff' : '#ffb020'} radius={[4, 4, 0, 0]} />
               ))}
             </BarChart>
           </ResponsiveContainer>

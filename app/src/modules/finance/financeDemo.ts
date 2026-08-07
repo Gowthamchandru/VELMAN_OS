@@ -70,11 +70,11 @@ export const holdings: Holding[] = [
 ]
 
 export const allocation = [
-  { name: 'Mutual funds', value: 3120000, color: '#60a5fa' },
+  { name: 'Mutual funds', value: 3120000, color: '#7dd3fc' },
   { name: 'Stocks', value: 1410000, color: '#34d399' },
   { name: 'Fixed income', value: 2720000, color: '#fbbf24' },
   { name: 'Real estate', value: 3000000, color: '#f472b6' },
-  { name: 'Gold', value: 610000, color: '#fb923c' },
+  { name: 'Gold', value: 610000, color: '#fdba74' },
   { name: 'Retirement', value: 760000, color: '#a78bfa' },
 ]
 

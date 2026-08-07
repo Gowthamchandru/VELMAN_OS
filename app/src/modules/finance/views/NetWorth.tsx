@@ -4,7 +4,7 @@ import { Card, Stat } from '@/components/ui'
 import { uid } from '@/lib/store'
 import { useAssets, useLiabilities, useHoldings, portfolioTotals, netWorth, inr, type NetWorthItem } from '../financeReal'
 
-const PALETTE = ['#1c4d8c', '#059669', '#d97706', '#8b5cf6', '#06b6d4', '#ec4899', '#eab308', '#64748b']
+const PALETTE = ['#00d9ff', '#00ffa3', '#ffb020', '#a78bfa', '#22d3ee', '#f472b6', '#fde047', '#64748b']
 const tooltipStyle = { background: 'var(--color-surface-2)', border: '1px solid var(--color-border)', borderRadius: 10, fontSize: 12, color: 'var(--color-ink)' }
 
 const num = (v: string) => { const n = parseFloat(v.replace(/,/g, '')); return isNaN(n) ? 0 : n }
@@ -110,7 +110,7 @@ export default function NetWorth() {
             </div>
             <div>
               <div className="mb-1 flex justify-between text-xs"><span className="text-ink-muted">Liabilities</span><span className="tabular-nums text-danger">{inr(nw.totalLiab, true)}</span></div>
-              <div className="h-5 overflow-hidden rounded bg-surface-2"><div className="h-full rounded" style={{ width: `${liabPct}%`, background: '#d93a2b' }} /></div>
+              <div className="h-5 overflow-hidden rounded bg-surface-2"><div className="h-full rounded" style={{ width: `${liabPct}%`, background: '#ff2e63' }} /></div>
             </div>
             <div>
               <div className="mb-1 flex justify-between text-xs"><span className="text-ink-muted">Net worth</span><span className="tabular-nums text-accent">{inr(nw.net, true)}</span></div>
@@ -121,8 +121,8 @@ export default function NetWorth() {
         </Card>
       </div>
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <ItemList title="Assets" store={assets} kind="asset" accent="#059669" extraRow={{ name: 'Investment Portfolio (live)', value: pf.current }} />
-        <ItemList title="Liabilities" store={liabilities} kind="liability" accent="#d93a2b" />
+        <ItemList title="Assets" store={assets} kind="asset" accent="#00ffa3" extraRow={{ name: 'Investment Portfolio (live)', value: pf.current }} />
+        <ItemList title="Liabilities" store={liabilities} kind="liability" accent="#ff2e63" />
       </div>
     </div>
   )

@@ -35,7 +35,7 @@ function VerticalSection({ v, items, live, onRemove }: { v: Vertical; items: New
       title={v.name}
       action={
         <span className="flex items-center gap-2">
-          <span className="font-mono text-[10px] uppercase tracking-wide" style={{ color: live ? '#059669' : 'var(--color-ink-faint)' }}>{items === undefined ? '…' : live ? '● live' : 'sample'}</span>
+          <span className="font-mono text-[10px] uppercase tracking-wide" style={{ color: live ? '#00ffa3' : 'var(--color-ink-faint)' }}>{items === undefined ? '…' : live ? '● live' : 'sample'}</span>
           <button onClick={onRemove} aria-label="remove field" className="text-ink-faint hover:text-danger"><X size={13} /></button>
         </span>
       }

@@ -40,7 +40,7 @@ export default function QuickCapture({ open, onClose }: { open: boolean; onClose
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-start justify-center bg-ink/30 pt-[18vh]"
+      className="fixed inset-0 z-50 flex items-start justify-center bg-black/65 pt-[18vh]"
       onMouseDown={onClose}
     >
       <div
