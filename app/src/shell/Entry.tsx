@@ -38,12 +38,13 @@ export function Welcome() {
     >
       <ParticleField className="absolute inset-0 z-0 h-full w-full" />
       <div className="entry-rise z-10 flex flex-col items-center gap-7" style={delay(0)}>
-        <div>
-          <h1 ref={markRef} className="gc-wordmark font-heading text-5xl font-black tracking-[0.18em] sm:text-7xl">
+        <div className="flex flex-col items-start">
+          <span className="gc-eyebrow text-[12px] uppercase tracking-[0.3em] text-white sm:text-[13px]">Personal OS</span>
+          <h1 ref={markRef} className="gc-wordmark -mt-1 text-5xl tracking-[0.14em] sm:text-7xl">
             VELMAN OS
           </h1>
-          <p className="tabular-nums mt-5 text-[13px] uppercase tracking-[0.34em] text-sidebar-muted">
-            Personal operating system · Dr. Gowtham
+          <p className="tabular-nums mt-4 self-center text-[13px] uppercase tracking-[0.34em] text-sidebar-muted">
+            Dr. Gowtham
           </p>
         </div>
       </div>
