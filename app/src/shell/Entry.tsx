@@ -18,6 +18,21 @@ export function RequireEntry({ children }: { children: ReactNode }) {
 // Staggered entrance delay for .entry-rise elements.
 const delay = (ms: number) => ({ '--delay': `${ms}ms` }) as CSSProperties
 
+// The photograph + its scrim. BASE_URL keeps the path correct both on the dev
+// server and under the GitHub Pages sub-path.
+function PhotoBackdrop() {
+  return (
+    <>
+      <div
+        className="entry-photo"
+        style={{ backgroundImage: `url(${import.meta.env.BASE_URL}images/background.jpg)` }}
+        aria-hidden="true"
+      />
+      <div className="entry-scrim" aria-hidden="true" />
+    </>
+  )
+}
+
 
 export function Welcome() {
   const navigate = useNavigate()
@@ -34,8 +49,9 @@ export function Welcome() {
   return (
     <main
       onMouseMove={onMove}
-      className="entry-bg relative flex min-h-screen flex-col items-center justify-center gap-12 px-6 text-center"
+      className="entry-bg relative flex min-h-screen flex-col items-center gap-10 overflow-hidden px-6 pb-16 pt-[14vh] text-center sm:pt-[16vh]"
     >
+      <PhotoBackdrop />
       <ParticleField className="absolute inset-0 z-0 h-full w-full" />
       <div className="entry-rise z-10 flex flex-col items-center gap-7" style={delay(0)}>
         <div className="flex flex-col items-start">
@@ -49,7 +65,7 @@ export function Welcome() {
         </div>
       </div>
 
-      <SlideArrowButton onClick={() => navigate('/mode')} className="entry-rise z-10" style={delay(140)}>
+      <SlideArrowButton glass onClick={() => navigate('/mode')} className="entry-rise z-10" style={delay(140)}>
         Continue
       </SlideArrowButton>
     </main>
