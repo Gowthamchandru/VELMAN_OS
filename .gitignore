@@ -40,3 +40,7 @@ dist-ssr
 /*.xlsx
 /*.HEIC
 /*.heic
+
+# Source artwork: 28MB original kept locally; the optimised
+# velman-bg.webp/.jpg beside it are what the app ships.
+app/public/images/Velman_bg.png

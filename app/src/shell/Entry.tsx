@@ -6,7 +6,7 @@ import { useRef, type CSSProperties, type MouseEvent, type ReactNode } from 'rea
 import { Navigate, useNavigate } from 'react-router-dom'
 import { ArrowLeft, Briefcase, User } from 'lucide-react'
 import ShatterableGlassCard from '@/components/ui/shatterable-glass-card'
-import ParticleField from '@/components/ui/particle-field'
+import CityHaze from '@/components/ui/city-haze'
 import SlideArrowButton from '@/components/ui/slide-arrow-button'
 import { getEntryMode, setEntryMode, type EntryMode } from './entryMode'
 
@@ -25,7 +25,7 @@ function PhotoBackdrop() {
     <>
       <div
         className="entry-photo"
-        style={{ backgroundImage: `url(${import.meta.env.BASE_URL}images/background.jpg)` }}
+        style={{ backgroundImage: `image-set(url(${import.meta.env.BASE_URL}images/velman-bg.webp) type('image/webp'), url(${import.meta.env.BASE_URL}images/velman-bg.jpg) type('image/jpeg'))` }}
         aria-hidden="true"
       />
       <div className="entry-scrim" aria-hidden="true" />
@@ -52,7 +52,7 @@ export function Welcome() {
       className="entry-bg relative flex min-h-screen flex-col items-center gap-10 overflow-hidden px-6 pb-16 pt-[14vh] text-center sm:pt-[16vh]"
     >
       <PhotoBackdrop />
-      <ParticleField className="absolute inset-0 z-0 h-full w-full" />
+      <CityHaze className="absolute inset-0 z-0 h-full w-full" />
       <div className="entry-rise z-10 flex flex-col items-center gap-7" style={delay(0)}>
         <div className="flex flex-col items-start">
           <span className="gc-eyebrow text-[12px] uppercase tracking-[0.3em] text-white sm:text-[13px]">Personal OS</span>
@@ -106,7 +106,7 @@ export function ModeSelect() {
   }
   return (
     <main className="entry-bg relative flex min-h-screen flex-col items-center justify-center gap-12 px-6 py-16">
-      <ParticleField className="absolute inset-0 z-0 h-full w-full" />
+      <CityHaze className="absolute inset-0 z-0 h-full w-full" />
       <button
         onClick={() => navigate('/welcome')}
         className="absolute left-5 top-5 z-10 flex items-center gap-1.5 text-[11px] uppercase tracking-[0.18em] text-sidebar-muted transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
