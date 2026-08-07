@@ -1,6 +1,27 @@
 @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Orbitron:wght@400;500;600;700;800;900&family=Fira+Code:wght@400;500;600&display=swap');
 @import "tailwindcss";
 
+/* Display face for the wordmark. "Cyberpunk Waifus" is not on Google Fonts, so
+   it is resolved in this order:
+     1. a copy installed on the machine (local(...))
+     2. a file dropped into app/public/fonts/ — see the README there
+   If neither exists the @font-face simply never resolves and everything falls
+   back to Orbitron, so a missing file costs nothing. Both the dev-root and the
+   GitHub-Pages base path are listed; the browser skips whichever 404s. */
+@font-face {
+  font-family: 'Cyberpunk Waifus';
+  font-display: swap;
+  src:
+    local('Cyberpunk Waifus'),
+    local('CyberpunkWaifus'),
+    url('/fonts/CyberpunkWaifus.woff2') format('woff2'),
+    url('/VELMAN_OS/fonts/CyberpunkWaifus.woff2') format('woff2'),
+    url('/fonts/CyberpunkWaifus.ttf') format('truetype'),
+    url('/VELMAN_OS/fonts/CyberpunkWaifus.ttf') format('truetype'),
+    url('/fonts/CyberpunkWaifus.otf') format('opentype'),
+    url('/VELMAN_OS/fonts/CyberpunkWaifus.otf') format('opentype');
+}
+
 @theme {
   /* VELMAN OS — cyberpunk. The operator's terminal at 2am: lights off, data
      glowing. The LOF blue is pushed to electric cyan rather than abandoned,
@@ -32,6 +53,8 @@
   --font-sans: 'Manrope', ui-sans-serif, system-ui, -apple-system, sans-serif;
   --font-mono: 'Fira Code', ui-monospace, 'SFMono-Regular', monospace;
   --font-heading: 'Orbitron', ui-sans-serif, sans-serif;
+  /* Wordmark only — falls back to the heading face when unavailable */
+  --font-display: 'Cyberpunk Waifus', 'Orbitron', ui-sans-serif, sans-serif;
 }
 
 html, body, #root {
@@ -178,6 +201,7 @@ input, textarea, select {
 .gc-wordmark {
   --mx: -999px;
   --my: -999px;
+  font-family: var(--font-display);
   color: #fff;
   background-image:
     radial-gradient(140px circle at var(--mx) var(--my), rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0) 70%),
