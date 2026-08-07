@@ -231,15 +231,24 @@ input, textarea, select {
   z-index: 0;
   pointer-events: none;
   background:
+    /* Contrast is bought where the text actually sits — a soft column down the
+       middle — rather than with a corner vignette, so the skyline keeps its
+       neon out at the edges. */
+    radial-gradient(
+      ellipse 62% 78% at 50% 40%,
+      rgba(4, 7, 14, 0.72) 0%,
+      rgba(4, 7, 14, 0.44) 46%,
+      rgba(4, 7, 14, 0) 78%
+    ),
+    /* Gentle top/bottom falloff only, to seat the lockup and the CTA. */
     linear-gradient(
       180deg,
-      rgba(4, 7, 14, 0.92) 0%,
-      rgba(4, 7, 14, 0.72) 26%,
-      rgba(4, 7, 14, 0.34) 52%,
-      rgba(4, 7, 14, 0.58) 82%,
-      rgba(4, 7, 14, 0.94) 100%
-    ),
-    radial-gradient(ellipse 90% 70% at 50% 46%, transparent 25%, rgba(4, 7, 14, 0.72) 100%);
+      rgba(4, 7, 14, 0.42) 0%,
+      rgba(4, 7, 14, 0.16) 30%,
+      rgba(4, 7, 14, 0.12) 62%,
+      rgba(4, 7, 14, 0.40) 88%,
+      rgba(4, 7, 14, 0.58) 100%
+    );
 }
 
 @media (prefers-reduced-motion: reduce) {
