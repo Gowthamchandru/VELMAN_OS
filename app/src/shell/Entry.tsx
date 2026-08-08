@@ -59,7 +59,11 @@ export function Welcome() {
           {/* Steps up in three stages. 48px is the ceiling that still fits
               "VELMAN OS" on a 390px phone at this tracking; 96px waits for lg,
               where there is room to spare. */}
-          <h1 ref={markRef} className="gc-wordmark -mt-1 text-5xl tracking-[0.14em] sm:text-7xl lg:text-8xl">
+          <h1
+            ref={markRef}
+            data-text="VELMAN OS"
+            className="gc-wordmark -mt-1 text-5xl tracking-[0.14em] sm:text-7xl lg:text-8xl"
+          >
             VELMAN OS
           </h1>
           <p className="tabular-nums mt-5 self-center text-[15px] uppercase tracking-[0.34em] text-sidebar-muted">

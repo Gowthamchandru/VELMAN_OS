@@ -310,7 +310,9 @@ input, textarea, select {
   background-clip: text;
   -webkit-text-fill-color: transparent;
   filter: blur(0) drop-shadow(0 2px 10px rgba(0, 0, 0, 0.85)) drop-shadow(0 0 30px rgba(0, 217, 255, 0.55));
-  animation: gc-focus 1.1s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation:
+    gc-focus 1.1s cubic-bezier(0.16, 1, 0.3, 1) both,
+    gc-glitch-shift 1.5s steps(1, end) 0.12s both;
 }
 /* Eyebrow label in a bracket frame, echoing the reference lockup: the rule
    runs out from the label and turns down at a rounded corner. */
@@ -333,6 +335,80 @@ input, textarea, select {
   border-right: 1.5px solid rgba(0, 217, 255, 0.55);
   border-top-right-radius: 14px;
   transform: translateY(-0.45rem);
+}
+
+/* ── Wordmark glitch-in ──────────────────────────────────────────────────────
+   Two offset copies of the text (fed by data-text) stand in for a split RGB
+   signal — in the theme's cyan and magenta rather than literal red/blue, so it
+   reads as part of the design. They tear across a few horizontal bands, then
+   fade out for good; the settled wordmark is left perfectly clean. Runs once
+   on mount, never loops. */
+.gc-wordmark {
+  position: relative;
+}
+.gc-wordmark::before,
+.gc-wordmark::after {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+  padding-right: inherit;
+  /* Cancel the gradient-clipped fill the base rule sets, so these paint solid */
+  background: none;
+  -webkit-background-clip: border-box;
+  background-clip: border-box;
+  pointer-events: none;
+  opacity: 0;
+}
+.gc-wordmark::before {
+  color: #ff2e63;
+  -webkit-text-fill-color: #ff2e63;
+  animation: gc-glitch-magenta 1.5s steps(1, end) 0.12s both;
+}
+.gc-wordmark::after {
+  color: #00d9ff;
+  -webkit-text-fill-color: #00d9ff;
+  animation: gc-glitch-cyan 1.5s steps(1, end) 0.12s both;
+}
+
+/* steps(1) holds each band flat, which is what makes it read as a digital
+   tear rather than a smooth wobble. */
+@keyframes gc-glitch-magenta {
+  0%   { opacity: 0;    transform: translate(0, 0);      clip-path: inset(0 0 100% 0); }
+  8%   { opacity: 0.85; transform: translate(-5px, -2px); clip-path: inset(10% 0 66% 0); }
+  16%  { opacity: 0.85; transform: translate(4px, 1px);   clip-path: inset(52% 0 28% 0); }
+  26%  { opacity: 0.7;  transform: translate(-3px, 2px);  clip-path: inset(74% 0 8% 0); }
+  36%  { opacity: 0.8;  transform: translate(5px, -1px);  clip-path: inset(24% 0 58% 0); }
+  48%  { opacity: 0.5;  transform: translate(-2px, 0);    clip-path: inset(4% 0 82% 0); }
+  62%  { opacity: 0.32; transform: translate(2px, 1px);   clip-path: inset(62% 0 22% 0); }
+  78%  { opacity: 0.16; transform: translate(-1px, 0);    clip-path: inset(38% 0 44% 0); }
+  100% { opacity: 0;    transform: translate(0, 0);       clip-path: inset(0 0 0 0); }
+}
+@keyframes gc-glitch-cyan {
+  0%   { opacity: 0;    transform: translate(0, 0);      clip-path: inset(0 0 100% 0); }
+  8%   { opacity: 0.85; transform: translate(5px, 2px);   clip-path: inset(58% 0 22% 0); }
+  16%  { opacity: 0.85; transform: translate(-4px, -1px); clip-path: inset(16% 0 60% 0); }
+  26%  { opacity: 0.7;  transform: translate(3px, -2px);  clip-path: inset(6% 0 78% 0); }
+  36%  { opacity: 0.8;  transform: translate(-5px, 1px);  clip-path: inset(68% 0 14% 0); }
+  48%  { opacity: 0.5;  transform: translate(2px, 0);     clip-path: inset(44% 0 40% 0); }
+  62%  { opacity: 0.32; transform: translate(-2px, -1px); clip-path: inset(20% 0 64% 0); }
+  78%  { opacity: 0.16; transform: translate(1px, 0);     clip-path: inset(72% 0 10% 0); }
+  100% { opacity: 0;    transform: translate(0, 0);       clip-path: inset(0 0 0 0); }
+}
+
+/* The wordmark itself takes a few hard jumps under the split, then locks. */
+@keyframes gc-glitch-shift {
+  0%, 6%, 22%, 34%, 50%, 66%, 82%, 100% { transform: translate(0, 0); }
+  9%  { transform: translate(3px, -1px); }
+  19% { transform: translate(-3px, 1px); }
+  31% { transform: translate(2px, 1px); }
+  44% { transform: translate(-2px, -1px); }
+  58% { transform: translate(1px, 0); }
+  74% { transform: translate(-1px, 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gc-wordmark::before,
+  .gc-wordmark::after { animation: none; opacity: 0; }
 }
 
 @keyframes gc-focus {
