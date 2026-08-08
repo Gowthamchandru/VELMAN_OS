@@ -53,3 +53,7 @@ app/public/savery/
 # Turbo Driver (SRON Studio): personal-use-only demo licence.
 # Kept locally, never redistributed.
 app/public/turbo-driver/
+
+# Source artwork kept locally; the optimised velman-portrait.* beside
+# it is what the app ships.
+app/public/images/bg_image.png

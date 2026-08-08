@@ -25,7 +25,7 @@ function PhotoBackdrop() {
     <>
       <div
         className="entry-photo"
-        style={{ backgroundImage: `image-set(url(${import.meta.env.BASE_URL}images/velman-bg.webp) type('image/webp'), url(${import.meta.env.BASE_URL}images/velman-bg.jpg) type('image/jpeg'))` }}
+        style={{ backgroundImage: `image-set(url(${import.meta.env.BASE_URL}images/velman-portrait.webp) type('image/webp'), url(${import.meta.env.BASE_URL}images/velman-portrait.jpg) type('image/jpeg'))` }}
         aria-hidden="true"
       />
       <div className="entry-scrim" aria-hidden="true" />
@@ -49,7 +49,7 @@ export function Welcome() {
   return (
     <main
       onMouseMove={onMove}
-      className="entry-bg relative flex min-h-screen flex-col items-center gap-10 overflow-hidden px-6 pb-16 pt-[14vh] text-center sm:pt-[16vh]"
+      className="entry-bg relative flex min-h-screen flex-col items-center justify-end gap-8 overflow-hidden px-6 pb-[9vh] pt-[8vh] text-center"
     >
       <PhotoBackdrop />
       <CityHaze className="absolute inset-0 z-0 h-full w-full" />

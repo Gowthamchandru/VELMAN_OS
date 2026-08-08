@@ -246,7 +246,9 @@ input, textarea, select {
   position: absolute;
   inset: 0;
   z-index: 0;
-  background-position: center 45%;
+  /* Anchored high: the portrait's subject sits in the upper third, and a 4:3
+     source on a wide viewport gets cropped top and bottom by `cover`. */
+  background-position: center 22%;
   background-size: cover;
   background-repeat: no-repeat;
   animation: entry-drift 48s ease-in-out infinite alternate;
@@ -265,25 +267,18 @@ input, textarea, select {
   inset: 0;
   z-index: 0;
   pointer-events: none;
-  background:
-    /* Contrast is bought where the text actually sits — a soft column down the
-       middle — rather than with a corner vignette, so the skyline keeps its
-       neon out at the edges. */
-    radial-gradient(
-      ellipse 62% 78% at 50% 40%,
-      rgba(4, 7, 14, 0.72) 0%,
-      rgba(4, 7, 14, 0.44) 46%,
-      rgba(4, 7, 14, 0) 78%
-    ),
-    /* Gentle top/bottom falloff only, to seat the lockup and the CTA. */
-    linear-gradient(
-      180deg,
-      rgba(4, 7, 14, 0.42) 0%,
-      rgba(4, 7, 14, 0.16) 30%,
-      rgba(4, 7, 14, 0.12) 62%,
-      rgba(4, 7, 14, 0.40) 88%,
-      rgba(4, 7, 14, 0.58) 100%
-    );
+  /* The portrait carries its own black band across the lower third, so the
+     scrim only has to blend into it — the face and the neon above stay almost
+     untouched, and the darkening ramps in exactly where the lockup sits. */
+  background: linear-gradient(
+    180deg,
+    rgba(4, 7, 14, 0.30) 0%,
+    rgba(4, 7, 14, 0.10) 22%,
+    rgba(4, 7, 14, 0.08) 44%,
+    rgba(4, 7, 14, 0.42) 62%,
+    rgba(4, 7, 14, 0.80) 76%,
+    rgba(4, 7, 14, 0.92) 100%
+  );
 }
 
 @media (prefers-reduced-motion: reduce) {
