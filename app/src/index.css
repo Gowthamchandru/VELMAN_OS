@@ -242,21 +242,21 @@ input, textarea, select {
 
 /* Photographic backdrop: a slow drift keeps the city alive without pulling
    focus, and the scrim below it buys back the contrast the neon eats. */
+/* The artwork is shown whole and unaltered: `contain` so nothing is cropped,
+   and no ken-burns scale — the drift used to zoom a 1024px source up to ~1.66x,
+   which is what was softening it. At `contain` it renders near its native size,
+   so it stays as sharp as the file allows. Any letterboxing falls on the near
+   black page colour, which the artwork's own dark edges meet cleanly. */
+/* The crop is ~16:9 and high-resolution, so `cover` fills the viewport with
+   only a sliver trimmed off the sides. No scale animation: zooming a bitmap is
+   what softened the earlier backdrops, and this one is meant to read sharp. */
 .entry-photo {
   position: absolute;
   inset: 0;
   z-index: 0;
-  /* Anchored high: the portrait's subject sits in the upper third, and a 4:3
-     source on a wide viewport gets cropped top and bottom by `cover`. */
-  background-position: center 22%;
+  background-position: center center;
   background-size: cover;
   background-repeat: no-repeat;
-  animation: entry-drift 48s ease-in-out infinite alternate;
-  will-change: transform;
-}
-@keyframes entry-drift {
-  from { transform: scale(1.06) translate3d(-0.8%, -0.6%, 0); }
-  to   { transform: scale(1.14) translate3d(0.8%, 0.6%, 0); }
 }
 
 /* Two-part scrim. The vertical gradient darkens the skyline (where the
@@ -267,23 +267,28 @@ input, textarea, select {
   inset: 0;
   z-index: 0;
   pointer-events: none;
-  /* The portrait carries its own black band across the lower third, so the
-     scrim only has to blend into it — the face and the neon above stay almost
-     untouched, and the darkening ramps in exactly where the lockup sits. */
-  background: linear-gradient(
-    180deg,
-    rgba(4, 7, 14, 0.30) 0%,
-    rgba(4, 7, 14, 0.10) 22%,
-    rgba(4, 7, 14, 0.08) 44%,
-    rgba(4, 7, 14, 0.42) 62%,
-    rgba(4, 7, 14, 0.80) 76%,
-    rgba(4, 7, 14, 0.92) 100%
-  );
+  /* Reads left-to-right, following the crop: weight over the empty left third
+     where the lockup sits, clearing entirely before it reaches the face so his
+     lighting keeps its full brightness. A whisper along the bottom seats the
+     scanline strip. */
+  background:
+    linear-gradient(
+      90deg,
+      rgba(4, 7, 14, 0.82) 0%,
+      rgba(4, 7, 14, 0.62) 26%,
+      rgba(4, 7, 14, 0.24) 44%,
+      rgba(4, 7, 14, 0) 60%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(4, 7, 14, 0.30) 0%,
+      rgba(4, 7, 14, 0) 24%,
+      rgba(4, 7, 14, 0) 74%,
+      rgba(4, 7, 14, 0.34) 100%
+    );
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .entry-photo { animation: none; transform: scale(1.06); }
-}
+
 /* Entry wordmark: condenses into focus on load (wide-tracked + blurred →
    sharp), then a cursor spotlight lights the letters as the pointer sweeps
    across. Gradient-filled with a soft LOF glow; falls back to plain white
