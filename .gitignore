@@ -49,3 +49,7 @@ app/public/images/Velman_bg.png
 # redistribution). Kept locally; the app falls back to the bundled
 # "Cyberpunk Is Not Dead" wherever these files are absent.
 app/public/savery/
+
+# Turbo Driver (SRON Studio): personal-use-only demo licence.
+# Kept locally, never redistributed.
+app/public/turbo-driver/
