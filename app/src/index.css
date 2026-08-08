@@ -267,18 +267,24 @@ input, textarea, select {
   inset: 0;
   z-index: 0;
   pointer-events: none;
-  /* Nothing across the face — the artwork keeps its own brightness there. The
-     crop already carries deep black along its lower edge, so the gradient only
-     blends into it where the lockup sits. */
-  background: linear-gradient(
-    180deg,
-    rgba(4, 7, 14, 0.22) 0%,
-    rgba(4, 7, 14, 0) 26%,
-    rgba(4, 7, 14, 0) 52%,
-    rgba(4, 7, 14, 0.30) 68%,
-    rgba(4, 7, 14, 0.66) 82%,
-    rgba(4, 7, 14, 0.86) 100%
-  );
+  /* Two soft passes that meet in the lower-left, where the lockup sits: one
+     rising from the base, one drawn in from the left edge. Both clear well
+     before the face, so his lighting and the neon keep their own brightness. */
+  background:
+    linear-gradient(
+      180deg,
+      rgba(4, 7, 14, 0.20) 0%,
+      rgba(4, 7, 14, 0) 22%,
+      rgba(4, 7, 14, 0) 48%,
+      rgba(4, 7, 14, 0.34) 72%,
+      rgba(4, 7, 14, 0.72) 100%
+    ),
+    linear-gradient(
+      90deg,
+      rgba(4, 7, 14, 0.58) 0%,
+      rgba(4, 7, 14, 0.30) 24%,
+      rgba(4, 7, 14, 0) 48%
+    );
 }
 
 
