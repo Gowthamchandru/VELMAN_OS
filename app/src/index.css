@@ -8,6 +8,25 @@
 
    'Cyberpunk Waifus' stays declared below, so dropping that file into
    app/public/fonts/ still takes precedence — see the README there. */
+/* Turbo Driver, by SRON Studio — sronstudio.com
+   PERSONAL-USE-ONLY demo licence, so app/public/turbo-driver/ is gitignored
+   and never reaches the public repo or the deploy.
+
+   The file is the Italic cut and the only cut, with a -15° slant baked into
+   the outlines. It is declared font-style: normal deliberately — declaring it
+   italic would leave the wordmark (which is not italic) with no matching face
+   and fall through to the next family. The slant comes from the glyphs. */
+@font-face {
+  font-family: 'Turbo Driver';
+  font-style: normal;
+  font-display: swap;
+  src:
+    local('Turbo Driver Italic'),
+    local('Turbo Driver'),
+    url('/turbo-driver/Turbo%20Driver%20Italic.otf') format('opentype'),
+    url('/VELMAN_OS/turbo-driver/Turbo%20Driver%20Italic.otf') format('opentype');
+}
+
 /* Savery, by Ronin Design — theronindesign.com/savery
    PERSONAL-USE-ONLY demo licence (no commercial use). It is therefore NOT
    committed: app/public/savery/ is gitignored, so the files live on this
@@ -76,10 +95,11 @@
   --font-sans: 'Manrope', ui-sans-serif, system-ui, -apple-system, sans-serif;
   --font-mono: 'Fira Code', ui-monospace, 'SFMono-Regular', monospace;
   --font-heading: 'Orbitron', ui-sans-serif, sans-serif;
-  /* Wordmark only, in fallback order: Savery (local, personal-licence) →
-     Cyberpunk Is Not Dead (bundled, free) → Tektur → Orbitron. The deployed
-     site has no Savery, so it lands on the bundled face automatically. */
-  --font-display: 'Savery', 'Cyberpunk Waifus', 'Cyberpunk Is Not Dead', 'Tektur', 'Orbitron', ui-sans-serif, sans-serif;
+  /* Wordmark only, in fallback order: Turbo Driver → Savery (both local,
+     personal-licence) → Cyberpunk Is Not Dead (bundled, free) → Tektur →
+     Orbitron. The deploy carries only the free face, so it lands there
+     automatically with no conditional code. */
+  --font-display: 'Turbo Driver', 'Savery', 'Cyberpunk Waifus', 'Cyberpunk Is Not Dead', 'Tektur', 'Orbitron', ui-sans-serif, sans-serif;
 }
 
 html, body, #root {
@@ -279,6 +299,9 @@ input, textarea, select {
   font-family: var(--font-display);
   font-weight: 400;
   font-synthesis: none;
+  /* The display face is a -15° italic: the top-right of the final glyph
+     overhangs its advance width, so give the line a little room to lean into. */
+  padding-right: 0.12em;
   color: #fff;
   background-image:
     radial-gradient(140px circle at var(--mx) var(--my), rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0) 70%),
