@@ -49,12 +49,12 @@ export function Welcome() {
   return (
     <main
       onMouseMove={onMove}
-      className="entry-bg relative flex min-h-screen flex-col items-center justify-end gap-7 overflow-hidden px-6 pb-[9vh] pt-[8vh] text-center lg:items-start lg:px-[6vw] lg:text-left"
+      className="entry-bg relative flex min-h-screen flex-col items-center justify-end gap-7 overflow-hidden px-6 pb-[9vh] pt-[8vh] text-center"
     >
       <PhotoBackdrop />
       <CityHaze className="absolute inset-0 z-0 h-full w-full" />
-      <div className="entry-rise z-10 flex flex-col items-center gap-7 lg:items-start" style={delay(0)}>
-        <div className="flex flex-col items-start">
+      <div className="entry-rise z-10 flex flex-col items-center gap-7" style={delay(0)}>
+        <div className="flex flex-col items-center">
           <span className="gc-eyebrow text-[14px] uppercase tracking-[0.3em] text-white sm:text-[17px]">Personal OS</span>
           {/* Steps up in three stages. 48px is the ceiling that still fits
               "VELMAN OS" on a 390px phone at this tracking; 96px waits for lg,
@@ -66,7 +66,7 @@ export function Welcome() {
           >
             VELMAN OS
           </h1>
-          <p className="tabular-nums mt-5 self-center text-[15px] uppercase tracking-[0.34em] text-sidebar-muted lg:self-start">
+          <p className="tabular-nums mt-5 self-center text-[15px] uppercase tracking-[0.34em] text-sidebar-muted">
             Dr. Gowtham
           </p>
         </div>

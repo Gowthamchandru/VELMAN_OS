@@ -267,24 +267,18 @@ input, textarea, select {
   inset: 0;
   z-index: 0;
   pointer-events: none;
-  /* Two soft passes that meet in the lower-left, where the lockup sits: one
-     rising from the base, one drawn in from the left edge. Both clear well
-     before the face, so his lighting and the neon keep their own brightness. */
-  background:
-    linear-gradient(
-      180deg,
-      rgba(4, 7, 14, 0.20) 0%,
-      rgba(4, 7, 14, 0) 22%,
-      rgba(4, 7, 14, 0) 48%,
-      rgba(4, 7, 14, 0.34) 72%,
-      rgba(4, 7, 14, 0.72) 100%
-    ),
-    linear-gradient(
-      90deg,
-      rgba(4, 7, 14, 0.58) 0%,
-      rgba(4, 7, 14, 0.30) 24%,
-      rgba(4, 7, 14, 0) 48%
-    );
+  /* Rises evenly from the base, where the lockup now sits centred — no side
+     bias, since the text is no longer weighted to one edge. Clears entirely
+     across the upper half so the face and neon keep their own brightness. */
+  background: linear-gradient(
+    180deg,
+    rgba(4, 7, 14, 0.20) 0%,
+    rgba(4, 7, 14, 0) 22%,
+    rgba(4, 7, 14, 0) 46%,
+    rgba(4, 7, 14, 0.30) 66%,
+    rgba(4, 7, 14, 0.66) 84%,
+    rgba(4, 7, 14, 0.84) 100%
+  );
 }
 
 
