@@ -1,8 +1,7 @@
 import { useState, type ReactNode } from 'react'
 import { Lock, Eye, EyeOff, KeyRound } from 'lucide-react'
 import { useLock } from '@/lib/lockStore'
-
-const fld = 'rounded-[10px] border-2 border-border bg-surface px-3 py-2 text-sm text-ink outline-none focus:border-accent'
+import HoloInput from '@/components/ui/holo-input'
 
 export function LockScreen({ id, label, children }: { id: string; label: string; children: ReactNode }) {
   const { setPin, unlocked, tryUnlock } = useLock(id)
@@ -46,24 +45,25 @@ export function LockScreen({ id, label, children }: { id: string; label: string;
         </div>
 
         <div className="flex w-full max-w-xs flex-col gap-3">
-          <div className="relative">
-            <input
-              type={show ? 'text' : 'password'}
-              value={input}
-              onChange={(e) => { setInput(e.target.value); setErr(false) }}
-              onKeyDown={(e) => e.key === 'Enter' && submit()}
-              placeholder="Enter PIN"
-              className={`${fld} w-full pr-10 ${err ? 'border-danger' : ''}`}
-              autoFocus
-            />
-            <button
-              type="button"
-              onClick={() => setShow((v) => !v)}
-              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-ink-faint hover:text-ink"
-            >
-              {show ? <EyeOff size={15} /> : <Eye size={15} />}
-            </button>
-          </div>
+          <HoloInput
+            label="Access code"
+            type={show ? 'text' : 'password'}
+            value={input}
+            onChange={(e) => { setInput(e.target.value); setErr(false) }}
+            onKeyDown={(e) => e.key === 'Enter' && submit()}
+            invalid={err}
+            autoFocus
+            trailing={
+              <button
+                type="button"
+                onClick={() => setShow((v) => !v)}
+                aria-label={show ? 'Hide PIN' : 'Show PIN'}
+                className="hover:text-accent"
+              >
+                {show ? <EyeOff size={15} /> : <Eye size={15} />}
+              </button>
+            }
+          />
           {err && <p className="text-xs text-danger">Incorrect PIN. Try again.</p>}
           <button
             onClick={submit}
@@ -90,28 +90,24 @@ export function LockScreen({ id, label, children }: { id: string; label: string;
             <KeyRound size={13} /> Change PIN
           </button>
         ) : (
-          <div className="flex flex-wrap items-end gap-2">
-            <div className="flex flex-col gap-0.5">
-              <label className="text-[10px] font-bold uppercase tracking-wide text-ink-faint">New PIN</label>
-              <input
-                type="password"
-                value={newPin}
-                onChange={(e) => { setNewPin(e.target.value); setPinErr('') }}
-                placeholder="New PIN"
-                className={`${fld} w-36`}
-              />
-            </div>
-            <div className="flex flex-col gap-0.5">
-              <label className="text-[10px] font-bold uppercase tracking-wide text-ink-faint">Confirm</label>
-              <input
-                type="password"
-                value={confirmPin}
-                onChange={(e) => { setConfirmPin(e.target.value); setPinErr('') }}
-                onKeyDown={(e) => e.key === 'Enter' && savePin()}
-                placeholder="Confirm PIN"
-                className={`${fld} w-36`}
-              />
-            </div>
+          <div className="flex flex-wrap items-end gap-3 pt-6">
+            <HoloInput
+              label="New PIN"
+              type="password"
+              value={newPin}
+              onChange={(e) => { setNewPin(e.target.value); setPinErr('') }}
+              invalid={!!pinErr}
+              wrapperClassName="w-44"
+            />
+            <HoloInput
+              label="Confirm"
+              type="password"
+              value={confirmPin}
+              onChange={(e) => { setConfirmPin(e.target.value); setPinErr('') }}
+              onKeyDown={(e) => e.key === 'Enter' && savePin()}
+              invalid={!!pinErr}
+              wrapperClassName="w-44"
+            />
             <button onClick={savePin} className="rounded-[10px] bg-accent px-3 py-2 font-heading text-[10px] font-bold uppercase tracking-[0.12em] text-white hover:opacity-90">
               Save
             </button>

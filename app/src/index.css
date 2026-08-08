@@ -330,6 +330,198 @@ input, textarea, select {
   transform: translateY(-0.45rem);
 }
 
+/* ── Holographic input ───────────────────────────────────────────────────────
+   Used by every PIN/password field in the app. Colours come from the theme
+   tokens rather than the reference's own palette, so these fields sit in the
+   same world as the rest of the UI; Fira Code was already the app's mono face.
+   All chrome is pointer-transparent so only the input itself is clickable. */
+.gc-holo {
+  --holo-primary: #00d9ff;
+  --holo-secondary: #ff2e63;
+  position: relative;
+  width: 100%;
+  font-family: var(--font-mono);
+}
+
+.gc-holo-input {
+  width: 100%;
+  height: 3.5rem;
+  padding: 0 1rem;
+  background: rgba(6, 9, 18, 0.7);
+  border: none;
+  border-bottom: 2px solid var(--color-border);
+  outline: none;
+  color: var(--holo-primary);
+  caret-color: var(--holo-primary);
+  font-family: inherit;
+  font-size: 1.05rem;
+  letter-spacing: 0.08em;
+  position: relative;
+  z-index: 2;
+  transition: background 0.3s ease, border-color 0.3s ease;
+}
+.gc-holo-input.has-trailing { padding-right: 2.75rem; }
+.gc-holo-input:focus { border-bottom-color: transparent; }
+
+/* Floating label — rides up on focus or once the field has content. */
+.gc-holo-label {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  z-index: 3;
+  color: var(--color-ink-muted);
+  opacity: 0.65;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 0.9rem;
+  pointer-events: none;
+  transition: all 0.3s ease;
+}
+.gc-holo-input:focus ~ .gc-holo-label,
+.gc-holo-input:not(:placeholder-shown) ~ .gc-holo-label {
+  top: -1.35rem;
+  left: 0;
+  font-size: 0.72rem;
+  opacity: 1;
+  color: var(--holo-primary);
+}
+
+/* Two offset copies tear across the label at the moment of focus. */
+.gc-holo-input:focus ~ .gc-holo-label::before,
+.gc-holo-input:focus ~ .gc-holo-label::after {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+  background: var(--color-bg);
+}
+.gc-holo-input:focus ~ .gc-holo-label::before {
+  color: var(--holo-secondary);
+  animation: gc-holo-glitch 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+}
+.gc-holo-input:focus ~ .gc-holo-label::after {
+  color: var(--holo-primary);
+  animation: gc-holo-glitch 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) reverse both;
+}
+
+.gc-holo-border,
+.gc-holo-scanline,
+.gc-holo-glow,
+.gc-holo-corners {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.gc-holo-border {
+  border: 1px solid rgba(0, 217, 255, 0.2);
+  opacity: 0.5;
+  transition: all 0.3s ease;
+}
+.gc-holo-corner {
+  position: absolute;
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid var(--holo-primary);
+  opacity: 0.5;
+  transition: all 0.3s ease;
+}
+.gc-holo-corner.tl { top: -0.3rem; left: -0.3rem; border-right: none; border-bottom: none; }
+.gc-holo-corner.tr { top: -0.3rem; right: -0.3rem; border-left: none; border-bottom: none; }
+.gc-holo-corner.bl { bottom: -0.3rem; left: -0.3rem; border-right: none; border-top: none; }
+.gc-holo-corner.br { bottom: -0.3rem; right: -0.3rem; border-left: none; border-top: none; }
+
+.gc-holo-glow {
+  background: radial-gradient(ellipse at center, rgba(0, 217, 255, 0.2) 0%, transparent 70%);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+.gc-holo-scanline {
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(0, 217, 255, 0.1) 48%,
+    rgba(0, 217, 255, 0.3) 50%,
+    rgba(0, 217, 255, 0.1) 52%,
+    transparent 100%
+  );
+  opacity: 0;
+}
+
+.gc-holo-stream {
+  position: absolute;
+  bottom: 2px;
+  left: 0;
+  width: 100%;
+  height: 0.3rem;
+  display: flex;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease 0.1s;
+}
+.gc-holo-bar {
+  flex-grow: 1;
+  background-color: var(--holo-primary);
+  transform: scaleY(0);
+  transform-origin: bottom;
+  transition: transform 0.2s, opacity 0.2s;
+}
+
+.gc-holo-input:focus ~ .gc-holo-border { opacity: 1; border-color: rgba(0, 217, 255, 0.5); }
+.gc-holo-input:focus ~ .gc-holo-corners .gc-holo-corner {
+  width: 1.25rem;
+  height: 1.25rem;
+  border-width: 3px;
+  opacity: 1;
+}
+.gc-holo-input:focus ~ .gc-holo-glow { opacity: 1; }
+.gc-holo-input:focus ~ .gc-holo-scanline { animation: gc-holo-scan 4s linear infinite; }
+.gc-holo-input:focus ~ .gc-holo-stream { opacity: 1; }
+.gc-holo-input:focus ~ .gc-holo-stream .gc-holo-bar {
+  animation: gc-holo-pulse 2s infinite;
+  animation-delay: calc(var(--i) * 0.1s);
+}
+
+/* Wrong PIN: the whole rig turns hostile rather than just the border. */
+.gc-holo.is-invalid { --holo-primary: var(--color-danger); }
+.gc-holo.is-invalid .gc-holo-input { border-bottom-color: var(--color-danger); }
+.gc-holo.is-invalid .gc-holo-border { border-color: rgba(255, 46, 99, 0.55); opacity: 1; }
+
+.gc-holo-trailing {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  color: var(--color-ink-faint);
+}
+
+@keyframes gc-holo-glitch {
+  0%   { transform: translate(0); clip-path: inset(0 0 0 0); }
+  20%  { transform: translate(-0.2rem, 0.1rem); clip-path: inset(50% 0 20% 0); }
+  40%  { transform: translate(0.1rem, -0.1rem); clip-path: inset(20% 0 60% 0); }
+  60%  { transform: translate(-0.15rem, 0.1rem); clip-path: inset(80% 0 5% 0); }
+  80%  { transform: translate(0.15rem, -0.15rem); clip-path: inset(30% 0 45% 0); }
+  100% { transform: translate(0); clip-path: inset(0 0 0 0); }
+}
+@keyframes gc-holo-scan {
+  0%   { opacity: 0; transform: translateY(-100%); }
+  25%  { opacity: 0.5; }
+  75%  { opacity: 0.5; }
+  100% { opacity: 0; transform: translateY(100%); }
+}
+@keyframes gc-holo-pulse {
+  0%, 100% { transform: scaleY(0.2); opacity: 0.3; }
+  50%      { transform: scaleY(1); opacity: 0.8; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gc-holo-input:focus ~ .gc-holo-scanline,
+  .gc-holo-input:focus ~ .gc-holo-stream .gc-holo-bar,
+  .gc-holo-input:focus ~ .gc-holo-label::before,
+  .gc-holo-input:focus ~ .gc-holo-label::after { animation: none; }
+}
+
 /* ── Glitch CTA ──────────────────────────────────────────────────────────────
    A hard magenta slab offset by a cyan shadow; on hover a second copy of the
    label tears across it in slices. Colours come from the page palette — the
