@@ -267,25 +267,18 @@ input, textarea, select {
   inset: 0;
   z-index: 0;
   pointer-events: none;
-  /* Reads left-to-right, following the crop: weight over the empty left third
-     where the lockup sits, clearing entirely before it reaches the face so his
-     lighting keeps its full brightness. A whisper along the bottom seats the
-     scanline strip. */
-  background:
-    linear-gradient(
-      90deg,
-      rgba(4, 7, 14, 0.82) 0%,
-      rgba(4, 7, 14, 0.62) 26%,
-      rgba(4, 7, 14, 0.24) 44%,
-      rgba(4, 7, 14, 0) 60%
-    ),
-    linear-gradient(
-      180deg,
-      rgba(4, 7, 14, 0.30) 0%,
-      rgba(4, 7, 14, 0) 24%,
-      rgba(4, 7, 14, 0) 74%,
-      rgba(4, 7, 14, 0.34) 100%
-    );
+  /* Nothing across the face — the artwork keeps its own brightness there. The
+     crop already carries deep black along its lower edge, so the gradient only
+     blends into it where the lockup sits. */
+  background: linear-gradient(
+    180deg,
+    rgba(4, 7, 14, 0.22) 0%,
+    rgba(4, 7, 14, 0) 26%,
+    rgba(4, 7, 14, 0) 52%,
+    rgba(4, 7, 14, 0.30) 68%,
+    rgba(4, 7, 14, 0.66) 82%,
+    rgba(4, 7, 14, 0.86) 100%
+  );
 }
 
 
