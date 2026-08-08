@@ -7,7 +7,7 @@ import { Navigate, useNavigate } from 'react-router-dom'
 import { ArrowLeft, Briefcase, User } from 'lucide-react'
 import ShatterableGlassCard from '@/components/ui/shatterable-glass-card'
 import CityHaze from '@/components/ui/city-haze'
-import SlideArrowButton from '@/components/ui/slide-arrow-button'
+import GlitchButton from '@/components/ui/glitch-button'
 import { getEntryMode, setEntryMode, type EntryMode } from './entryMode'
 
 // Route guard: the app proper is unreachable until a mode has been chosen.
@@ -72,9 +72,7 @@ export function Welcome() {
         </div>
       </div>
 
-      <SlideArrowButton glass onClick={() => navigate('/mode')} className="entry-rise z-10" style={delay(140)}>
-        Continue
-      </SlideArrowButton>
+      <GlitchButton label="Continue" onClick={() => navigate('/mode')} className="entry-rise z-10" style={delay(140)} />
     </main>
   )
 }
