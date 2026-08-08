@@ -8,6 +8,20 @@
 
    'Cyberpunk Waifus' stays declared below, so dropping that file into
    app/public/fonts/ still takes precedence — see the README there. */
+/* Savery, by Ronin Design — theronindesign.com/savery
+   PERSONAL-USE-ONLY demo licence (no commercial use). It is therefore NOT
+   committed: app/public/savery/ is gitignored, so the files live on this
+   machine only and the public repo/deploy never carries them. When they are
+   absent this @font-face just doesn't resolve and the chain below takes over. */
+@font-face {
+  font-family: 'Savery';
+  font-display: swap;
+  src:
+    local('Savery'),
+    url('/savery/Savery.ttf') format('truetype'),
+    url('/VELMAN_OS/savery/Savery.ttf') format('truetype');
+}
+
 @font-face {
   font-family: 'Cyberpunk Is Not Dead';
   font-display: swap;
@@ -62,9 +76,10 @@
   --font-sans: 'Manrope', ui-sans-serif, system-ui, -apple-system, sans-serif;
   --font-mono: 'Fira Code', ui-monospace, 'SFMono-Regular', monospace;
   --font-heading: 'Orbitron', ui-sans-serif, sans-serif;
-  /* Wordmark only. "Cyberpunk Is Not Dead" is the bundled display face doing
-     the work; Tektur and Orbitron catch it if the file ever goes missing. */
-  --font-display: 'Cyberpunk Waifus', 'Cyberpunk Is Not Dead', 'Tektur', 'Orbitron', ui-sans-serif, sans-serif;
+  /* Wordmark only, in fallback order: Savery (local, personal-licence) →
+     Cyberpunk Is Not Dead (bundled, free) → Tektur → Orbitron. The deployed
+     site has no Savery, so it lands on the bundled face automatically. */
+  --font-display: 'Savery', 'Cyberpunk Waifus', 'Cyberpunk Is Not Dead', 'Tektur', 'Orbitron', ui-sans-serif, sans-serif;
 }
 
 html, body, #root {

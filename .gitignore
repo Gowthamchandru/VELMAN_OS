@@ -44,3 +44,8 @@ dist-ssr
 # Source artwork: 28MB original kept locally; the optimised
 # velman-bg.webp/.jpg beside it are what the app ships.
 app/public/images/Velman_bg.png
+
+# Savery: personal-use-only demo licence (no commercial use, no
+# redistribution). Kept locally; the app falls back to the bundled
+# "Cyberpunk Is Not Dead" wherever these files are absent.
+app/public/savery/
