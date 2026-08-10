@@ -67,7 +67,7 @@ export function Welcome() {
             VELMAN OS
           </h1>
           <p className="tabular-nums mt-5 self-center text-[15px] uppercase tracking-[0.34em] text-sidebar-muted">
-            Dr. Gowtham
+            Dr. Gowtham Chandru
           </p>
         </div>
       </div>

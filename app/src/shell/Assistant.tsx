@@ -179,7 +179,7 @@ export default function Assistant({ open, onClose }: { open: boolean; onClose: (
             <div className="space-y-5">
               <div className="flex flex-col items-center pt-4 text-center">
                 <BrandMark />
-                <p className="mt-3 text-[15px] font-semibold text-ink">Good to see you, Dr. Gowtham</p>
+                <p className="mt-3 text-[15px] font-semibold text-ink">Good to see you, Dr. Gowtham Chandru</p>
                 <p className="mt-1 max-w-[280px] text-[13px] leading-relaxed text-ink-muted">Ask me anything in this dashboard.</p>
               </div>
               <div className="flex flex-col gap-2">

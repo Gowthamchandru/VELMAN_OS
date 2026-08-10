@@ -774,7 +774,7 @@ export default function CommandCenter() {
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between gap-4">
-        <h1 className="text-2xl font-semibold text-ink">{greeting(now)}, Dr. Gowtham</h1>
+        <h1 className="text-2xl font-semibold text-ink">{greeting(now)}, Dr. Gowtham Chandru</h1>
         <div className="flex items-center gap-4">
           <DayProgress />
           <div className="hidden gap-2 lg:flex">

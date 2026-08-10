@@ -89,7 +89,7 @@ export default function Shell() {
           <div className="flex flex-col justify-center leading-tight">
             <div className="whitespace-nowrap font-heading text-[17px] font-black tracking-[0.08em] text-white">VELMAN OS</div>
             <div className="mt-0.5 text-sm text-sidebar-muted">
-              Dr. Gowtham · <span className="text-white/80">{spaceLabel}</span>
+              Dr. Gowtham Chandru · <span className="text-white/80">{spaceLabel}</span>
             </div>
           </div>
         </div>
