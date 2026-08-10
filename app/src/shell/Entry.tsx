@@ -55,14 +55,13 @@ export function Welcome() {
       <CityHaze className="absolute inset-0 z-0 h-full w-full" />
       <div className="entry-rise z-10 flex flex-col items-center gap-7" style={delay(0)}>
         <div className="flex flex-col items-center">
-          <span className="gc-eyebrow text-[14px] uppercase tracking-[0.3em] text-white sm:text-[17px]">Personal OS</span>
           {/* Steps up in three stages. 48px is the ceiling that still fits
               "VELMAN OS" on a 390px phone at this tracking; 96px waits for lg,
               where there is room to spare. */}
           <h1
             ref={markRef}
             data-text="VELMAN OS"
-            className="gc-wordmark -mt-1 text-5xl tracking-[0.14em] sm:text-7xl lg:text-8xl"
+            className="gc-wordmark text-5xl tracking-[0.14em] sm:text-7xl lg:text-8xl"
           >
             VELMAN OS
           </h1>
