@@ -5,7 +5,7 @@
 import { useRef, type CSSProperties, type MouseEvent, type ReactNode } from 'react'
 import { Navigate, useNavigate } from 'react-router-dom'
 import { ArrowLeft, Briefcase, User } from 'lucide-react'
-import ShatterableGlassCard from '@/components/ui/shatterable-glass-card'
+import ModePod from '@/components/ui/mode-pod'
 import CityHaze from '@/components/ui/city-haze'
 import GlitchButton from '@/components/ui/glitch-button'
 import { getEntryMode, setEntryMode, type EntryMode } from './entryMode'
@@ -18,17 +18,20 @@ export function RequireEntry({ children }: { children: ReactNode }) {
 // Staggered entrance delay for .entry-rise elements.
 const delay = (ms: number) => ({ '--delay': `${ms}ms` }) as CSSProperties
 
-// The photograph + its scrim. BASE_URL keeps the path correct both on the dev
-// server and under the GitHub Pages sub-path.
-function PhotoBackdrop() {
+// The backdrop image + its scrim, shared by both entry screens. BASE_URL keeps
+// the path correct on the dev server and under the GitHub Pages sub-path alike;
+// `name` picks the .webp/.jpg pair, and `scrim` picks the gradient cut for the
+// screen's layout — /welcome's lockup sits on the floor, /mode's is centred.
+function PhotoBackdrop({ name, scrim = '' }: { name: string; scrim?: string }) {
+  const url = (ext: string) => `url(${import.meta.env.BASE_URL}images/${name}.${ext})`
   return (
     <>
       <div
         className="entry-photo"
-        style={{ backgroundImage: `image-set(url(${import.meta.env.BASE_URL}images/velman-entry.webp) type('image/webp'), url(${import.meta.env.BASE_URL}images/velman-entry.jpg) type('image/jpeg'))` }}
+        style={{ backgroundImage: `image-set(${url('webp')} type('image/webp'), ${url('jpg')} type('image/jpeg'))` }}
         aria-hidden="true"
       />
-      <div className="entry-scrim" aria-hidden="true" />
+      <div className={`entry-scrim ${scrim}`} aria-hidden="true" />
     </>
   )
 }
@@ -51,7 +54,7 @@ export function Welcome() {
       onMouseMove={onMove}
       className="entry-bg relative flex min-h-screen flex-col items-center justify-end gap-7 overflow-hidden px-6 pb-[9vh] pt-[8vh] text-center"
     >
-      <PhotoBackdrop />
+      <PhotoBackdrop name="velman-entry" />
       <CityHaze className="absolute inset-0 z-0 h-full w-full" />
       <div className="entry-rise z-10 flex flex-col items-center gap-7" style={delay(0)}>
         <div className="flex flex-col items-center">
@@ -79,26 +82,31 @@ export function Welcome() {
 const MODES: {
   id: EntryMode
   title: string
-  blurb: string
+  status: string
   icon: typeof User
-  gradient: string
-  shardRgb: string
+  tone: string
+  side: 'left' | 'right'
+  graphic: 'filaments' | 'constellation'
 }[] = [
   {
     id: 'personal',
     title: 'Personal',
-    blurb: 'Your life, off the clock.',
+    status: 'Active',
     icon: User,
-    gradient: 'bg-linear-to-br from-violet-500 to-indigo-700',
-    shardRgb: '167,139,250',
+    // Magenta, deliberately a shade off the --color-danger token: this is
+    // decoration on the entry screen, not a warning state inside the app.
+    tone: '#f24fe0',
+    side: 'left',
+    graphic: 'filaments',
   },
   {
     id: 'professional',
     title: 'Professional',
-    blurb: 'Your companies and your work.',
+    status: 'Ready',
     icon: Briefcase,
-    gradient: 'bg-linear-to-br from-[#3374c8] to-[#122c52]',
-    shardRgb: '125,170,230',
+    tone: '#00d9ff',
+    side: 'right',
+    graphic: 'constellation',
   },
 ]
 
@@ -109,7 +117,8 @@ export function ModeSelect() {
     navigate('/', { replace: true })
   }
   return (
-    <main className="entry-bg relative flex min-h-screen flex-col items-center justify-center gap-12 px-6 py-16">
+    <main className="entry-bg relative flex min-h-screen flex-col items-center justify-center gap-12 overflow-hidden px-6 py-16">
+      <PhotoBackdrop name="velman-bg" scrim="entry-scrim--deep" />
       <CityHaze className="absolute inset-0 z-0 h-full w-full" />
       <button
         onClick={() => navigate('/welcome')}
@@ -119,43 +128,32 @@ export function ModeSelect() {
       </button>
 
       <div className="entry-rise z-10 text-center" style={delay(0)}>
-        <p className="font-heading text-[13px] font-bold uppercase tracking-[0.3em] text-sidebar-muted">Velman OS</p>
-        <h1 className="mt-3 font-heading text-3xl font-black tracking-[0.14em] text-white sm:text-4xl">Choose your space</h1>
+        {/* Same face as the wordmark on /welcome, so the two screens read as one
+            room. font-bold/font-black are dropped rather than overridden —
+            .gc-display pins the weight, and Turbo Driver has a single cut. */}
+        {/* Muted ink vanished against the lit skyline behind it. Cyan ties it to
+            the heading's own bloom, but it is the dark backing shadow that
+            actually buys legibility over the bright parts of the photo. */}
+        <p className="gc-display text-[14px] uppercase tracking-[0.3em] text-accent [text-shadow:0_0_14px_rgba(0,217,255,0.5),0_2px_7px_rgba(4,7,14,0.95)]">
+          Velman OS
+        </p>
+        <h1 className="gc-display mt-3 text-3xl tracking-[0.14em] text-white sm:text-4xl">Choose your space</h1>
       </div>
 
-      <div className="z-10 flex flex-wrap items-center justify-center gap-8 sm:gap-12">
+      <div className="z-10 flex flex-wrap items-start justify-center gap-10 sm:gap-16">
         {MODES.map((m, i) => (
-          <div key={m.id} className="entry-rise" style={delay(120 + i * 100)}>
-            <ShatterableGlassCard
-              label={`Enter ${m.title}`}
-              gradientClass={m.gradient}
-              shardRgb={m.shardRgb}
-              onShattered={() => choose(m.id)}
-              className="h-[420px] w-[300px] sm:h-[460px] sm:w-[330px]"
-              front={
-                <div className="relative flex h-full flex-col items-center justify-center gap-5 p-8 text-center">
-                  <span className="grid size-16 place-items-center rounded-2xl bg-white/15 text-white">
-                    <m.icon size={30} />
-                  </span>
-                  <span className="font-heading text-[22px] font-black uppercase tracking-[0.18em] text-white">
-                    {m.title}
-                  </span>
-                  <span className="text-[15px] text-white/75">{m.blurb}</span>
-                  <span className="absolute bottom-7 text-[10px] uppercase tracking-[0.26em] text-white/50">
-                    Click to enter
-                  </span>
-                </div>
-              }
-              back={
-                <div className="flex h-full flex-col items-center justify-center gap-2.5 p-6 text-center">
-                  <span className="font-heading text-lg font-black uppercase tracking-[0.2em] text-white">{m.title}</span>
-                  <span className="flex items-center gap-2 text-sm text-sidebar-muted">
-                    <span className="dot-online size-1.5 rounded-full bg-online" /> Opening your space…
-                  </span>
-                </div>
-              }
-            />
-          </div>
+          <ModePod
+            key={m.id}
+            title={m.title}
+            status={m.status}
+            icon={m.icon}
+            tone={m.tone}
+            side={m.side}
+            graphic={m.graphic}
+            onEnter={() => choose(m.id)}
+            className="entry-rise"
+            style={delay(120 + i * 100)}
+          />
         ))}
       </div>
     </main>

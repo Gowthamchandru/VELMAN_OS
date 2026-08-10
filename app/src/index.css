@@ -281,6 +281,395 @@ input, textarea, select {
   );
 }
 
+/* /mode's variant, cut for the rooftop skyline and for pods that are made of
+   thin neon lines on transparent glass. That image is bright and busy edge to
+   edge, so a flat veil would either wash it out or lose the pods in it. Three
+   layers instead:
+
+     1. a soft haze right where the pods sit, so their rings read against calm
+        instead of against someone else's neon;
+     2. a top band under the heading and a floor band for depth;
+     3. a gentle edge vignette.
+
+   The city stays bright through the mid-left and mid-right, which is where the
+   picture is worth looking at. Must stay after .entry-scrim: same specificity,
+   so source order decides. */
+.entry-scrim--deep {
+  background:
+    radial-gradient(
+      58% 46% at 50% 56%,
+      rgba(4, 7, 14, 0.48) 0%,
+      rgba(4, 7, 14, 0.28) 55%,
+      rgba(4, 7, 14, 0) 100%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(4, 7, 14, 0.44) 0%,
+      rgba(4, 7, 14, 0.08) 26%,
+      rgba(4, 7, 14, 0.08) 70%,
+      rgba(4, 7, 14, 0.38) 100%
+    ),
+    radial-gradient(
+      120% 110% at 50% 50%,
+      rgba(4, 7, 14, 0) 55%,
+      rgba(4, 7, 14, 0.32) 100%
+    );
+}
+
+
+
+/* ── Mode pod ────────────────────────────────────────────────────────────────
+   The /mode selector: a glass sphere held in a bracket frame over a lit
+   pedestal. Every colour in here resolves from --tone, set per pod in TSX, so
+   the two modes are one stylesheet and adding a third mode is one hex value.
+
+   The pods are transparent by design — the cityscape behind them is meant to
+   show through the frame and around the base, which is why nothing here paints
+   an opaque card. */
+.gc-pod {
+  --tone: #00d9ff;
+  --tone-dim: color-mix(in srgb, var(--tone) 45%, transparent);
+  --tone-faint: color-mix(in srgb, var(--tone) 16%, transparent);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 390px;
+  max-width: 86vw;
+  cursor: pointer;
+  outline: none;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.gc-pod:hover { transform: translateY(-6px); }
+
+/* Vertical status tag, with a tick reaching back toward the sphere. */
+.gc-pod-status {
+  position: absolute;
+  top: 34%;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--tone);
+  opacity: 0.75;
+  white-space: nowrap;
+  pointer-events: none;
+  text-shadow: 0 0 10px var(--tone-dim);
+}
+.gc-pod-status::after {
+  content: '';
+  width: 26px;
+  height: 1px;
+  background: linear-gradient(90deg, var(--tone), transparent);
+}
+.gc-pod-status--left {
+  left: -14px;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+}
+.gc-pod-status--right {
+  right: -14px;
+  writing-mode: vertical-rl;
+}
+
+.gc-pod-stage {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 356px;
+  height: 356px;
+  max-width: 82vw;
+  aspect-ratio: 1;
+}
+
+.gc-pod-chrome {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  filter: drop-shadow(0 0 12px var(--tone-dim));
+}
+.gc-pod-bracket {
+  fill: none;
+  stroke: var(--tone);
+  stroke-width: 2;
+  opacity: 0.3;
+}
+/* The lit copy is dashed to the corners only. The numbers are the rect's own
+   geometry, not guesses: with w=h=272 and rx=76 each straight run is
+   272-2(76)=120 and each corner arc is 2(pi)(76)/4=119.4. A 119.4/120 pattern
+   therefore alternates arc-on, straight-off exactly once per quadrant, and the
+   119.4 offset slides the first dash off the top edge onto the first corner —
+   the rect path starts at (x+rx, y), mid-top, running clockwise. Change rx or
+   the size and all three numbers have to be recomputed. */
+.gc-pod-bracket-lit {
+  fill: none;
+  stroke: var(--tone);
+  stroke-width: 3.5;
+  stroke-linecap: round;
+  stroke-dasharray: 119.4 120;
+  stroke-dashoffset: 119.4;
+  opacity: 0.95;
+}
+.gc-pod-ring {
+  fill: none;
+  stroke: var(--tone);
+  stroke-width: 3.5;
+  opacity: 0.95;
+}
+.gc-pod-ring-inner {
+  fill: none;
+  stroke: var(--tone);
+  stroke-width: 1;
+  opacity: 0.35;
+}
+
+/* The sphere itself: dark glass lit from the top-left, with a rim light. */
+.gc-pod-glass {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 75.3%;   /* 226/300 — sits just inside the r=113 inner ring */
+  aspect-ratio: 1;
+  border-radius: 50%;
+  overflow: hidden;
+  text-align: center;
+  background:
+    radial-gradient(120% 120% at 32% 24%, rgba(255, 255, 255, 0.16) 0%, rgba(255, 255, 255, 0) 42%),
+    radial-gradient(100% 100% at 50% 50%, var(--tone-faint) 0%, rgba(4, 7, 14, 0.62) 62%, rgba(4, 7, 14, 0.86) 100%);
+  box-shadow:
+    inset 0 0 42px var(--tone-faint),
+    inset 0 2px 20px rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(3px);
+}
+
+/* Interior graphic, behind the icon and sized so its outermost filaments stop
+   short of the label. The seeded layouts top out at 1.04x the viewBox radius
+   (measured, not estimated), so at 62% of the sphere the graphic bottoms out
+   near the 67% mark while the title starts around 65% — they meet, they don't
+   pile up. Widen this and the filaments will run through the label. */
+.gc-pod-web {
+  position: absolute;
+  top: 4%;
+  left: 19%;
+  width: 62%;
+  height: 62%;
+  overflow: visible;
+  opacity: 0.85;
+  filter: drop-shadow(0 0 6px var(--tone-dim));
+  pointer-events: none;
+}
+/* Interior motion. Four independent cycles, deliberately on periods that do
+   not divide into each other (30s / 9s / 3.2s / 2.8s / 2.1s), so the sphere
+   never settles into one visible beat and never repeats the same frame twice
+   within a glance. */
+.gc-pod-web-spin {
+  transform-origin: 100px 100px;
+  animation: gc-pod-spin 30s linear infinite;
+}
+.gc-pod-web-breathe {
+  transform-origin: 100px 100px;
+  animation: gc-pod-breathe 9s ease-in-out infinite;
+}
+@keyframes gc-pod-spin {
+  to { transform: rotate(360deg); }
+}
+@keyframes gc-pod-breathe {
+  0%, 100% { transform: scale(0.94); }
+  50%      { transform: scale(1.05); }
+}
+
+/* Signal travelling outward. The dash is one short segment and the gap is the
+   path's own measured length (fed in as --len), so exactly one pulse is on the
+   path at a time and it arrives at the tip precisely as the cycle ends. */
+.gc-pod-pulse {
+  --dur: 3.2s;
+  stroke-dasharray: 10px var(--len);
+  animation: gc-pod-travel var(--dur) linear infinite;
+  opacity: 0.95;
+}
+@keyframes gc-pod-travel {
+  from { stroke-dashoffset: 0; }
+  to   { stroke-dashoffset: calc(var(--len) * -1); }
+}
+
+/* Nodes breathe on their own stagger, scaled about their own centres —
+   transform-box: fill-box is what makes transform-origin mean the circle
+   rather than the whole SVG canvas. */
+.gc-pod-node {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: gc-pod-twinkle 2.8s ease-in-out infinite;
+}
+@keyframes gc-pod-twinkle {
+  0%, 100% { transform: scale(0.75); }
+  50%      { transform: scale(1.5); }
+}
+
+/* The core the filaments grow from. */
+.gc-pod-core {
+  transform-box: fill-box;
+  transform-origin: center;
+  filter: blur(1px);
+  animation: gc-pod-beat 2.1s ease-in-out infinite;
+}
+@keyframes gc-pod-beat {
+  0%, 100% { transform: scale(0.8); opacity: 0.45; }
+  50%      { transform: scale(1.35); opacity: 0.95; }
+}
+
+/* Hovering spins the sphere up — the pod reacts before it is even clicked. */
+.gc-pod:hover .gc-pod-web-spin,
+.gc-pod:focus-visible .gc-pod-web-spin { animation-duration: 11s; }
+.gc-pod:hover .gc-pod-pulse,
+.gc-pod:focus-visible .gc-pod-pulse { --dur: 1.5s; }
+
+.gc-pod-icon {
+  position: relative;
+  margin-top: -14%;
+  color: #ffffff;
+  filter: drop-shadow(0 0 12px var(--tone)) drop-shadow(0 0 3px rgba(4, 7, 14, 0.9));
+}
+
+.gc-pod-title {
+  position: absolute;
+  /* Was 27% when a blurb sat beneath it; now centred in the clear band below
+     the interior graphic, which bottoms out near 67%. */
+  /* Raised from 22% to widen the chord it has to fit inside. */
+  bottom: 24%;
+  /* Turbo Driver, same as the wordmark. Weight pinned and synthesis off — the
+     face has one cut, and a faked bold smears it; the sliver of right padding
+     is for the -15 degree italic's overhang, as .gc-wordmark does.
+
+     Size and tracking are bounded by geometry, not taste. Turbo Driver is an
+     unusually wide face — measured from the OTF, "PROFESSIONAL" is 11.277em
+     and "PERSONAL" 7.981em, i.e. ~0.94-1.0em per character against the ~0.6em
+     of a normal caps face. The label sits 26% of the sphere's height below
+     centre, where the circle's chord is ~229px, and .gc-pod-glass clips to
+     that circle. At 17px/0.07em the long label measures ~206px, leaving ~11px
+     clear on each side. Raising the size or the tracking without recomputing
+     the chord will cut the ends off "PROFESSIONAL" — at 23px it was 281px,
+     wider than the 268px sphere itself. */
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 400;
+  font-synthesis: none;
+  padding-right: 0.12em;
+  letter-spacing: 0.07em;
+  white-space: nowrap;
+  text-transform: uppercase;
+  color: #ffffff;
+  text-shadow: 0 0 16px var(--tone), 0 2px 6px rgba(4, 7, 14, 0.9);
+}
+
+/* All that is left of the pedestal is its lip — a lit bar under the sphere.
+   The wrapper collapses to the bar's own height so no dead space opens up
+   between the sphere and the call to action; it survives only because it owns
+   the width the bar is a percentage of. */
+.gc-pod-base {
+  position: relative;
+  margin-top: -12px;
+  width: 248px;
+  max-width: 62vw;
+  height: 3px;
+}
+.gc-pod-base-top {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  translate: -50% 0;
+  width: 62%;
+  height: 3px;
+  border-radius: 3px;
+  background: var(--tone);
+  box-shadow: 0 0 16px var(--tone), 0 0 34px var(--tone-dim);
+}
+
+.gc-pod-cta {
+  margin-top: 16px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--tone) 70%, #ffffff);
+  text-shadow: 0 1px 6px rgba(4, 7, 14, 0.95);
+  transition: opacity 0.25s ease;
+  opacity: 0.85;
+}
+.gc-pod:hover .gc-pod-cta { opacity: 1; }
+
+/* Hover and keyboard focus light the chrome the same way; focus adds a ring the
+   mouse never shows. */
+.gc-pod:hover .gc-pod-chrome,
+.gc-pod:focus-visible .gc-pod-chrome {
+  filter: drop-shadow(0 0 22px var(--tone));
+}
+.gc-pod:focus-visible .gc-pod-glass {
+  box-shadow:
+    inset 0 0 42px var(--tone-faint),
+    inset 0 2px 20px rgba(255, 255, 255, 0.12),
+    0 0 0 3px rgba(255, 255, 255, 0.85);
+}
+
+/* Click: the sphere surges, then the route changes. Timed to the 460ms
+   setTimeout in mode-pod.tsx — change one and change the other. */
+.gc-pod.is-charging { animation: gc-pod-fire 0.46s ease-out forwards; }
+.gc-pod.is-charging .gc-pod-chrome { animation: gc-pod-flare 0.46s ease-out forwards; }
+@keyframes gc-pod-fire {
+  0%   { transform: translateY(-6px) scale(1); }
+  35%  { transform: translateY(-6px) scale(0.965); }
+  100% { transform: translateY(-6px) scale(1.06); opacity: 0; }
+}
+@keyframes gc-pod-flare {
+  0%   { filter: drop-shadow(0 0 22px var(--tone)); }
+  100% { filter: drop-shadow(0 0 70px var(--tone)) brightness(2.4); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gc-pod,
+  .gc-pod:hover { transition: none; transform: none; }
+  .gc-pod-web-spin,
+  .gc-pod-web-breathe,
+  .gc-pod-node,
+  .gc-pod-core { animation: none; }
+  /* The pulses are hidden rather than merely stopped: frozen mid-path they
+     read as stray dashes lying across the graphic. */
+  .gc-pod-pulse { animation: none; display: none; }
+  .gc-pod.is-charging,
+  .gc-pod.is-charging .gc-pod-chrome { animation: none; }
+}
+
+/* Below the breakpoint the two pods stack, so they can afford to be bigger
+   relative to the viewport; the status tags tuck in to stay off the edges. */
+@media (max-width: 420px) {
+  .gc-pod-status--left { left: -4px; }
+  .gc-pod-status--right { right: -4px; }
+}
+
+
+/* The display face on its own — the wordmark's typeface without its gradient,
+   spotlight or glitch, for headings that should speak in the same voice as
+   VELMAN OS. Declared unlayered so it beats both the base h1 rule and
+   Tailwind's font-* utilities.
+
+   Weight is pinned to 400 with synthesis off: Turbo Driver ships one cut, and
+   letting the browser fake a bolder one smears it. The face is a -15° italic
+   whose final glyph overhangs its advance width, hence the sliver of right
+   padding — the same allowance .gc-wordmark makes. */
+.gc-display {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-synthesis: none;
+  padding-right: 0.12em;
+}
 
 /* Entry wordmark: condenses into focus on load (wide-tracked + blurred →
    sharp), then a cursor spotlight lights the letters as the pointer sweeps
@@ -499,37 +888,74 @@ input, textarea, select {
   .gc-holo-input:focus ~ .gc-holo-label::after { animation: none; }
 }
 
-/* ── Glitch CTA ──────────────────────────────────────────────────────────────
-   A hard magenta slab offset by a cyan shadow; on hover a second copy of the
-   label tears across it in slices. Colours come from the page palette — the
-   original's yellow is dropped, and the far text-shadow uses the page black so
-   the offset still reads without introducing a fourth hue. */
+/* ── Glitch CTA ──────────────────────────────────────────────
+   A cyan slab chamfered on all four corners, offset by a hard white edge; on
+   hover a second copy of the label tears across it in slices. Both colours are
+   lifted off the wordmark's own gradient (white → cyan) so the button reads as
+   part of the title rather than a separate accent.
+
+   The edge and the bloom sit on the WRAPPER, not the button. clip-path is
+   applied after filter, so a drop-shadow on the button itself would be sliced
+   away by the very corner cuts it is meant to trace. */
+.gc-glitch-wrap {
+  --btn-fill: #00d9ff;
+  --btn-edge: #ffffff;
+  display: inline-block;
+  /* Positioned so the z-index passed in via className still bites — it used to
+     land on the button, which sets position: relative itself. */
+  position: relative;
+  filter:
+    drop-shadow(5px 0 0 var(--btn-edge))
+    drop-shadow(0 0 18px rgba(0, 217, 255, 0.45));
+}
+/* Keyboard users get the hover tear plus a halo the mouse never shows. */
+.gc-glitch-wrap:has(.gc-glitch-btn:focus-visible) {
+  filter:
+    drop-shadow(5px 0 0 var(--btn-edge))
+    drop-shadow(0 0 4px #ffffff)
+    drop-shadow(0 0 11px #ffffff)
+    drop-shadow(0 0 24px rgba(0, 217, 255, 0.7));
+}
+
 .gc-glitch-btn {
-  --btn-fill: #ff2e63;
-  --btn-edge: #00d9ff;
+  --btn-fill: #00d9ff;
+  --btn-edge: #ffffff;
+  /* One value drives all four chamfers. */
+  --cut: 0.85rem;
   --slice-0: inset(50% 50% 50% 50%);
-  --slice-1: inset(80% -6px 0 0);
-  --slice-2: inset(50% -6px 30% 0);
-  --slice-3: inset(10% -6px 85% 0);
-  --slice-4: inset(40% -6px 43% 0);
-  --slice-5: inset(80% -6px 5% 0);
+  --slice-1: inset(80% 0 0 0);
+  --slice-2: inset(50% 0 30% 0);
+  --slice-3: inset(10% 0 85% 0);
+  --slice-4: inset(40% 0 43% 0);
+  --slice-5: inset(80% 0 5% 0);
 
   position: relative;
   display: block;
-  width: clamp(15rem, 62vw, 19rem);
-  height: 4.4rem;
+  width: clamp(11.5rem, 46vw, 15rem);
+  height: 3.5rem;
   border: 0;
   outline: transparent;
   cursor: pointer;
   font-family: var(--font-heading);
   font-weight: 700;
-  font-size: clamp(1.25rem, 4.4vw, 1.6rem);
-  line-height: 4.4rem;
-  letter-spacing: 0.14em;
+  font-size: clamp(1rem, 3.4vw, 1.25rem);
+  line-height: 3.5rem;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: #fff;
-  background: linear-gradient(45deg, transparent 5%, var(--btn-fill) 5%);
-  box-shadow: 6px 0 0 var(--btn-edge);
+  /* Dark ink on a neon surface — white on #00d9ff is ~1.3:1. */
+  color: #04070e;
+  /* Same direction of travel as the wordmark: light at the top, cyan below. */
+  background: linear-gradient(to bottom, #a5eeff 0%, var(--btn-fill) 58%);
+  clip-path: polygon(
+    var(--cut) 0,
+    calc(100% - var(--cut)) 0,
+    100% var(--cut),
+    100% calc(100% - var(--cut)),
+    calc(100% - var(--cut)) 100%,
+    var(--cut) 100%,
+    0 calc(100% - var(--cut)),
+    0 var(--cut)
+  );
 }
 
 .gc-glitch-btn::after {
@@ -544,7 +970,7 @@ input, textarea, select {
     var(--btn-edge) 5%,
     var(--btn-fill) 5%
   );
-  text-shadow: -3px -3px 0 #04070e, 3px 3px 0 var(--btn-edge);
+  text-shadow: -2px -2px 0 #04070e, 2px 2px 0 var(--btn-edge);
   clip-path: var(--slice-0);
 }
 
@@ -552,22 +978,20 @@ input, textarea, select {
 .gc-glitch-btn:focus-visible::after {
   animation: gc-btn-glitch 1s steps(2, end);
 }
-/* Keyboard users get the same signal the mouse gets, plus a visible ring. */
-.gc-glitch-btn:focus-visible {
-  box-shadow: 6px 0 0 var(--btn-edge), 0 0 0 3px rgba(255, 255, 255, 0.85);
-}
 
+/* Displacement is scaled to the smaller slab — the old ±20px throws read as a
+   stutter at this width instead of a tear. */
 @keyframes gc-btn-glitch {
-  0%   { clip-path: var(--slice-1); transform: translate(-20px, -10px); }
-  10%  { clip-path: var(--slice-3); transform: translate(10px, 10px); }
-  20%  { clip-path: var(--slice-1); transform: translate(-10px, 10px); }
-  30%  { clip-path: var(--slice-3); transform: translate(0, 5px); }
-  40%  { clip-path: var(--slice-2); transform: translate(-5px, 0); }
-  50%  { clip-path: var(--slice-3); transform: translate(5px, 0); }
-  60%  { clip-path: var(--slice-4); transform: translate(5px, 10px); }
-  70%  { clip-path: var(--slice-2); transform: translate(-10px, 10px); }
-  80%  { clip-path: var(--slice-5); transform: translate(20px, -10px); }
-  90%  { clip-path: var(--slice-1); transform: translate(-10px, 0); }
+  0%   { clip-path: var(--slice-1); transform: translate(-12px, -6px); }
+  10%  { clip-path: var(--slice-3); transform: translate(6px, 6px); }
+  20%  { clip-path: var(--slice-1); transform: translate(-6px, 6px); }
+  30%  { clip-path: var(--slice-3); transform: translate(0, 3px); }
+  40%  { clip-path: var(--slice-2); transform: translate(-3px, 0); }
+  50%  { clip-path: var(--slice-3); transform: translate(3px, 0); }
+  60%  { clip-path: var(--slice-4); transform: translate(3px, 6px); }
+  70%  { clip-path: var(--slice-2); transform: translate(-6px, 6px); }
+  80%  { clip-path: var(--slice-5); transform: translate(12px, -6px); }
+  90%  { clip-path: var(--slice-1); transform: translate(-6px, 0); }
   100% { clip-path: var(--slice-1); transform: translate(0, 0); }
 }
 

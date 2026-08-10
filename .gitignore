@@ -60,3 +60,9 @@ app/public/images/bg_image.png
 app/public/images/1..png
 app/public/images/bg_imag.png
 app/public/images/bg_img.png
+
+# Tried and dropped as the /mode backdrop, kept in case it comes back:
+# the 618x341 pixel art and its 2x upscale. Nothing ships from these —
+# /mode uses velman-bg.webp/.jpg, from Velman_bg.png above.
+app/public/images/bg2.png
+app/public/images/bg2 (1).png
